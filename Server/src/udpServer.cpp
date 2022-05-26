@@ -18,16 +18,18 @@ void UdpServer::start() {
 
   udp::endpoint remoteEndpoint;
   vector<uint8_t> buffer(10);
-  while(true)
-  {
+  while (true) {
     m_socket.receive_from(boost::asio::buffer(buffer), remoteEndpoint);
 
-    for(const auto & byte:buffer)
-    {
-      std::cout << byte;
+    if (m_processMessageCallback) {
+      m_processMessageCallback(buffer);
     }
-    std::cout << std::endl;
   }
 }
 
 void UdpServer::stop() {}
+
+void UdpServer::setProcessMessageCallback(
+    std::function<void(std::vector<uint8_t> &)> processMessageCallback) {
+  m_processMessageCallback = processMessageCallback;
+}
