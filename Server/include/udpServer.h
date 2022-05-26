@@ -22,4 +22,6 @@ protected:
   boost::asio::ip::udp::socket m_socket;
 
   std::function<void(std::vector<uint8_t> &)> m_processMessageCallback;
+
+  std::vector<std::thread> m_clientThreads;
 };
