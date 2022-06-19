@@ -6,6 +6,10 @@ SET(CMAKE_CXX_STANDARD 17)
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
 
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
 add_subdirectory(Server)
 
 add_executable(server main.cpp)
