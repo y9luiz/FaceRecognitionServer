@@ -1,4 +1,6 @@
 #pragma once
+#include "messageHandler.h"
+
 #include <boost/asio.hpp>
 #include <queue>
 #include <vector>
@@ -11,17 +13,20 @@ public:
   void start();
   void stop();
 
-  void setProcessMessageCallback(
-      std::function<void(std::vector<uint8_t> &)> processMessageCallback);
+  void setMessageHandler(
+      std::unique_ptr<MessageHandler> messageHandler)
+      {
+        m_messageHandler = std::move(messageHandler);
+      }
 
 protected:
   std::string m_url;
   uint16_t m_port;
 
+  std::unique_ptr<MessageHandler> m_messageHandler;
+
   boost::asio::io_context m_ioContext;
   boost::asio::ip::udp::socket m_socket;
-
-  std::function<void(std::vector<uint8_t> &)> m_processMessageCallback;
 
   std::vector<std::thread> m_clientThreads;
 };

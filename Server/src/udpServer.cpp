@@ -1,12 +1,18 @@
 #include "udpServer.h"
 #include <iostream>
+#include <memory>
 
 using std::string;
 using std::vector;
+using std::unique_ptr;
+using std::string;
+using std::exception;
+
 using namespace boost::asio::ip;
 
 UdpServer::UdpServer(const string &url, uint16_t port)
-    : m_url(url), m_port(port), m_socket(m_ioContext) {}
+    : m_url(url), m_port(port), m_socket(m_ioContext) {
+}
 
 UdpServer::~UdpServer() {}
 
@@ -23,13 +29,21 @@ void UdpServer::start() {
     buffer = std::make_unique<vector<uint8_t>>(16);
     m_socket.receive_from(boost::asio::buffer(*buffer), *remoteEndpoint);
 
-    if (m_processMessageCallback) {
+    if (m_messageHandler) {
       m_clientThreads.emplace_back(
-          [this](std::unique_ptr<vector<uint8_t>> buffer,
-                 std::unique_ptr<udp::endpoint> remoteEndpoint) {
-            m_processMessageCallback(*buffer);
-            m_socket.send_to(boost::asio::buffer("Mensagem processada\n"),
-                             *remoteEndpoint);
+          [this](unique_ptr<vector<uint8_t>> buffer,
+                 unique_ptr<udp::endpoint> remoteEndpoint) {
+            try{
+              m_messageHandler->processMessage(std::move(*buffer));
+              m_socket.send_to(boost::asio::buffer("Mensagem processada\n"),
+                              *remoteEndpoint);
+            }
+            catch(exception &e )
+            {
+              const string msg = e.what();
+              m_socket.send_to(boost::asio::buffer(msg),
+                              *remoteEndpoint);
+            }
           },
           std::move(buffer), std::move(remoteEndpoint));
     }
@@ -37,8 +51,3 @@ void UdpServer::start() {
 }
 
 void UdpServer::stop() {}
-
-void UdpServer::setProcessMessageCallback(
-    std::function<void(std::vector<uint8_t> &)> processMessageCallback) {
-  m_processMessageCallback = processMessageCallback;
-}
