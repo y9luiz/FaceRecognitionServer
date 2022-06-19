@@ -13,11 +13,9 @@ public:
   void start();
   void stop();
 
-  void setMessageHandler(
-      std::unique_ptr<MessageHandler> messageHandler)
-      {
-        m_messageHandler = std::move(messageHandler);
-      }
+  void setMessageHandler(std::unique_ptr<MessageHandler> messageHandler) {
+    m_messageHandler = std::move(messageHandler);
+  }
 
 protected:
   std::string m_url;
