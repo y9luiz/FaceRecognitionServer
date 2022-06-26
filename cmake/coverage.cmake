@@ -3,15 +3,15 @@
 set(COVERAGE_ENABLED OFF)
 set_property(GLOBAL PROPERTY COVERAGE_ENABLED)
 
-string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
+string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
-if ((${CMAKE_BUILD_TYPE} STREQUAL "coverage") AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
+if ((${BUILD_TYPE} STREQUAL "coverage") AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
     set(CMAKE_CXX_FLAGS "-fprofile-instr-generate -fcoverage-mapping")
     
     set(COVERAGE_ENABLED ON)
 
     message(STATUS ">>>> COVERAGE BUILD CONFIGURED")
-elseif( (${CMAKE_BUILD_TYPE} STREQUAL "coverage") AND NOT (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
+elseif( (${BUILD_TYPE} STREQUAL "coverage") AND NOT (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
     message(STATUS ">>>> COVERAGE BUILD ARE ENABLE JUST FOR Clang COMPILER")
 else()
     message(STATUS ">>>> COVERAGE BUILD DISABLED")
@@ -40,10 +40,14 @@ function(generateProfrawFile TARGET_NAME)
         message(FATAL_ERROR ">>>> COVERAGE NOT ENABLED")
     endif()
 
+    if (WIN32)    
+        set(EXECUTABLE_NAME ${TARGET_NAME}.exe)
+    endif()
+
     add_custom_command(
         TARGET  ${TARGET_NAME}
         POST_BUILD
-        COMMAND  ./${TARGET_NAME}.exe)
+        COMMAND  ./${EXECUTABLE_NAME})
 endfunction(generateProfrawFile)
 
 function(generateProfDataFile TARGET_NAME PROF_RAW_FILENAME PROF_DATA_FILENAME)

@@ -3,3 +3,5 @@ add_library(${PROJECT_NAME}::MessageHandler ALIAS MessageHandler)
 
 target_include_directories(MessageHandler PUBLIC include)
 target_link_libraries(MessageHandler ${Boost_LIBRARIES})
+
+add_subdirectory(test)

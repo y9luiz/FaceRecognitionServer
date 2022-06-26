@@ -1,0 +1,5 @@
+add_executable(test_message_handler test_message_handler.cpp)
+
+target_link_libraries(test_message_handler ${PROJECT_NAME}::MessageHandler gmock_main)
+
+addToCoverageReport(test_message_handler)

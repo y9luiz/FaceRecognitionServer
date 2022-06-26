@@ -8,6 +8,9 @@ using std::vector;
 
 void MessageHandler::registerCallback(
     uint8_t code, function<void(vector<uint8_t> &&)> callback) {
+  if (!callback) {
+    throw invalid_argument("Could not register null callback");
+  }
   m_messageHandlerCallbackMap[code] = callback;
 }
 
