@@ -3,12 +3,17 @@ project(FaceRecognitionServer)
 
 SET(CMAKE_CXX_STANDARD 17)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
+
+include(gtest)
+include(coverage)
 
 add_subdirectory(Server)
 
