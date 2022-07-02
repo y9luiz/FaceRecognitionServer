@@ -40,9 +40,12 @@ function(generateProfrawFile TARGET_NAME)
         message(FATAL_ERROR ">>>> COVERAGE NOT ENABLED")
     endif()
 
+    set(EXECUTABLE_NAME ${TARGET_NAME})
+    
     if (WIN32)    
         set(EXECUTABLE_NAME ${TARGET_NAME}.exe)
     endif()
+
 
     add_custom_command(
         TARGET  ${TARGET_NAME}
