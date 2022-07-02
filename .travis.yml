@@ -1,24 +1,12 @@
-addons:
-  apt:
-    sources:
-      - george-edison55-precise-backports
-    packages:
-      - cmake-data
-      - cmake
-      
 language: cpp
 sudo: required
-dist: bionic
+services: 
+  - docker
+dist: focal
 compiler:
-- clang
-os:
-- linux
-before_install:
--echo $LANG
-- echo $LC_ALL
-- if [ $TRAVIS_OS_NAME == linux ]; then ./scripts/dependencies.sh; fi
-- if [ $TRAVIS_OS_NAME == linux ]; then bash build.sh; fi
+  - clang
 
-branches:
-  only:
-  - master
+before_install:
+  - docker build -t y9luiz/face-recognition-server  .
+script:
+  - docker run  y9luiz/face-recognition-server scripts/run_tests.sh
