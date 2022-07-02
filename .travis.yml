@@ -1,12 +1,12 @@
 language: cpp
 sudo: required
-dist: bionic
+services: 
+  - docker
+dist: focal
 compiler:
-- clang
-os:
-- linux
+  - clang
+
 before_install:
-- echo $LANG
-- echo $LC_ALL
+  - docker build -t y9luiz/face-recognition-server -f ./Dockerfile
 script:
-./build.sh
+  - docker run  y9luiz/face-recognition-server scripts/run_tests.sh

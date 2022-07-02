@@ -1,6 +1,10 @@
+#!/bin/bash
 echo "INSTALLING DEPENDENCIES"
 
-sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-sudo apt-get -q update
-sudo apt-get -y install clang
-sudo apt-get install -y libc++-dev libc++abi-dev libboost-all-dev
+apt-get update
+apt-get install -y clang
+apt-get install -y cmake
+apt-get install -y libboost-dev
+apt-get install -y libboost-system-dev
+apt-get install -y libboost-date-time-dev
+apt-get install -y ninja-build
