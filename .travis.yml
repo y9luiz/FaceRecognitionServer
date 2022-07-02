@@ -7,6 +7,7 @@ compiler:
   - clang
 
 before_install:
-  - docker build -t y9luiz/face-recognition-server  .
+  - docker build -t y9luiz/face-recognition-server  -f "Dockerfile"
+  - docker build -t y9luiz/face-recognition-server  -f "Dockerfile.CodeCoverage"
 script:
   - docker run  y9luiz/face-recognition-server scripts/run_tests.sh

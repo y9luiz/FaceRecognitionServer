@@ -16,4 +16,4 @@ WORKDIR /home/faceRecognitionServer
 
 COPY . .
 
-RUN bash scripts/build_coverage.sh
+RUN bash scripts/build_debug.sh
