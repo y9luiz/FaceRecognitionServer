@@ -4,6 +4,7 @@ LABEL maintainer="y9luiz"
 
 RUN apt-get update
 RUN apt-get install -y clang
+RUN apt-get install -y llvm
 RUN apt-get install -y cmake
 RUN apt-get install -y libboost-dev
 RUN apt-get install -y libboost-system-dev
@@ -16,4 +17,4 @@ WORKDIR /home/faceRecognitionServer
 
 COPY . .
 
-RUN bash scripts/build_debug.sh
+RUN bash scripts/build_coverage.sh
