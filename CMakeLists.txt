@@ -19,7 +19,12 @@ endif()
 include(gtest)
 include(coverage)
 
+add_subdirectory(Common)
 add_subdirectory(Server)
+add_subdirectory(Client)
 
-add_executable(server main.cpp)
-target_link_libraries(server ${PROJECT_NAME}::Server ${Boost_LIBRARIES} Threads::Threads)
+add_executable(server server.cpp)
+target_link_libraries(server ${PROJECT_NAME}::Server)
+
+add_executable(client client.cpp)
+target_link_libraries(client ${PROJECT_NAME}::Client)

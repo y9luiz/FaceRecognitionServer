@@ -3,6 +3,8 @@
 #include <memory>
 
 using std::exception;
+using std::make_unique;
+using std::move;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -20,11 +22,11 @@ void UdpServer::start() {
   m_socket.open(localEndpoint.protocol());
   m_socket.bind(localEndpoint);
 
-  std::unique_ptr<udp::endpoint> remoteEndpoint;
-  std::unique_ptr<vector<uint8_t>> buffer;
+  unique_ptr<udp::endpoint> remoteEndpoint;
+  unique_ptr<vector<uint8_t>> buffer;
   while (true) {
-    remoteEndpoint = std::make_unique<udp::endpoint>();
-    buffer = std::make_unique<vector<uint8_t>>(16);
+    remoteEndpoint = make_unique<udp::endpoint>();
+    buffer = make_unique<vector<uint8_t>>(16);
     m_socket.receive_from(boost::asio::buffer(*buffer), *remoteEndpoint);
 
     if (m_messageHandler) {
@@ -32,7 +34,7 @@ void UdpServer::start() {
           [this](unique_ptr<vector<uint8_t>> buffer,
                  unique_ptr<udp::endpoint> remoteEndpoint) {
             try {
-              m_messageHandler->processMessage(std::move(*buffer));
+              m_messageHandler->processMessage(move(*buffer));
               m_socket.send_to(boost::asio::buffer("Mensagem processada\n"),
                                *remoteEndpoint);
             } catch (exception &e) {
@@ -40,7 +42,7 @@ void UdpServer::start() {
               m_socket.send_to(boost::asio::buffer(msg), *remoteEndpoint);
             }
           },
-          std::move(buffer), std::move(remoteEndpoint));
+          move(buffer), move(remoteEndpoint));
     }
   }
 }
