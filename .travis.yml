@@ -9,6 +9,7 @@ jobs:
     os: windows
   include:
      os: osx
+     osx_image: xcode13.3	
 
 compiler:
   - clang
