@@ -13,8 +13,8 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker build -t y9luiz/face-recognition-server  -f "Dockerfile" . ;  fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker build -t y9luiz/face-recognition-server  -f "Dockerfile.CodeCoverage" . ; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then  
-      PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'
-      PowerShell ./scripts/build_windows.ps1 ;
+      powershell -c "Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine"
+      powershell ./scripts/build_windows.ps1 ;
     fi
 
 script:
