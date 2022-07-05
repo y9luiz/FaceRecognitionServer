@@ -1,5 +1,8 @@
 language: cpp
-sudo: required
+os:
+  - linux
+  - windows
+
 services: 
   - docker
 dist: focal
@@ -7,8 +10,9 @@ compiler:
   - clang
 
 before_install:
-  - docker build -t y9luiz/face-recognition-server  -f "Dockerfile" .
-  - docker build -t y9luiz/face-recognition-server  -f "Dockerfile.CodeCoverage" .
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker build -t y9luiz/face-recognition-server  -f "Dockerfile" . ;  fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker build -t y9luiz/face-recognition-server  -f "Dockerfile.CodeCoverage" . ; fi
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then ./scripts/build_windows.ps1 ; fi
 
 script:
-  - docker run  y9luiz/face-recognition-server scripts/run_tests.sh
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker run  y9luiz/face-recognition-server scripts/run_tests.sh ; fi
