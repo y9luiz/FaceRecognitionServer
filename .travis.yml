@@ -14,7 +14,6 @@ jobs:
       homebrew:
         packages:
         - boost
-        update: true
 
 compiler:
   - clang

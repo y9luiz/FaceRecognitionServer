@@ -23,8 +23,8 @@ add_subdirectory(Common)
 add_subdirectory(Server)
 add_subdirectory(Client)
 
-add_executable(server server.cpp)
-target_link_libraries(server ${PROJECT_NAME}::Server)
+add_executable(${PROJECT_NAME} server.cpp)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}::Server)
 
-add_executable(client client.cpp)
-target_link_libraries(client ${PROJECT_NAME}::Client)
+add_executable(FaceRecognitionClient client.cpp)
+target_link_libraries(FaceRecognitionClient ${PROJECT_NAME}::Client)
