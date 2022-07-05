@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "INSTALLING DEPENDENCIES"
-
+brew update
 brew install -y clang
 brew install -y cmake
 brew install -y libboost-dev
