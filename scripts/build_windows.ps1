@@ -13,8 +13,9 @@ function BuildProject {
     cmake --build .
 }
 
-$CHOCO_VERSION = (choco -v) -replace "`n"," " -replace "`r",", "
-if($CHOCO_VERSION){
+$CHOCO_VERSION = choco -v
+
+if ($CHOCO_VERSION) {
     echo "Chocolatey version: " $CHOCO_VERSION
 
     InstallDependencies
