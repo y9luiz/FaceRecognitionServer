@@ -1,12 +1,15 @@
 language: cpp
-os:
-  - linux
-  - windows
-  - osx
-
-services: 
-  - docker
-dist: focal
+jobs:
+  include:
+    os: linux
+    dist: focal
+    services: 
+    - docker
+  include:
+    os: windows
+  include:
+     os: osx
+     
 compiler:
   - clang
 
