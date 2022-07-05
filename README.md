@@ -1,6 +1,7 @@
-# FaceRecognitionServer
+# FaceRecognitionServer - C++ server for face recognition [![Build Status](https://app.travis-ci.com/y9luiz/FaceRecognitionServer.svg?token=fPusPkh6wzzikQNicthZ&branch=master)](https://app.travis-ci.com/y9luiz/FaceRecognitionServer)
 
-You can watch the development of this project on my Youtube Channel [Youtube Channel](https://www.youtube.com/channel/UCSSw2imkxpZ-_8PPds_5sQA)
+
+You can watch the development of this project on my [Youtube Channel](https://www.youtube.com/channel/UCSSw2imkxpZ-_8PPds_5sQA)
 
 ## Enviroment Setup
 
