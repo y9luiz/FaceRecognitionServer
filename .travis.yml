@@ -10,6 +10,11 @@ jobs:
   include:
      os: osx
      osx_image: xcode13.3	
+     addons:
+      homebrew:
+        packages:
+        - boost
+        update: true
 
 compiler:
   - clang
@@ -19,7 +24,6 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then docker build -t y9luiz/face-recognition-server  -f "Dockerfile.CodeCoverage" . ; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then  PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned' ; fi
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then PowerShell ./scripts/build_windows.ps1 ; fi
-  - if [ "$TRAVIS_OS_NAME"  = "osx" ]; then bash ./scripts/dependencies_macos.sh ; fi
   - if [ "$TRAVIS_OS_NAME"  = "osx" ]; then bash ./scripts/build_release.sh ; fi
 
 script:
