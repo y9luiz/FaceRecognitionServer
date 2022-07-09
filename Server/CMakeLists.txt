@@ -9,4 +9,5 @@ target_link_libraries(Server
         ${Boost_LIBRARIES} 
         Threads::Threads 
         ${PROJECT_NAME}::MessageHandler
+        ${PROJECT_NAME}::Common
 )
