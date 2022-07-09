@@ -8,4 +8,5 @@ target_link_libraries(Client
     PUBLIC 
         ${Boost_LIBRARIES} 
         Threads::Threads
+        ${PROJECT_NAME}::Common
 )

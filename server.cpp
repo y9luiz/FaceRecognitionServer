@@ -5,9 +5,10 @@ using namespace std;
 
 int main() {
 
-  UdpServer server("127.0.0.1", 5000);
+  unique_ptr<UdpServer> server = nullptr;
 
   try {
+    server = make_unique<UdpServer>("127.0.0.1", 5000);
     auto messageHandler = std::make_unique<MessageHandler>();
     messageHandler->registerCallback('a', [](std::vector<uint8_t> &&buffer) {
       const auto threadId = this_thread::get_id();
@@ -27,12 +28,12 @@ int main() {
       cout << "callback B\n";
     });
 
-    server.setMessageHandler(std::move(messageHandler));
+    server->setMessageHandler(std::move(messageHandler));
 
-    server.start();
+    server->start();
   } catch (const exception &e) {
 
-    server.stop();
+    server->stop();
 
     cout << e.what() << endl;
   }

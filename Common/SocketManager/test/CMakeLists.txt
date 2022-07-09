@@ -1,0 +1,5 @@
+add_executable(test_socket_manager test_socket_manager.cpp)
+target_link_libraries(test_socket_manager gmock_main ${PROJECT_NAME}::SocketManager)
+
+addToCoverageReport(test_socket_manager)
+gtest_discover_tests(test_socket_manager)

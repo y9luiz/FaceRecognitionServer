@@ -1,5 +1,6 @@
 #pragma once
 #include "messageHandler.h"
+#include "socketManager.h"
 
 #include <boost/asio.hpp>
 #include <queue>
@@ -23,8 +24,8 @@ protected:
 
   std::unique_ptr<MessageHandler> m_messageHandler;
 
-  boost::asio::io_context m_ioContext;
-  boost::asio::ip::udp::socket m_socket;
+  std::unique_ptr<SocketManager> m_socketManager;
 
+  boost::asio::io_context m_ioContext;
   std::vector<std::thread> m_clientThreads;
 };
