@@ -1,6 +1,6 @@
 #pragma once
 
-#include <socketManager.h>
+#include <udpSocketFactory.h>
 
 #include <boost/asio.hpp>
 #include <memory>
@@ -15,8 +15,7 @@ public:
   std::vector<uint8_t> receiveMessage();
 
 private:
-  std::unique_ptr<SocketManager> m_socketManager;
-
+  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
   boost::asio::io_context m_ioContext;
   boost::asio::ip::udp::endpoint m_remoteEndpoint;
 };

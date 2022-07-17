@@ -1,6 +1,6 @@
 #pragma once
 #include "messageHandler.h"
-#include "socketManager.h"
+#include "udpSocketFactory.h"
 
 #include <boost/asio.hpp>
 #include <queue>
@@ -8,7 +8,7 @@
 
 class UdpServer {
 public:
-  UdpServer(const std::string &url, uint16_t port);
+  UdpServer(const std::string &ip, uint16_t port);
   ~UdpServer();
 
   void start();
@@ -19,13 +19,12 @@ public:
   }
 
 protected:
-  std::string m_url;
+  std::string m_ip;
   uint16_t m_port;
 
   std::unique_ptr<MessageHandler> m_messageHandler;
 
-  std::unique_ptr<SocketManager> m_socketManager;
-
+  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
   boost::asio::io_context m_ioContext;
   std::vector<std::thread> m_clientThreads;
 };

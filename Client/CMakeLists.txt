@@ -8,5 +8,8 @@ target_link_libraries(Client
     PUBLIC 
         ${Boost_LIBRARIES} 
         Threads::Threads
+    PRIVATE
         ${PROJECT_NAME}::Common
 )
+
+add_subdirectory(test)

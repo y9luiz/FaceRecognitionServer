@@ -24,7 +24,7 @@ add_subdirectory(Server)
 add_subdirectory(Client)
 
 add_executable(server server.cpp)
-target_link_libraries(server ${PROJECT_NAME}::Server)
+target_link_libraries(server ${PROJECT_NAME}::Server  ${PROJECT_NAME}::Common)
 
 add_executable(client client.cpp)
-target_link_libraries(client ${PROJECT_NAME}::Client)
+target_link_libraries(client ${PROJECT_NAME}::Client ${PROJECT_NAME}::Common)
