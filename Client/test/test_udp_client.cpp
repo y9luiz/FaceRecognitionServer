@@ -7,9 +7,7 @@
 
 namespace {
 const auto DefaultIpAddress = "127.0.0.1";
-const auto InvalidIpAddress = "amkamka";
 const auto DefaultPort = 5000;
-const auto InvalidPort = -1;
 } // namespace
 
 using namespace testing;
@@ -22,13 +20,9 @@ class TestUdpClient : public Test {
 public:
   TestUdpClient() {}
 
-  void createUuTWithInvalidIp() {
-    m_uut = make_unique<UdpClient>(InvalidIpAddress, DefaultPort);
+  void createUut() {
+    m_uut = make_unique<UdpClient>(DefaultIpAddress, DefaultPort);
   }
 
   unique_ptr<UdpClient> m_uut;
 };
-
-TEST_F(TestUdpClient, ShouldThrowWithInvalidAddr) {
-  EXPECT_THROW(createUuTWithInvalidIp(), std::exception);
-}

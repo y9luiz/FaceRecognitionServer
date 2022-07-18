@@ -1,21 +1,29 @@
 #include "udpSocketFactory.h"
+#include <memory>
+
+using std::make_unique;
+using std::unique_ptr;
 
 UdpSocketFactory::UdpSocketFactory(boost::asio::io_context &ioContext)
     : m_ioContext(ioContext) {}
 
-UdpSocketFactory::UdpSocket
+unique_ptr<UdpSocketFactory::UdpSocket>
 UdpSocketFactory::createAndOpenSocket(Udp ipProtocol) {
-  UdpSocketFactory::UdpSocket socket(m_ioContext);
-  openSocket(socket, ipProtocol);
+  unique_ptr<UdpSocketFactory::UdpSocket> socket =
+      make_unique<UdpSocketFactory::UdpSocket>(m_ioContext);
+
+  openSocket(*socket, ipProtocol);
 
   return socket;
 }
 
-UdpSocketFactory::UdpSocket
+unique_ptr<UdpSocketFactory::UdpSocket>
 UdpSocketFactory::createOpenAndBindSocket(Udp::endpoint endpoint) {
-  UdpSocketFactory::UdpSocket socket(m_ioContext);
-  openSocket(socket, endpoint.protocol());
-  bindSocket(socket, endpoint);
+  unique_ptr<UdpSocketFactory::UdpSocket> socket =
+      make_unique<UdpSocketFactory::UdpSocket>(m_ioContext);
+
+  openSocket(*socket, endpoint.protocol());
+  bindSocket(*socket, endpoint);
 
   return socket;
 }

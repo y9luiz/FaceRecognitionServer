@@ -9,8 +9,8 @@ public:
 
   UdpSocketFactory(boost::asio::io_context &ioContext);
 
-  UdpSocket createAndOpenSocket(Udp ipProtocol);
-  UdpSocket createOpenAndBindSocket(Udp::endpoint endpoint);
+  std::unique_ptr<UdpSocket> createAndOpenSocket(Udp ipProtocol);
+  std::unique_ptr<UdpSocket> createOpenAndBindSocket(Udp::endpoint endpoint);
 
 protected:
   void openSocket(UdpSocket &socket, Udp ipProtocol);

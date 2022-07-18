@@ -1,6 +1,5 @@
 #pragma once
 
-#include "boost/asio/ip/udp.hpp"
 #include "udpSocketFactory.h"
 
 #include <gmock/gmock.h>
@@ -11,8 +10,9 @@ public:
   MockUdpSocketFactory();
   virtual ~MockUdpSocketFactory();
 
-  MOCK_METHOD(UdpSocketFactory::UdpSocket, createAndOpenSocket,
+  MOCK_METHOD(void, constructor, (boost::asio::io_context &));
+  MOCK_METHOD(std::unique_ptr<UdpSocketFactory::UdpSocket>, createAndOpenSocket,
               (boost::asio::ip::udp));
-  MOCK_METHOD(UdpSocketFactory::UdpSocket, createOpenAndBindSocket,
-              (boost::asio::ip::udp::endpoint));
+  MOCK_METHOD(std::unique_ptr<UdpSocketFactory::UdpSocket>,
+              createOpenAndBindSocket, (boost::asio::ip::udp::endpoint));
 };

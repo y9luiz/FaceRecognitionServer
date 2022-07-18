@@ -8,8 +8,7 @@ using std::vector;
 UdpClient::UdpClient(const string &url, uint16_t port)
     : m_remoteEndpoint(boost::asio::ip::address::from_string(url), port) {
   UdpSocketFactory socketFactory(m_ioContext);
-  m_socket = make_unique<UdpSocketFactory::UdpSocket>(
-      socketFactory.createAndOpenSocket(m_remoteEndpoint.protocol()));
+  m_socket = socketFactory.createAndOpenSocket(m_remoteEndpoint.protocol());
 }
 
 void UdpClient::sendMessage(vector<uint8_t> &&message) {

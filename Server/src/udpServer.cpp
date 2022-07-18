@@ -16,9 +16,8 @@ using namespace boost::asio::ip;
 
 UdpServer::UdpServer(const string &ip, uint16_t port) : m_ip(ip), m_port(port) {
   UdpSocketFactory socketFactory(m_ioContext);
-  m_socket = make_unique<UdpSocketFactory::UdpSocket>(
-      socketFactory.createOpenAndBindSocket(
-          udp::endpoint(address::from_string(ip), port)));
+  m_socket = socketFactory.createOpenAndBindSocket(
+      udp::endpoint(address::from_string(ip), port));
 }
 UdpServer::~UdpServer() {}
 

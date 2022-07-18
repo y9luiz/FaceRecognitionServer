@@ -26,16 +26,3 @@ public:
 
   unique_ptr<UdpSocketFactory> m_uut;
 };
-
-TEST_F(TestUdpSocketFactory, createAndOpenSocketUsingIpV4) {
-  // m_uut->createAndOpenSocket(boost::asio::ip::udp::v4());
-}
-/*
-TEST_F(TestUdpSocketFactory, createAndOpenSocketUsingIpV6) {
-  m_uut->createAndOpenSocket(boost::asio::ip::udp::v4());
-}
-
-TEST_F(TestUdpSocketFactory, createOpenAndBindSocke) {
-
-  m_uut->createOpenAndBindSocket(m_endpoint);
-}*/
