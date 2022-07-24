@@ -26,3 +26,12 @@ public:
 
   unique_ptr<UdpSocketFactory> m_uut;
 };
+
+TEST_F(TestUdpSocketFactory, createAndOpenSocket) {
+  m_uut->createAndOpenSocket(boost::asio::ip::udp::v4());
+}
+
+TEST_F(TestUdpSocketFactory, createOpenAndBindSocket) {
+  m_uut->createOpenAndBindSocket(boost::asio::ip::udp::endpoint(
+      boost::asio::ip::address::from_string(DefaultUrl), DefaultPort));
+}
