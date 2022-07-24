@@ -1,0 +1,5 @@
+add_executable(test_udp_socket_factory test_udp_socket_factory.cpp)
+target_link_libraries(test_udp_socket_factory gmock_main ${PROJECT_NAME}::UdpSocketFactory)
+
+addToCoverageReport(test_udp_socket_factory)
+gtest_discover_tests(test_udp_socket_factory)

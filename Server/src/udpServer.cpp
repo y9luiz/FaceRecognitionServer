@@ -1,6 +1,8 @@
 #include "udpServer.h"
-#include "socketManager.h"
-#include <iostream>
+#include "boost/asio/ip/address.hpp"
+#include "boost/asio/ip/udp.hpp"
+#include "udpSocketFactory.h"
+
 #include <memory>
 
 using std::exception;
@@ -12,10 +14,10 @@ using std::vector;
 
 using namespace boost::asio::ip;
 
-UdpServer::UdpServer(const string &url, uint16_t port)
-    : m_url(url), m_port(port) {
-  m_socketManager = make_unique<SocketManager>(
-      m_ioContext, udp::endpoint(make_address(url), port), true);
+UdpServer::UdpServer(const string &ip, uint16_t port) : m_ip(ip), m_port(port) {
+  UdpSocketFactory socketFactory(m_ioContext);
+  m_socket = socketFactory.createOpenAndBindSocket(
+      udp::endpoint(address::from_string(ip), port));
 }
 UdpServer::~UdpServer() {}
 
@@ -25,8 +27,7 @@ void UdpServer::start() {
   while (true) {
     remoteEndpoint = make_unique<udp::endpoint>();
     buffer = make_unique<vector<uint8_t>>(16);
-    m_socketManager->socket().receive_from(boost::asio::buffer(*buffer),
-                                           *remoteEndpoint);
+    m_socket->receive_from(boost::asio::buffer(*buffer), *remoteEndpoint);
 
     if (m_messageHandler) {
       m_clientThreads.emplace_back(
@@ -34,13 +35,11 @@ void UdpServer::start() {
                  unique_ptr<udp::endpoint> remoteEndpoint) {
             try {
               m_messageHandler->processMessage(move(*buffer));
-              m_socketManager->socket().send_to(
-                  boost::asio::buffer("Mensagem processada\n"),
-                  *remoteEndpoint);
+              m_socket->send_to(boost::asio::buffer("Mensagem processada\n"),
+                                *remoteEndpoint);
             } catch (exception &e) {
               const string msg = e.what();
-              m_socketManager->socket().send_to(boost::asio::buffer(msg),
-                                                *remoteEndpoint);
+              m_socket->send_to(boost::asio::buffer(msg), *remoteEndpoint);
             }
           },
           move(buffer), move(remoteEndpoint));
