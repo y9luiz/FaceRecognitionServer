@@ -5,7 +5,7 @@ jobs:
     dist: focal
     services: 
     - docker
-  exclude:
+  include:
     os: windows
   exclude:
      os: osx
