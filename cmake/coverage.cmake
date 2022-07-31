@@ -3,7 +3,11 @@
 set(COVERAGE_ENABLED OFF)
 set_property(GLOBAL PROPERTY COVERAGE_ENABLED)
 
-string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "")
+    string(TOLOWER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+else()
+    set(BUILD_TYPE "Debug")
+endif(NOT CMAKE_BUILD_TYPE STREQUAL "")
 
 if ((${BUILD_TYPE} STREQUAL "coverage") AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang"))
     set(CMAKE_CXX_FLAGS "-fprofile-instr-generate -fcoverage-mapping")

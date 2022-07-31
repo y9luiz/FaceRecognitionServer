@@ -3,6 +3,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include <stdint.h>
 
 class MessageHandler {
 public:
