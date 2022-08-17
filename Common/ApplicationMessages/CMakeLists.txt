@@ -4,3 +4,4 @@ add_library(${PROJECT_NAME}::ApplicationMessages ALIAS ApplicationMessages)
 target_include_directories(ApplicationMessages PUBLIC include)
 
 add_subdirectory(test)
+add_subdirectory(mock)
