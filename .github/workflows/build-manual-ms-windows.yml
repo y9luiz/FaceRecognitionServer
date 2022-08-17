@@ -1,10 +1,7 @@
-name: Build MS Windows
+name: Manual Build MS Windows
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch
 
 jobs:
 
@@ -14,5 +11,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build on Windows
+    - name: Manual Build on Windows
       run:  PowerShell ./scripts/build_windows.ps1

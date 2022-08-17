@@ -1,10 +1,7 @@
 name: Build ubuntu 20-04 Code Coverage
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_dispatch
 
 jobs:
 
