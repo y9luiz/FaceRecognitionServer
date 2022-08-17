@@ -1,11 +1,12 @@
 name: Build ubuntu 20-04 Debug
 
 on:
+  workflow_dispatch
+
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  workflow_dispatch:
 
 jobs:
 
