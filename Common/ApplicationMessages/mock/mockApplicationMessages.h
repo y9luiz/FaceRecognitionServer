@@ -2,9 +2,8 @@
 
 #include "applicationMessages.h"
 
-#include <vector>
-
 #include <gmock/gmock.h>
+#include <vector>
 
 class MockApplicationMessage {
 public:

@@ -1,6 +1,5 @@
 #include "applicationMessages.h"
 
-#include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <memory>
 #include <stdexcept>
