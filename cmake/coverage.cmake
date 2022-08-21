@@ -36,6 +36,8 @@ function (addToCoverageReport TARGET_NAME)
         generateProfDataFile(${TARGET_NAME} ${PROF_RAW_FILENAME} ${PROF_DATA_FILENAME})
 
         generateHtmlPageFromProfileFile(${TARGET_NAME} ${PROF_DATA_FILENAME})
+
+        generateReportFile(${TARGET_NAME} ${PROF_DATA_FILENAME})
     endif()
 endfunction(addToCoverageReport)
 
@@ -78,3 +80,12 @@ function(generateHtmlPageFromProfileFile TARGET_NAME PROF_DATA_FILENAME)
             COMMAND  llvm-cov show ${EXECUTABLE_NAME} -instr-profile=${PROF_DATA_FILENAME} -format=html -ignore-filename-regex='test|mock' > ${HTML_PAGE_FILENAME}
             POST_BUILD)
 endfunction(generateHtmlPageFromProfileFile)
+
+function(generateReportFile TARGET_NAME PROF_DATA_FILENAME)
+    set(REPORT_FILENAME CodeCoverage_${TARGET_NAME})
+
+    add_custom_command(
+            TARGET ${TARGET_NAME}
+            COMMAND  llvm-cov report -instr-profile=${PROF_DATA_FILENAME} -ignore-filename-regex='test|mock' ${TARGET_NAME} | tee ${CMAKE_CURRENT_BINARY_DIR}/${REPORT_FILENAME}.txt
+            POST_BUILD)
+endfunction(generateReportFile)
