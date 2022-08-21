@@ -75,6 +75,6 @@ function(generateHtmlPageFromProfileFile TARGET_NAME PROF_DATA_FILENAME)
 
     add_custom_command(
             TARGET ${TARGET_NAME}
-            COMMAND  llvm-cov show ${EXECUTABLE_NAME} -instr-profile=${PROF_DATA_FILENAME} -format=html -ignore-filename-regex="boost" > ${HTML_PAGE_FILENAME}
+            COMMAND  llvm-cov show ${EXECUTABLE_NAME} -instr-profile=${PROF_DATA_FILENAME} -format=html -ignore-filename-regex='test|mock' > ${HTML_PAGE_FILENAME}
             POST_BUILD)
 endfunction(generateHtmlPageFromProfileFile)
