@@ -1,5 +1,5 @@
 #include "udpClient.h"
-#include <mockUdpSocketFactory.h>
+#include <mockUdpSocket.h>
 
 #include <boost/asio/io_context.hpp>
 #include <boost/system/system_error.hpp>
@@ -22,10 +22,8 @@ using std::unique_ptr;
 class TestUdpClient : public Test {
 public:
   TestUdpClient() {
-    EXPECT_CALL(m_mockUdpSocketFactory, constructor(_));
-    EXPECT_CALL(m_mockUdpSocketFactory, createAndOpenSocket(_))
-        .WillOnce(Return(
-            ByMove(make_unique<boost::asio::ip::udp::socket>(m_ioContext))));
+    EXPECT_CALL(m_mockUdpSocket, constructor(_));
+    EXPECT_CALL(m_mockUdpSocket, open);
 
     createUut();
   }
@@ -34,16 +32,17 @@ public:
     m_uut = make_unique<UdpClient>(DefaultIpAddress, DefaultPort);
   }
 
-  MockUdpSocketFactory m_mockUdpSocketFactory;
+  NiceMock<MockUdpSocket> m_mockUdpSocket;
 
-  io_context m_ioContext;
   unique_ptr<UdpClient> m_uut;
 };
 
 TEST_F(TestUdpClient, sendMessage) {
-  EXPECT_THROW(m_uut->sendMessage({}), system_error);
+  EXPECT_CALL(m_mockUdpSocket, sendTo(_, _));
+  m_uut->sendMessage({});
 }
 
 TEST_F(TestUdpClient, receiveMessage) {
-  EXPECT_THROW(m_uut->receiveMessage(), system_error);
+  EXPECT_CALL(m_mockUdpSocket, receiveFrom(_, _));
+  m_uut->receiveMessage();
 }
