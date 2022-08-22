@@ -1,7 +1,7 @@
 #include "udpServer.h"
 
-#include <thread>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -33,10 +33,14 @@ int main() {
     server->setMessageHandler(std::move(messageHandler));
 
     server->start();
+
+    cout << "press enter key to finish the program\n";
+    char key = getchar();
+    if (key == 'q') {
+      server->stop();
+    }
+
   } catch (const exception &e) {
-
-    server->stop();
-
     cout << e.what() << endl;
   }
   return 0;
