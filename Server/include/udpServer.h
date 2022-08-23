@@ -1,8 +1,9 @@
 #pragma once
 
 #include "applicationMessages.h"
-#include "iMessageReceiver.h"
 #include "messageHandler.h"
+#include "messageReceiverInterface.h"
+
 
 #include <boost/asio.hpp>
 #include <memory>
@@ -30,7 +31,7 @@ protected:
   std::string m_ip;
   uint16_t m_port;
 
-  std::unique_ptr<IMessageReceiver> m_messageReceiver;
+  std::unique_ptr<MessageReceiverInterface> m_messageReceiver;
   std::unique_ptr<MessageHandler> m_messageHandler;
 
   boost::asio::io_context m_ioContext;

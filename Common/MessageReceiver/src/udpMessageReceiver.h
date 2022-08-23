@@ -1,10 +1,10 @@
 #pragma once
 
 #include <applicationMessages.h>
-#include <iMessageReceiver.h>
+#include <messageReceiverInterface.h>
 #include <udpSocket.h>
 
-class UdpMessageReceiver : public IMessageReceiver {
+class UdpMessageReceiver : public MessageReceiverInterface {
 public:
   UdpMessageReceiver(std::unique_ptr<UdpSocket> udpSocket);
 

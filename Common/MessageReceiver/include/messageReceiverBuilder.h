@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iMessageReceiver.h"
+#include "messageReceiverInterface.h"
 
 #include <memory>
 
@@ -12,7 +12,7 @@ class MessageReceiverBuilder {
 public:
   MessageReceiverBuilder();
 
-  std::unique_ptr<IMessageReceiver>
+  std::unique_ptr<MessageReceiverInterface>
   createUdpServerMessageReceiver(const Endpoint &localEndpoint);
-  std::unique_ptr<IMessageReceiver> createUdpClientMessageReceiver();
+  std::unique_ptr<MessageReceiverInterface> createUdpClientMessageReceiver();
 };

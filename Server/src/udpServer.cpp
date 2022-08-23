@@ -1,5 +1,4 @@
 #include "udpServer.h"
-#include "iMessageReceiver.h"
 #include "messageReceiverBuilder.h"
 #include <udpSocket.h>
 

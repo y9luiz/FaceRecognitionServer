@@ -1,11 +1,11 @@
-#include "iMessageReceiver.h"
+#include "messageReceiverInterface.h"
 
 #include <stdexcept>
 
 using std::logic_error;
 using std::move;
 
-void IMessageReceiver::start() {
+void MessageReceiverInterface::start() {
   m_isRunning = true;
   while (m_isRunning) {
     auto applicationMessage = receiveMessage();
@@ -13,12 +13,12 @@ void IMessageReceiver::start() {
   }
 }
 
-void IMessageReceiver::setReceiveMessageCallback(
+void MessageReceiverInterface::setReceiveMessageCallback(
     ReceiveMessageCallbackT callback) {
   m_receiveMessageCallback = callback;
 }
 
-void IMessageReceiver::processMessage(ApplicationMessage &&message) {
+void MessageReceiverInterface::processMessage(ApplicationMessage &&message) {
   if (!m_receiveMessageCallback) {
     throw logic_error(
         "Could not process message, message receive callback is null");

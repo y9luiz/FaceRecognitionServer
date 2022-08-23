@@ -12,7 +12,7 @@ using std::unique_ptr;
 
 MessageReceiverBuilder::MessageReceiverBuilder() {}
 
-unique_ptr<IMessageReceiver>
+unique_ptr<MessageReceiverInterface>
 MessageReceiverBuilder::createUdpServerMessageReceiver(
     const Endpoint &localEndpoint) {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
@@ -25,7 +25,7 @@ MessageReceiverBuilder::createUdpServerMessageReceiver(
   return udpMessageReceiver;
 }
 
-unique_ptr<IMessageReceiver>
+unique_ptr<MessageReceiverInterface>
 MessageReceiverBuilder::createUdpClientMessageReceiver() {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
 

@@ -6,13 +6,13 @@
 #include <functional>
 #include <thread>
 
-class IMessageReceiver {
+class MessageReceiverInterface {
 public:
   using ReceiveMessageCallbackT = std::function<void(ApplicationMessage &&)>;
 
   void setReceiveMessageCallback(ReceiveMessageCallbackT callback);
 
-  virtual ~IMessageReceiver() = default;
+  virtual ~MessageReceiverInterface() = default;
 
   void start();
 
