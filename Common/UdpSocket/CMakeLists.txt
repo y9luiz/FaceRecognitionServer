@@ -16,3 +16,4 @@ target_include_directories(
 )
 
 add_subdirectory(mock)
+add_subdirectory(test)

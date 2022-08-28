@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <chrono>
 #include <memory>
 
 struct Endpoint {
@@ -18,19 +19,23 @@ public:
 
   UdpSocket(IpProtocolVersion ipProtocolVersion = IpProtocolVersion::V4);
 
+  bool isOpen() const;
+  bool isBindMode() const;
+
   void bind(const Endpoint &endpoint);
   void open();
 
   std::size_t receiveFrom(std::vector<uint8_t> &buffer,
-                          Endpoint &remoteEndpoint);
+                          Endpoint &remoteEndpoint) const;
 
   std::size_t sendTo(const std::vector<uint8_t> &buffer,
-                     const Endpoint &endpoint);
+                     const Endpoint &endpoint) const;
 
 private:
   IpProtocolVersion m_ipProtocolVersion;
-  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
   boost::asio::ip::udp::endpoint m_endpoint;
-
   boost::asio::io_context m_ioContext;
+  bool m_isBindMode;
+  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
+  const std::chrono::milliseconds m_receiveFromTimeoutMs{2000};
 };

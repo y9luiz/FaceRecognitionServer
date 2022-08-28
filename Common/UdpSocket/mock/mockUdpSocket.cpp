@@ -47,13 +47,14 @@ void UdpSocket::open() {
   g_mock->open();
 }
 
-size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &endpoint) {
+size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer,
+                              Endpoint &endpoint) const {
   assertMockUdpSocketExists();
   return g_mock->receiveFrom(buffer, endpoint);
 }
 
 size_t UdpSocket::sendTo(const vector<uint8_t> &buffer,
-                         const Endpoint &endpoint) {
+                         const Endpoint &endpoint) const {
   assertMockUdpSocketExists();
   return g_mock->sendTo(buffer, endpoint);
 }
