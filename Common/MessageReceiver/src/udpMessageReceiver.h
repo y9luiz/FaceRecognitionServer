@@ -7,9 +7,15 @@
 class UdpMessageReceiver : public MessageReceiverInterface {
 public:
   UdpMessageReceiver(std::unique_ptr<UdpSocket> udpSocket);
+  virtual ~UdpMessageReceiver() override;
 
 protected:
-  virtual ApplicationMessage receiveMessage() override;
+
+  virtual void start() override;
+  
+  virtual void stop() override;
+
+  virtual std::optional<ApplicationMessage> receiveMessage() override;
 
   ApplicationMessage::Header receiveMessageHeader();
 

@@ -19,7 +19,7 @@ MessageReceiverBuilder::createUdpServerMessageReceiver(
 
   socket->bind(localEndpoint);
 
-  unique_ptr<UdpMessageReceiver> udpMessageReceiver =
+  unique_ptr<MessageReceiverInterface> udpMessageReceiver =
       make_unique<UdpMessageReceiver>(move(socket));
 
   return udpMessageReceiver;
@@ -31,7 +31,7 @@ MessageReceiverBuilder::createUdpClientMessageReceiver() {
 
   socket->open();
 
-  unique_ptr<UdpMessageReceiver> udpMessageReceiver =
+  unique_ptr<MessageReceiverInterface> udpMessageReceiver =
       make_unique<UdpMessageReceiver>(move(socket));
 
   return udpMessageReceiver;

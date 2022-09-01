@@ -5,6 +5,7 @@
 #include <atomic>
 #include <functional>
 #include <thread>
+#include <optional>
 
 class MessageReceiverInterface {
 public:
@@ -14,15 +15,20 @@ public:
 
   virtual ~MessageReceiverInterface() = default;
 
-  void start();
+  virtual void start();
+
+  virtual void stop();
+
+  bool isRunning();
 
 protected:
-  virtual ApplicationMessage receiveMessage() = 0;
+
+  virtual std::optional<ApplicationMessage> receiveMessage() = 0;
 
   void processMessage(ApplicationMessage &&message);
 
   ReceiveMessageCallbackT m_receiveMessageCallback;
 
-  std::thread m_receiveMessageThread;
+  std::unique_ptr<std::thread> m_receiveMessageThread;
   std::atomic<bool> m_isRunning;
 };
