@@ -24,7 +24,7 @@ ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {
   m_payloadSize = (bytes[1] | bytes[2] << 8);
 }
 
-std::vector<uint8_t> ApplicationMessage::Header::convertToBytes() {
+vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
   vector<uint8_t> bytes(sizeof(Header));
 
   bytes[0] = m_code;
@@ -44,15 +44,26 @@ ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
        back_inserter(m_payload));
 }
 
-uint8_t ApplicationMessage::code() { return m_header.m_code; }
+uint8_t ApplicationMessage::code() const { return m_header.m_code; }
 
-uint16_t ApplicationMessage::payloadSize() { return m_header.m_payloadSize; }
+uint16_t ApplicationMessage::payloadSize() const {
+  return m_header.m_payloadSize;
+}
+
+ApplicationMessage::Header ApplicationMessage::header() const {
+  return m_header;
+}
 
 vector<uint8_t> &ApplicationMessage::payload() { return m_payload; }
 
-vector<uint8_t> ApplicationMessage::convertToBytes() {
+vector<uint8_t> ApplicationMessage::convertToBytes() const {
   vector<uint8_t> bytes = m_header.convertToBytes();
   copy(m_payload.begin(), m_payload.end(), back_inserter(bytes));
 
   return bytes;
+}
+
+std::size_t ApplicationMessage::size() const
+{
+  return sizeof(Header) + m_payload.size();
 }
