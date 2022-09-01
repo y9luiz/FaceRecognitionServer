@@ -1,19 +1,20 @@
 #include <udpSocket.h>
 
 #include <future>
+#include <memory>
 #include <stdexcept>
 #include <thread>
-#include <iostream>
 
 using namespace std::chrono_literals;
 
 using boost::asio::ip::address;
-using BoostEndpoint = boost::asio::ip::udp::endpoint;
 using std::invalid_argument;
-using std::make_unique;
-using BoostUdp = boost::asio::ip::udp;
 using std::logic_error;
+using std::make_unique;
 using std::vector;
+
+using BoostUdp = boost::asio::ip::udp;
+using BoostEndpoint = boost::asio::ip::udp::endpoint;
 
 namespace {
 
@@ -82,41 +83,32 @@ void UdpSocket::open() {
   m_socket->open(IpProtocolVersionToBoost(m_ipProtocolVersion));
 }
 
-size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer,
-                              Endpoint &remoteEndpoint) const {
+size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &remoteEndpoint) {
   assertSocketIsOpen(*this);
 
   BoostUdp::endpoint boostRemoteEndpoint;
 
-  auto futureAmountOfBytes = m_socket->async_receive_from(
-      boost::asio::buffer(buffer), boostRemoteEndpoint,
-      boost::asio::use_future);
+  size_t numberOfReceivedBytes = 0;
+  m_socket->async_receive_from(boost::asio::buffer(buffer), boostRemoteEndpoint,
+                               [&buffer,&numberOfReceivedBytes](const boost::system::error_code &ec,
+                                         size_t transferedBytes) {
+                                 if (!ec) {
+                                    numberOfReceivedBytes = transferedBytes;
+                                   buffer.resize(transferedBytes);
+                                 }
+                               });
 
-  size_t numberOfReceivedBytes;
+  m_ioContext.run_for(m_receiveFromTimeoutMs);
 
-  std::future_status status =
-      futureAmountOfBytes.wait_for(m_receiveFromTimeoutMs);
-
-  if (status == std::future_status::ready) {
-    remoteEndpoint.address = boostRemoteEndpoint.address().to_string();
-    remoteEndpoint.port = boostRemoteEndpoint.port();
-    numberOfReceivedBytes = futureAmountOfBytes.get();
-    return numberOfReceivedBytes;
-  }
-
-  m_socket->cancel();
-
-  return 0;
+  return numberOfReceivedBytes;
 }
 
-size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer,
-                         const Endpoint &endpoint) const {
+size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer, const Endpoint &endpoint) {
 
   assertValidEndpoint(endpoint);
   assertSocketIsOpen(*this);
 
   BoostUdp::endpoint remoteEndpoint(address::from_string(endpoint.address),
                                     endpoint.port);
-
   return m_socket->send_to(boost::asio::buffer(buffer), remoteEndpoint);
 }

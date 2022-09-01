@@ -4,13 +4,20 @@
 #include <future>
 #include <gmock/gmock.h>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <system_error>
+#include <thread>
 
 using namespace testing;
 using namespace std::chrono_literals;
 
+using std::cref;
 using std::logic_error;
+using std::make_unique;
+using std::ref;
+using std::thread;
+using std::unique_ptr;
 using std::vector;
 
 namespace {
@@ -51,6 +58,28 @@ public:
   void open() {
     m_uut.open();
     EXPECT_TRUE(m_uut.isOpen());
+  }
+
+  unique_ptr<thread> createReceiverThread(vector<uint8_t> &receivedData, uint16_t expectedNumberOfBytesToReceive) {
+    return make_unique<thread>(
+        [this,expectedNumberOfBytesToReceive](vector<uint8_t> &buffer) {
+          Endpoint receiverEndpoint{DefaultAddress, DefaultPort};
+          UdpSocket socket;
+
+          socket.bind(receiverEndpoint);
+          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedNumberOfBytesToReceive);
+        },
+        ref(receivedData));
+  }
+
+  unique_ptr<thread> createSenderThread(UdpSocket &senderSocket,
+                                        const vector<uint8_t> &sendedData) {
+    return make_unique<thread>(
+        [this](UdpSocket &senderSocket, const vector<uint8_t> &buffer) {
+          const auto expectedNumberOfBytesToSend = buffer.size();
+          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
+        },
+        ref(senderSocket), cref(sendedData));
   }
 
   UdpSocket m_uut;
@@ -99,24 +128,19 @@ TEST_F(TestUdpSocket, receiveFromNotOpenedSocket) {
 }
 
 TEST_F(TestUdpSocket, receiveData) {
-  vector<uint8_t> sendBuffer{'h', 'e', 'l', 'l', 'o'};
-  vector<uint8_t> receiveBuffer(sendBuffer.size());
-  Endpoint receiverEndpoint{DefaultAddress, DefaultPort};
-  Endpoint senderEndpoint;
+  UdpSocket senderSocket;
+  senderSocket.open();
+  const vector<uint8_t> sendedData = {'h', 'e', 'l', 'l', 'o'};
+  vector<uint8_t> receivedData(sendedData.size());
+  {
+    auto receiveThread = createReceiverThread(receivedData, sendedData.size());
 
-  UdpSocket sender;
-  sender.open();
+    std::this_thread::sleep_for(200ms);
 
-  m_uut.bind(receiverEndpoint);
+    auto senderThread = createSenderThread(senderSocket, sendedData);
 
-  std::thread t(
-      [&, this]() { return m_uut.receiveFrom(receiveBuffer, senderEndpoint); });
-  
-  std::this_thread::sleep_for(1s);
-
-  const auto numberOfSendedBytes = sender.sendTo(sendBuffer, receiverEndpoint);
-
-  EXPECT_THAT(receiveBuffer, Eq(sendBuffer));
-  EXPECT_THAT(receiverEndpoint, SameEndpoint(senderEndpoint));
-  t.join();
+    receiveThread->join();
+    senderThread->join();
+  }
+  EXPECT_THAT(receivedData, Eq(sendedData));
 }

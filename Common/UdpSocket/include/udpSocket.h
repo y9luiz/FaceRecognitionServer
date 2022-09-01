@@ -18,6 +18,8 @@ public:
   UdpSocket(UdpSocket &&udpSocket) = delete;
 
   UdpSocket(IpProtocolVersion ipProtocolVersion = IpProtocolVersion::V4);
+  
+  virtual ~UdpSocket() = default;
 
   bool isOpen() const;
   bool isBindMode() const;
@@ -26,10 +28,10 @@ public:
   void open();
 
   std::size_t receiveFrom(std::vector<uint8_t> &buffer,
-                          Endpoint &remoteEndpoint) const;
+                          Endpoint &remoteEndpoint);
 
   std::size_t sendTo(const std::vector<uint8_t> &buffer,
-                     const Endpoint &endpoint) const;
+                     const Endpoint &endpoint);
 
 private:
   IpProtocolVersion m_ipProtocolVersion;
