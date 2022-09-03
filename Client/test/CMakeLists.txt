@@ -5,6 +5,8 @@ target_link_libraries(test_udp_client
         gmock_main 
         ${PROJECT_NAME}::Client
         ${PROJECT_NAME}::MockUdpSocket
+        ${PROJECT_NAME}::MockApplicationMessages
+        ${PROJECT_NAME}::MockMessageReceiver
 )
 
 addToCoverageReport(test_udp_client)

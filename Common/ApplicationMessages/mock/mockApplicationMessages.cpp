@@ -57,6 +57,12 @@ ApplicationMessage::Header ApplicationMessage::header() const{
   return g_mock->header();
 }
 
+std::vector<uint8_t> &ApplicationMessage::payload()
+{
+  assertMockExists();
+  return g_mock->payload();
+}
+
 vector<uint8_t> ApplicationMessage::convertToBytes() const {
   assertMockExists();
   return g_mock->convertToBytes();

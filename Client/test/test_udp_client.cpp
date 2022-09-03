@@ -1,8 +1,9 @@
 #include "udpClient.h"
-#include <mockUdpSocket.h>
 
-#include <boost/asio/io_context.hpp>
-#include <boost/system/system_error.hpp>
+#include <mockUdpSocket.h>
+#include <mockApplicationMessages.h>
+#include <mockMessageReceiver.h>
+
 #include <exception>
 #include <gmock/gmock.h>
 #include <type_traits>
@@ -13,17 +14,16 @@ const auto DefaultPort = 5000;
 } // namespace
 
 using namespace testing;
-using namespace boost::asio;
 
-using boost::system::system_error;
 using std::make_unique;
 using std::unique_ptr;
 
 class TestUdpClient : public Test {
 public:
   TestUdpClient() {
-    EXPECT_CALL(m_mockUdpSocket, constructor(_));
-    EXPECT_CALL(m_mockUdpSocket, open);
+    EXPECT_CALL(m_mockUdpSocket, constructor(_)).Times(2);
+    EXPECT_CALL(m_mockUdpSocket, open).Times(2);
+    EXPECT_CALL(m_mockMessageReceiver,start);
 
     createUut();
   }
@@ -33,6 +33,8 @@ public:
   }
 
   NiceMock<MockUdpSocket> m_mockUdpSocket;
+  NiceMock<MockApplicationMessage> m_mockApplicationMessage;
+  NiceMock<MockMessageReceiver> m_mockMessageReceiver;
 
   unique_ptr<UdpClient> m_uut;
 };
@@ -40,9 +42,4 @@ public:
 TEST_F(TestUdpClient, sendMessage) {
   EXPECT_CALL(m_mockUdpSocket, sendTo(_, _));
   m_uut->sendMessage({});
-}
-
-TEST_F(TestUdpClient, receiveMessage) {
-  EXPECT_CALL(m_mockUdpSocket, receiveFrom(_, _));
-  m_uut->receiveMessage();
 }

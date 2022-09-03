@@ -63,10 +63,3 @@ std::size_t ApplicationMessage::size() const
 {
   return sizeof(Header) + m_payload.size();
 }
-
-bool ApplicationMessage::operator==(const ApplicationMessage & other) const
-{
-  return other.m_header.code == m_header.code
-          && other.m_header.payloadSize == m_header.payloadSize
-          && other.m_payload == m_payload;
-}

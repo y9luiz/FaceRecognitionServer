@@ -26,3 +26,4 @@ target_link_libraries(MessageReceiver
 )
 
 add_subdirectory(test)
+add_subdirectory(mock)

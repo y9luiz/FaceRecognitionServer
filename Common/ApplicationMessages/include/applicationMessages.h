@@ -30,7 +30,12 @@ public:
   std::vector<uint8_t> convertToBytes() const;
   std::size_t size() const;
 
-  bool operator==(const ApplicationMessage & other) const;
+  bool operator==(const ApplicationMessage & other) const
+  {
+    return other.m_header.code == m_header.code
+            && other.m_header.payloadSize == m_header.payloadSize
+            && other.m_payload == m_payload;
+  }
 
 private:
   Header m_header;
