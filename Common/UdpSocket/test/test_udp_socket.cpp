@@ -8,9 +8,11 @@
 #include <stdexcept>
 #include <system_error>
 #include <thread>
+#include <chrono>
 
 using namespace testing;
 using namespace std::chrono_literals;
+using namespace std::chrono;
 
 using std::cref;
 using std::logic_error;
@@ -60,14 +62,22 @@ public:
     EXPECT_TRUE(m_uut.isOpen());
   }
 
-  unique_ptr<thread> createReceiverThread(vector<uint8_t> &receivedData, uint16_t expectedNumberOfBytesToReceive) {
+  unique_ptr<thread> createReceiverThread(vector<uint8_t> &receivedData,const vector<uint8_t> &expectedData) {
     return make_unique<thread>(
-        [this,expectedNumberOfBytesToReceive](vector<uint8_t> &buffer) {
+        [this,&expectedData](vector<uint8_t> &buffer) {
           Endpoint receiverEndpoint{DefaultAddress, DefaultPort};
           UdpSocket socket;
 
           socket.bind(receiverEndpoint);
-          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedNumberOfBytesToReceive);
+          // Lets receive more the once just to have sure that everything is fine
+          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
+          EXPECT_THAT(buffer,Eq(expectedData));
+
+          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
+          EXPECT_THAT(buffer,Eq(expectedData));
+
+          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
+          EXPECT_THAT(buffer,Eq(expectedData));
         },
         ref(receivedData));
   }
@@ -77,6 +87,8 @@ public:
     return make_unique<thread>(
         [this](UdpSocket &senderSocket, const vector<uint8_t> &buffer) {
           const auto expectedNumberOfBytesToSend = buffer.size();
+          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
+          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
           EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
         },
         ref(senderSocket), cref(sendedData));
@@ -112,14 +124,6 @@ TEST_F(TestUdpSocket, sendToShouldFailWithInvalidPortNumber) {
   EXPECT_THROW(m_uut.sendTo({}, invalidEndpoint), logic_error);
 }
 
-TEST_F(TestUdpSocket, receiveFromTimeoutReached) {
-  vector<uint8_t> outputBuffer;
-  Endpoint defaultEndpoint{DefaultAddress, DefaultPort};
-  m_uut.bind(defaultEndpoint);
-
-  EXPECT_THAT(m_uut.receiveFrom(outputBuffer, defaultEndpoint), 0);
-}
-
 TEST_F(TestUdpSocket, receiveFromNotOpenedSocket) {
   vector<uint8_t> outputBuffer;
   Endpoint defaultEndpoint{DefaultAddress, DefaultPort};
@@ -133,9 +137,9 @@ TEST_F(TestUdpSocket, receiveData) {
   const vector<uint8_t> sendedData = {'h', 'e', 'l', 'l', 'o'};
   vector<uint8_t> receivedData(sendedData.size());
   {
-    auto receiveThread = createReceiverThread(receivedData, sendedData.size());
+    auto receiveThread = createReceiverThread(receivedData, sendedData);
 
-    std::this_thread::sleep_for(200ms);
+    std::this_thread::sleep_for(10ms);
 
     auto senderThread = createSenderThread(senderSocket, sendedData);
 

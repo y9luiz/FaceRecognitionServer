@@ -48,8 +48,8 @@ public:
     m_uut = make_unique<ApplicationMessage>(messageCode, payloadSize,
                                             move(payload));
 
-    EXPECT_THAT(m_uut->code(), messageCode);
-    EXPECT_THAT(m_uut->payloadSize(), payloadSize);
+    EXPECT_THAT(m_uut->header().code, messageCode);
+    EXPECT_THAT(m_uut->header().payloadSize, payloadSize);
     EXPECT_THAT(m_uut->payload(), ContainerEq(payloadCopy));
   }
 

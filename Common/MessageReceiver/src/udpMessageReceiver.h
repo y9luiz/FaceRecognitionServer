@@ -17,8 +17,6 @@ protected:
 
   virtual std::optional<ApplicationMessage> receiveMessage() override;
 
-  ApplicationMessage::Header receiveMessageHeader();
-
   void receiveMessagePayload(std::vector<uint8_t> &buffer);
 
   std::unique_ptr<UdpSocket> m_socket;

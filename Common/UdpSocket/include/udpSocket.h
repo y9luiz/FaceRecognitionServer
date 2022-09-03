@@ -39,5 +39,4 @@ private:
   boost::asio::io_context m_ioContext;
   bool m_isBindMode;
   std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
-  const std::chrono::milliseconds m_receiveFromTimeoutMs{2000};
 };

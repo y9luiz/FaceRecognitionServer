@@ -1,9 +1,14 @@
+#include <boost/asio/use_future.hpp>
+#include <boost/system/error_code.hpp>
+#include <chrono>
+#include <mutex>
 #include <udpSocket.h>
 
 #include <future>
 #include <memory>
 #include <stdexcept>
 #include <thread>
+#include <iostream>
 
 using namespace std::chrono_literals;
 
@@ -86,21 +91,16 @@ void UdpSocket::open() {
 size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &remoteEndpoint) {
   assertSocketIsOpen(*this);
 
-  BoostUdp::endpoint boostRemoteEndpoint;
 
-  size_t numberOfReceivedBytes = 0;
-  m_socket->async_receive_from(boost::asio::buffer(buffer), boostRemoteEndpoint,
-                               [&buffer,&numberOfReceivedBytes](const boost::system::error_code &ec,
-                                         size_t transferedBytes) {
-                                 if (!ec) {
-                                    numberOfReceivedBytes = transferedBytes;
-                                   buffer.resize(transferedBytes);
-                                 }
-                               });
+  boost::asio::ip::udp::endpoint endpoint;
+  auto numberOfBytesReceived =  m_socket->receive_from(boost::asio::buffer(buffer),endpoint);
+  if(numberOfBytesReceived)
+  {
+    remoteEndpoint.address = endpoint.address().to_string();
+    remoteEndpoint.port = endpoint.port();
+  }
 
-  m_ioContext.run_for(m_receiveFromTimeoutMs);
-
-  return numberOfReceivedBytes;
+  return numberOfBytesReceived;
 }
 
 size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer, const Endpoint &endpoint) {
@@ -108,7 +108,8 @@ size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer, const Endpoint &end
   assertValidEndpoint(endpoint);
   assertSocketIsOpen(*this);
 
-  BoostUdp::endpoint remoteEndpoint(address::from_string(endpoint.address),
+  BoostUdp::endpoint destinationEndpoint(address::from_string(endpoint.address),
                                     endpoint.port);
-  return m_socket->send_to(boost::asio::buffer(buffer), remoteEndpoint);
+
+  return m_socket->send_to(boost::asio::buffer(buffer),destinationEndpoint);
 }

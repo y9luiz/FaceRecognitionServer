@@ -13,9 +13,8 @@
 class UdpServer {
 public:
   UdpServer(const std::string &ip, uint16_t port);
-  ~UdpServer();
+  virtual ~UdpServer();
 
-  void start();
   void stop();
 
   void setMessageHandler(std::unique_ptr<MessageHandler> messageHandler) {

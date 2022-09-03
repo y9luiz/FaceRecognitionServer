@@ -32,11 +32,10 @@ int main() {
 
     server->setMessageHandler(std::move(messageHandler));
 
-    server->start();
-
     cout << "press enter key to finish the program\n";
     char key = getchar();
-    if (key == 'q') {
+
+    if (key) {
       server->stop();
     }
 

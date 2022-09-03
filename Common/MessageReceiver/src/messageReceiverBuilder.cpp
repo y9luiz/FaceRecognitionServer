@@ -12,27 +12,22 @@ using std::unique_ptr;
 
 MessageReceiverBuilder::MessageReceiverBuilder() {}
 
-unique_ptr<MessageReceiverInterface>
-MessageReceiverBuilder::createUdpServerMessageReceiver(
-    const Endpoint &localEndpoint) {
+unique_ptr<MessageReceiverInterface> MessageReceiverBuilder::createUdpServerMessageReceiver(const Endpoint &localEndpoint) {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
 
   socket->bind(localEndpoint);
 
-  unique_ptr<MessageReceiverInterface> udpMessageReceiver =
-      make_unique<UdpMessageReceiver>(move(socket));
+  unique_ptr<MessageReceiverInterface> udpMessageReceiver = make_unique<UdpMessageReceiver>(move(socket));
 
   return udpMessageReceiver;
 }
 
-unique_ptr<MessageReceiverInterface>
-MessageReceiverBuilder::createUdpClientMessageReceiver() {
+unique_ptr<MessageReceiverInterface> MessageReceiverBuilder::createUdpClientMessageReceiver() {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
 
   socket->open();
 
-  unique_ptr<MessageReceiverInterface> udpMessageReceiver =
-      make_unique<UdpMessageReceiver>(move(socket));
+  unique_ptr<MessageReceiverInterface> udpMessageReceiver = make_unique<UdpMessageReceiver>(move(socket));
 
   return udpMessageReceiver;
 }

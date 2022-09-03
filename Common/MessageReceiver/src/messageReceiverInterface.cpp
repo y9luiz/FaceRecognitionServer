@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <stdexcept>
+#include <iostream>
 
+using std::cout;
 using std::invalid_argument;
 using std::logic_error;
 using std::make_unique;
@@ -17,10 +19,12 @@ void MessageReceiverInterface::start() {
 
       if (applicationMessage.has_value()) {
         try{
+          cout <<"[INFO::MessageReceiverInterface] Processing message\n";
           processMessage(move(applicationMessage.value()));
         }
         catch(const logic_error & e)
         {
+          cout <<"[ERROR::MessageReceiverInterface] " << e.what() << "\n";
           m_isRunning = false;
         }
       }
@@ -31,9 +35,7 @@ void MessageReceiverInterface::start() {
 void MessageReceiverInterface::stop() {
   if (m_receiveMessageThread) {
     m_isRunning = false;
-    if (m_receiveMessageThread->joinable()) {
-      m_receiveMessageThread->join();
-    }
+    m_receiveMessageThread.release();
   }
 }
 
@@ -42,8 +44,7 @@ bool MessageReceiverInterface::isRunning()
   return m_isRunning;
 }
 
-void MessageReceiverInterface::setReceiveMessageCallback(
-    ReceiveMessageCallbackT callback) {
+void MessageReceiverInterface::setReceiveMessageCallback(ReceiveMessageCallbackT callback) {
 
   if (!callback) {
     throw invalid_argument("Input callback is null");

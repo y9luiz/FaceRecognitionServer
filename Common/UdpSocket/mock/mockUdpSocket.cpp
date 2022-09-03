@@ -32,9 +32,21 @@ MockUdpSocket::~MockUdpSocket() {
   g_mock = nullptr;
 }
 
-UdpSocket::UdpSocket(IpProtocolVersion ipProtocolVersion) {
+UdpSocket::UdpSocket(IpProtocolVersion ipProtocolVersion){
   assertMockUdpSocketExists();
   g_mock->constructor(ipProtocolVersion);
+}
+
+bool UdpSocket::isOpen() const
+{
+  assertMockUdpSocketExists();
+  return g_mock->isOpen();
+}
+
+bool UdpSocket::isBindMode() const
+{
+  assertMockUdpSocketExists();
+  return g_mock->isBindMode();
 }
 
 void UdpSocket::bind(const Endpoint &endpoint) {

@@ -4,10 +4,10 @@
 
 #include <functional>
 #include <memory>
+#include <iostream>
 
 using std::bind;
 using std::logic_error;
-using std::make_unique;
 using std::move;
 using std::string;
 
@@ -17,13 +17,15 @@ UdpServer::UdpServer(const string &ip, uint16_t port) : m_ip(ip), m_port(port) {
   initializeMessageReceiver();
 }
 
-UdpServer::~UdpServer() {}
+UdpServer::~UdpServer() {
+  stop();
+}
+
 
 void UdpServer::initializeMessageReceiver() {
 
   MessageReceiverBuilder messageReceiverBuilder;
-  m_messageReceiver =
-      messageReceiverBuilder.createUdpServerMessageReceiver({m_ip, m_port});
+  m_messageReceiver = messageReceiverBuilder.createUdpServerMessageReceiver({m_ip, m_port});
 
   registerMessageReceiverCallback();
 }
@@ -37,9 +39,11 @@ void UdpServer::handleMessage(ApplicationMessage &&message) {
   if (!m_messageHandler) {
     throw logic_error("Could not process message, message hander is nullptr!");
   }
+  std::cout << "[INFO::UdpServer]received application message\n";
   m_messageHandler->processMessage(move(message.convertToBytes()));
 }
 
-void UdpServer::start() { m_messageReceiver->start(); }
-
-void UdpServer::stop() { m_messageReceiver = nullptr; }
+void UdpServer::stop()
+{
+  m_messageReceiver->stop();
+}

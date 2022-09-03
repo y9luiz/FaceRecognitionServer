@@ -1,26 +1,18 @@
 #include <applicationMessages.h>
 #include <iostream>
 #include <udpClient.h>
+#include <thread>
 
 using namespace std;
+using namespace chrono_literals;
 
 int main() {
   UdpClient client("127.0.0.1", 5000);
   try {
-    ApplicationMessage::Header messageHeader{'b', 5};
-    std::vector<uint8_t> payload = {'h', 'e', 'l', 'l', 'o'};
+    std::vector<uint8_t> messageData = ApplicationMessage('b',5,{'h', 'e', 'l', 'l', 'o'}).convertToBytes();
 
-    client.sendMessage(messageHeader.convertToBytes());
-
-    client.sendMessage(move(payload));
-
-    auto receivedMessage = client.receiveMessage();
-
-    for (const auto &c : receivedMessage) {
-      cout << c;
-    }
-
-    cout << endl;
+    client.sendMessage(move(messageData));
+    
   } catch (const exception &e) {
     cout << e.what() << endl;
   }

@@ -3,12 +3,14 @@
 #include <stdint.h>
 #include <vector>
 
+constexpr uint16_t MaximumPacketSize = 1500;
+
 class ApplicationMessage {
 public:
 #pragma pack(push, 1)
   struct Header {
-    uint8_t m_code;
-    uint16_t m_payloadSize;
+    uint8_t code;
+    uint16_t payloadSize;
 
     Header(uint8_t code, uint16_t payloadSize);
     Header(const std::vector<uint8_t> &message);
@@ -23,12 +25,12 @@ public:
 
   virtual ~ApplicationMessage() = default;
 
-  uint8_t code() const;
-  uint16_t payloadSize() const;
   Header header() const;
   std::vector<uint8_t> &payload();
   std::vector<uint8_t> convertToBytes() const;
   std::size_t size() const;
+
+  bool operator==(const ApplicationMessage & other) const;
 
 private:
   Header m_header;

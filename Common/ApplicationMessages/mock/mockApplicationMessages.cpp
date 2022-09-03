@@ -31,7 +31,7 @@ MockApplicationMessage::~MockApplicationMessage() {
 }
 
 ApplicationMessage::Header::Header(uint8_t code, uint16_t payloadSize)
-    : m_code(code), m_payloadSize(payloadSize) {}
+    : code(code), payloadSize(payloadSize) {}
 
 ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {}
 
@@ -50,15 +50,6 @@ ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
     : m_header(message) {
   assertMockExists();
   g_mock->constructor(move(message));
-}
-
-uint8_t ApplicationMessage::code() const { return g_mock->code(); }
-
-uint16_t ApplicationMessage::payloadSize() const { return g_mock->payloadSize(); }
-
-vector<uint8_t> &ApplicationMessage::payload() {
-  assertMockExists();
-  return g_mock->payload();
 }
 
 ApplicationMessage::Header ApplicationMessage::header() const{
