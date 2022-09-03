@@ -3,14 +3,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include <algorithm>
 
 using std::back_inserter;
 using std::copy;
 using std::invalid_argument;
 using std::move;
 using std::vector;
-using std::remove;
 
 ApplicationMessage::Header::Header(uint8_t code, uint16_t payloadSize)
     : code(code), payloadSize(payloadSize) {}

@@ -35,7 +35,8 @@ void MessageReceiverInterface::start() {
 void MessageReceiverInterface::stop() {
   if (m_receiveMessageThread) {
     m_isRunning = false;
-    m_receiveMessageThread.release();
+    m_receiveMessageThread->detach();
+    m_receiveMessageThread.reset();
   }
 }
 

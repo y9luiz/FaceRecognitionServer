@@ -12,7 +12,6 @@ class MessageReceiverBuilder {
 public:
   MessageReceiverBuilder();
 
-  std::unique_ptr<MessageReceiverInterface>
-  createUdpServerMessageReceiver(const Endpoint &localEndpoint);
+  std::unique_ptr<MessageReceiverInterface> createUdpServerMessageReceiver(const Endpoint &localEndpoint);
   std::unique_ptr<MessageReceiverInterface> createUdpClientMessageReceiver();
 };
