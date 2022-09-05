@@ -2,6 +2,7 @@
 
 using std::logic_error;
 using std::move;
+using std::size_t;
 using std::vector;
 
 namespace {
@@ -52,13 +53,12 @@ ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
   g_mock->constructor(move(message));
 }
 
-ApplicationMessage::Header ApplicationMessage::header() const{
+ApplicationMessage::Header ApplicationMessage::header() const {
   assertMockExists();
   return g_mock->header();
 }
 
-std::vector<uint8_t> &ApplicationMessage::payload()
-{
+std::vector<uint8_t> &ApplicationMessage::payload() {
   assertMockExists();
   return g_mock->payload();
 }
@@ -68,7 +68,7 @@ vector<uint8_t> ApplicationMessage::convertToBytes() const {
   return g_mock->convertToBytes();
 }
 
-std::size_t ApplicationMessage::size() const {
+size_t ApplicationMessage::size() const {
   assertMockExists();
   return g_mock->size();
 }

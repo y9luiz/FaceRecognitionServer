@@ -11,8 +11,8 @@ int main() {
 
   try {
     server = make_unique<UdpServer>("127.0.0.1", 5000);
-    auto messageHandler = std::make_unique<MessageHandler>();
-    messageHandler->registerCallback('a', [](std::vector<uint8_t> &&buffer) {
+    auto messageHandler = make_unique<MessageHandler>();
+    messageHandler->registerCallback('a', [](vector<uint8_t> &&buffer) {
       const auto threadId = this_thread::get_id();
       for (int i = 0; i < 10; i++) {
         cout << "Thread id " << threadId << " i = " << i << endl;
@@ -25,12 +25,12 @@ int main() {
       cout << endl;
     });
 
-    messageHandler->registerCallback('b', [](std::vector<uint8_t> &&buffer) {
+    messageHandler->registerCallback('b', [](vector<uint8_t> &&buffer) {
       (void)buffer;
       cout << "callback B\n";
     });
 
-    server->setMessageHandler(std::move(messageHandler));
+    server->setMessageHandler(move(messageHandler));
 
     cout << "press enter key to finish the program\n";
     char key = getchar();

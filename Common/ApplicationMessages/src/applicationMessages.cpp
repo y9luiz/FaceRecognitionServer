@@ -8,6 +8,7 @@ using std::back_inserter;
 using std::copy;
 using std::invalid_argument;
 using std::move;
+using std::size_t;
 using std::vector;
 
 ApplicationMessage::Header::Header(uint8_t code, uint16_t payloadSize)
@@ -57,7 +58,6 @@ vector<uint8_t> ApplicationMessage::convertToBytes() const {
   return bytes;
 }
 
-std::size_t ApplicationMessage::size() const
-{
+size_t ApplicationMessage::size() const {
   return sizeof(Header) + m_payload.size();
 }

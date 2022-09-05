@@ -1,7 +1,7 @@
 #include <applicationMessages.h>
 #include <iostream>
-#include <udpClient.h>
 #include <thread>
+#include <udpClient.h>
 
 using namespace std;
 using namespace chrono_literals;
@@ -9,10 +9,11 @@ using namespace chrono_literals;
 int main() {
   UdpClient client("127.0.0.1", 5000);
   try {
-    std::vector<uint8_t> messageData = ApplicationMessage('b',5,{'h', 'e', 'l', 'l', 'o'}).convertToBytes();
+    vector<uint8_t> messageData =
+        ApplicationMessage('b', 5, {'h', 'e', 'l', 'l', 'o'}).convertToBytes();
 
     client.sendMessage(move(messageData));
-    
+
   } catch (const exception &e) {
     cout << e.what() << endl;
   }
