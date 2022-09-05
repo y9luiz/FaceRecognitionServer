@@ -1,5 +1,5 @@
 #include "udpMessageReceiver.h"
-#include <messageReceiverBuilder.h>
+#include <messageReceiverFactory.h>
 #include <udpSocket.h>
 
 #include <memory>
@@ -8,10 +8,10 @@ using std::make_unique;
 using std::move;
 using std::unique_ptr;
 
-MessageReceiverBuilder::MessageReceiverBuilder() {}
+MessageReceiverFactory::MessageReceiverFactory() {}
 
 unique_ptr<MessageReceiverInterface>
-MessageReceiverBuilder::createUdpServerMessageReceiver(
+MessageReceiverFactory::createUdpServerMessageReceiver(
     const Endpoint &localEndpoint) {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
 
@@ -24,7 +24,7 @@ MessageReceiverBuilder::createUdpServerMessageReceiver(
 }
 
 unique_ptr<MessageReceiverInterface>
-MessageReceiverBuilder::createUdpClientMessageReceiver() {
+MessageReceiverFactory::createUdpClientMessageReceiver() {
   unique_ptr<UdpSocket> socket = make_unique<UdpSocket>();
 
   socket->open();

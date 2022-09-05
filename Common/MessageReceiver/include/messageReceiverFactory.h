@@ -8,10 +8,11 @@ class UdpSocket;
 class UdpMessageReceiver;
 class Endpoint;
 
-class MessageReceiverBuilder {
+class MessageReceiverFactory {
 public:
-  MessageReceiverBuilder();
+  MessageReceiverFactory();
 
-  std::unique_ptr<MessageReceiverInterface> createUdpServerMessageReceiver(const Endpoint &localEndpoint);
+  std::unique_ptr<MessageReceiverInterface>
+  createUdpServerMessageReceiver(const Endpoint &localEndpoint);
   std::unique_ptr<MessageReceiverInterface> createUdpClientMessageReceiver();
 };

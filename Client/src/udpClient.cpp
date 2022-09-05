@@ -1,7 +1,7 @@
 #include "udpClient.h"
 
 #include <applicationMessages.h>
-#include <messageReceiverBuilder.h>
+#include <messageReceiverFactory.h>
 #include <udpSocket.h>
 
 #include <iostream>
@@ -12,7 +12,7 @@ using std::vector;
 
 UdpClient::UdpClient(const string &address, uint16_t port)
     : m_destinationEndpoint{address, port} {
-  m_messageReceiver = MessageReceiverBuilder().createUdpClientMessageReceiver();
+  m_messageReceiver = MessageReceiverFactory().createUdpClientMessageReceiver();
   m_socket.open();
 }
 

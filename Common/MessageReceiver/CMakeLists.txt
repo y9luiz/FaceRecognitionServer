@@ -4,7 +4,8 @@ add_library(MessageReceiver
         include/messageReceiverInterface.h
         src/udpMessageReceiver.cpp
         src/udpMessageReceiver.h
-        src/messageReceiverBuilder.cpp
+        include/messageReceiverFactory.h
+        src/messageReceiverFactory.cpp
 )
 
 add_library(${PROJECT_NAME}::MessageReceiver

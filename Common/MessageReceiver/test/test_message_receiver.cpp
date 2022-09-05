@@ -1,8 +1,6 @@
+#include "messageReceiverFactory.h"
 #include "messageReceiverInterface.h"
 #include <applicationMessages.h>
-#include <gmock/gmock-cardinalities.h>
-#include <gmock/gmock-spec-builders.h>
-#include <messageReceiverBuilder.h>
 
 #include <mockUdpSocket.h>
 
@@ -56,7 +54,7 @@ public:
 TEST_F(TestUdpMessageReceiverForServer, shouldNotRegisterNullCallback) {
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
 
   EXPECT_THROW(m_uut->setReceiveMessageCallback(nullptr), invalid_argument);
 }
@@ -65,7 +63,7 @@ TEST_F(TestUdpMessageReceiverForServer,
        shouldNotProcessWhenNotReceiveAnything) {
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
 }
 
@@ -78,11 +76,11 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
 
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(1ms);
+  this_thread::sleep_for(100ms);
 }
 
 TEST_F(TestUdpMessageReceiverForServer,
@@ -94,7 +92,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
 
   this_thread::sleep_for(1ms);
 
@@ -112,7 +110,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(Eq(completeMessage)));
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
 
   this_thread::sleep_for(10ms);
@@ -141,7 +139,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(Eq(completeMessage))).Times(3);
 
-  m_uut = MessageReceiverBuilder().createUdpServerMessageReceiver(LocalEndpoit);
+  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
 
   this_thread::sleep_for(10ms);
@@ -164,5 +162,5 @@ public:
 };
 
 TEST_F(TestUdpMessageReceiverForClient, createClient) {
-  m_uut = MessageReceiverBuilder().createUdpClientMessageReceiver();
+  m_uut = MessageReceiverFactory().createUdpClientMessageReceiver();
 }

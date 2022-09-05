@@ -1,5 +1,5 @@
 #include "udpServer.h"
-#include "messageReceiverBuilder.h"
+#include "messageReceiverFactory.h"
 #include <udpSocket.h>
 
 #include <functional>
@@ -22,9 +22,9 @@ UdpServer::~UdpServer() { stop(); }
 
 void UdpServer::initializeMessageReceiver() {
 
-  MessageReceiverBuilder messageReceiverBuilder;
+  MessageReceiverFactory messageReceiverFactory;
   m_messageReceiver =
-      messageReceiverBuilder.createUdpServerMessageReceiver({m_ip, m_port});
+      messageReceiverFactory.createUdpServerMessageReceiver({m_ip, m_port});
 
   registerMessageReceiverCallback();
 }
