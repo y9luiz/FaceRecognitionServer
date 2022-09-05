@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-
 class UdpClient {
 public:
   UdpClient(const std::string &url, uint16_t port);
@@ -18,5 +17,5 @@ public:
 private:
   std::unique_ptr<MessageReceiverInterface> m_messageReceiver;
   UdpSocket m_socket;
-  Endpoint m_endpoint;
+  Endpoint m_destinationEndpoint;
 };
