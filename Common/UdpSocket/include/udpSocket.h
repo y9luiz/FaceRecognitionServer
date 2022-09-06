@@ -18,7 +18,7 @@ public:
   UdpSocket(UdpSocket &&udpSocket) = delete;
 
   UdpSocket(IpProtocolVersion ipProtocolVersion = IpProtocolVersion::V4);
-  
+
   virtual ~UdpSocket() = default;
 
   bool isOpen() const;
@@ -29,6 +29,8 @@ public:
 
   std::size_t receiveFrom(std::vector<uint8_t> &buffer,
                           Endpoint &remoteEndpoint);
+
+  std::size_t receive(std::vector<uint8_t> &buffer);
 
   std::size_t sendTo(const std::vector<uint8_t> &buffer,
                      const Endpoint &endpoint);

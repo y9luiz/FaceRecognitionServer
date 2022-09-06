@@ -8,7 +8,6 @@
 #include <memory>
 #include <stdexcept>
 #include <thread>
-#include <iostream>
 
 using namespace std::chrono_literals;
 
@@ -88,14 +87,14 @@ void UdpSocket::open() {
   m_socket->open(IpProtocolVersionToBoost(m_ipProtocolVersion));
 }
 
-size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &remoteEndpoint) {
+size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer,
+                              Endpoint &remoteEndpoint) {
   assertSocketIsOpen(*this);
 
-
   boost::asio::ip::udp::endpoint endpoint;
-  auto numberOfBytesReceived =  m_socket->receive_from(boost::asio::buffer(buffer),endpoint);
-  if(numberOfBytesReceived)
-  {
+  auto numberOfBytesReceived =
+      m_socket->receive_from(boost::asio::buffer(buffer), endpoint);
+  if (numberOfBytesReceived) {
     remoteEndpoint.address = endpoint.address().to_string();
     remoteEndpoint.port = endpoint.port();
   }
@@ -103,13 +102,20 @@ size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &remoteEndpoint)
   return numberOfBytesReceived;
 }
 
-size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer, const Endpoint &endpoint) {
+size_t UdpSocket::receive(vector<uint8_t> &buffer) {
+  assertSocketIsOpen(*this);
+
+  return m_socket->receive(boost::asio::buffer(buffer));
+}
+
+size_t UdpSocket::sendTo(const std::vector<uint8_t> &buffer,
+                         const Endpoint &endpoint) {
 
   assertValidEndpoint(endpoint);
   assertSocketIsOpen(*this);
 
   BoostUdp::endpoint destinationEndpoint(address::from_string(endpoint.address),
-                                    endpoint.port);
+                                         endpoint.port);
 
-  return m_socket->send_to(boost::asio::buffer(buffer),destinationEndpoint);
+  return m_socket->send_to(boost::asio::buffer(buffer), destinationEndpoint);
 }

@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <system_error>
 #include <thread>
-#include <chrono>
 
 using namespace testing;
 using namespace std::chrono_literals;
@@ -62,22 +61,24 @@ public:
     EXPECT_TRUE(m_uut.isOpen());
   }
 
-  unique_ptr<thread> createReceiverThread(vector<uint8_t> &receivedData,const vector<uint8_t> &expectedData) {
+  unique_ptr<thread> createReceiverThread(vector<uint8_t> &receivedData,
+                                          const vector<uint8_t> &expectedData) {
     return make_unique<thread>(
-        [this,&expectedData](vector<uint8_t> &buffer) {
+        [this, &expectedData](vector<uint8_t> &buffer) {
           Endpoint receiverEndpoint{DefaultAddress, DefaultPort};
           UdpSocket socket;
 
           socket.bind(receiverEndpoint);
-          // Lets receive more the once just to have sure that everything is fine
-          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
-          EXPECT_THAT(buffer,Eq(expectedData));
+          // Lets receive more the once just to have sure that everything is
+          // fine
+          EXPECT_THAT(socket.receive(buffer), expectedData.size());
+          EXPECT_THAT(buffer, Eq(expectedData));
 
-          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
-          EXPECT_THAT(buffer,Eq(expectedData));
+          EXPECT_THAT(socket.receive(buffer), expectedData.size());
+          EXPECT_THAT(buffer, Eq(expectedData));
 
-          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),expectedData.size());
-          EXPECT_THAT(buffer,Eq(expectedData));
+          EXPECT_THAT(socket.receive(buffer), expectedData.size());
+          EXPECT_THAT(buffer, Eq(expectedData));
         },
         ref(receivedData));
   }
@@ -87,9 +88,15 @@ public:
     return make_unique<thread>(
         [this](UdpSocket &senderSocket, const vector<uint8_t> &buffer) {
           const auto expectedNumberOfBytesToSend = buffer.size();
-          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
-          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
-          EXPECT_THAT(senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),expectedNumberOfBytesToSend);
+          EXPECT_THAT(
+              senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),
+              expectedNumberOfBytesToSend);
+          EXPECT_THAT(
+              senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),
+              expectedNumberOfBytesToSend);
+          EXPECT_THAT(
+              senderSocket.sendTo(buffer, {DefaultAddress, DefaultPort}),
+              expectedNumberOfBytesToSend);
         },
         ref(senderSocket), cref(sendedData));
   }

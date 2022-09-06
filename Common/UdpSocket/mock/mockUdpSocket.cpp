@@ -32,19 +32,17 @@ MockUdpSocket::~MockUdpSocket() {
   g_mock = nullptr;
 }
 
-UdpSocket::UdpSocket(IpProtocolVersion ipProtocolVersion){
+UdpSocket::UdpSocket(IpProtocolVersion ipProtocolVersion) {
   assertMockUdpSocketExists();
   g_mock->constructor(ipProtocolVersion);
 }
 
-bool UdpSocket::isOpen() const
-{
+bool UdpSocket::isOpen() const {
   assertMockUdpSocketExists();
   return g_mock->isOpen();
 }
 
-bool UdpSocket::isBindMode() const
-{
+bool UdpSocket::isBindMode() const {
   assertMockUdpSocketExists();
   return g_mock->isBindMode();
 }
@@ -59,10 +57,14 @@ void UdpSocket::open() {
   g_mock->open();
 }
 
-size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer,
-                              Endpoint &endpoint)  {
+size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer, Endpoint &endpoint) {
   assertMockUdpSocketExists();
   return g_mock->receiveFrom(buffer, endpoint);
+}
+
+size_t UdpSocket::receive(vector<uint8_t> &buffer) {
+  assertMockUdpSocketExists();
+  return g_mock->receive(buffer);
 }
 
 size_t UdpSocket::sendTo(const vector<uint8_t> &buffer,

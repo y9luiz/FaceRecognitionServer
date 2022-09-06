@@ -38,9 +38,9 @@ public:
   }
 
   void injectMessageInMockUdpSocket(const ApplicationMessage &message) {
-    EXPECT_CALL(m_mockUdpSocket, receiveFrom)
+    EXPECT_CALL(m_mockUdpSocket, receive)
         .WillOnce(DoAll(SetArgReferee<0>(message.convertToBytes()),
-                        SetArgReferee<1>(LocalEndpoit), Return(message.size())))
+                        Return(message.size())))
         .WillRepeatedly(Return(0));
   }
 
@@ -80,7 +80,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(10ms);
 }
 
 TEST_F(TestUdpMessageReceiverForServer,
@@ -125,15 +125,12 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
   ApplicationMessage completeMessage{0, static_cast<uint16_t>(payload.size()),
                                      move(payload)};
 
-  EXPECT_CALL(m_mockUdpSocket, receiveFrom)
+  EXPECT_CALL(m_mockUdpSocket, receive)
       .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      SetArgReferee<1>(LocalEndpoit),
                       Return(completeMessage.size())))
       .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      SetArgReferee<1>(LocalEndpoit),
                       Return(completeMessage.size())))
       .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      SetArgReferee<1>(LocalEndpoit),
                       Return(completeMessage.size())))
       .WillRepeatedly(Return(0));
 
