@@ -10,9 +10,8 @@ public:
   virtual ~UdpMessageReceiver() override;
 
 protected:
-
   virtual void start() override;
-  
+
   virtual void stop() override;
 
   virtual std::optional<ApplicationMessage> receiveMessage() override;
@@ -20,5 +19,4 @@ protected:
   void receiveMessagePayload(std::vector<uint8_t> &buffer);
 
   std::unique_ptr<UdpSocket> m_socket;
-  Endpoint m_endpoint;
 };

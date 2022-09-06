@@ -34,41 +34,36 @@ UdpMessageReceiver::~UdpMessageReceiver() {
 }
 
 optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
-  try {
+  vector<uint8_t> buffer(MaximumPacketSize);
 
-    vector<uint8_t> buffer(MaximumPacketSize);
+  auto receivedDataSize = m_socket->receive(buffer);
 
-    auto receivedDataSize = m_socket->receive(buffer);
-
-    if (!receivedDataSize) {
-      throw runtime_error("Could not receive the message");
-    }
-
-    ApplicationMessage::Header header(buffer);
-
-    for (int i = 0; i < sizeof(ApplicationMessage::Header); i++) {
-      buffer.erase(buffer.begin());
-    }
-
-    ApplicationMessage message(header.code, header.payloadSize, move(buffer));
-
-    uint32_t totalMessageSize = receivedDataSize;
-
-    while (receivedDataSize < header.payloadSize) {
-      auto receivedDataSize = m_socket->receive(message.payload());
-
-      if (receivedDataSize) {
-        totalMessageSize += receivedDataSize;
-      } else {
-        throw runtime_error("Message incomplete");
-      }
-    }
-
-    return message;
-  } catch (const runtime_error &runtimeError) {
-    cout << runtimeError.what() << "\n";
+  if (!receivedDataSize) {
     return nullopt;
   }
+
+  ApplicationMessage::Header header(buffer);
+
+  for (int i = 0; i < sizeof(ApplicationMessage::Header); i++) {
+    buffer.erase(buffer.begin());
+  }
+
+  ApplicationMessage message(header.code, header.payloadSize, move(buffer));
+
+  uint32_t totalMessageSize = receivedDataSize;
+
+  while (receivedDataSize < header.payloadSize) {
+    auto receivedDataSize = m_socket->receive(message.payload());
+
+    if (receivedDataSize) {
+      totalMessageSize += receivedDataSize;
+    } else {
+      cout << "[ERROR::receiveMessage] could not receive message body\n";
+      return nullopt;
+    }
+  }
+
+  return message;
 }
 
 void UdpMessageReceiver::start() {

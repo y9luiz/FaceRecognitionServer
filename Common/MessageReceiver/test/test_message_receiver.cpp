@@ -57,6 +57,8 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotRegisterNullCallback) {
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
 
   EXPECT_THROW(m_uut->setReceiveMessageCallback(nullptr), invalid_argument);
+
+  this_thread::sleep_for(2s);
 }
 
 TEST_F(TestUdpMessageReceiverForServer,
@@ -65,6 +67,8 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
+
+  this_thread::sleep_for(2s);
 }
 
 TEST_F(TestUdpMessageReceiverForServer,
@@ -80,7 +84,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(10ms);
+  this_thread::sleep_for(2s);
 }
 
 TEST_F(TestUdpMessageReceiverForServer,
@@ -94,7 +98,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
 
-  this_thread::sleep_for(1ms);
+  this_thread::sleep_for(2s);
 
   EXPECT_FALSE(m_uut->isRunning());
 }
@@ -113,7 +117,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(10ms);
+  this_thread::sleep_for(100ms);
 
   EXPECT_TRUE(m_uut->isRunning());
 }
@@ -139,9 +143,9 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(10ms);
-
   EXPECT_TRUE(m_uut->isRunning());
+
+  this_thread::sleep_for(2s);
 }
 
 class TestUdpMessageReceiverForClient : public Test {
