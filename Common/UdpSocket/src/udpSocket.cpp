@@ -52,12 +52,6 @@ void assertSocketIsOpen(const UdpSocket &udpSocket) {
     throw logic_error("UdpSocket is closed");
   }
 }
-
-void assertSocketIsBinded(const UdpSocket &udpSocket) {
-  if (!udpSocket.isBindMode()) {
-    throw logic_error("UdpSocket isn't in bind mode");
-  }
-}
 } // namespace
 
 UdpSocket::UdpSocket(IpProtocolVersion ipProtocolVersion)

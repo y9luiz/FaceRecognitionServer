@@ -21,6 +21,27 @@ using std::vector;
 
 namespace {
 const auto LocalEndpoit = Endpoint{"127.0.0.1", 5000};
+
+vector<vector<uint8_t>> splitBigApplicationMessage(const ApplicationMessage &message)
+{
+  const auto numberOfPackets = message.size() / MaximumPacketSize + 1;
+  auto bytes = message.convertToBytes();
+  vector<vector<uint8_t>> splittedMessaged;
+  for(int i = 0; i < numberOfPackets; i++)
+  {
+    splittedMessaged.emplace_back();
+    bool isLastPacket = i == numberOfPackets-1;
+
+    if(!isLastPacket)
+    {
+      copy(bytes.begin() + i*MaximumPacketSize, bytes.begin() + (i+1)*MaximumPacketSize, back_inserter(splittedMessaged.back()));
+    }
+    else{
+      copy(bytes.begin() + i*MaximumPacketSize, bytes.end(), back_inserter(splittedMessaged.back()));
+    }
+  }
+    return splittedMessaged;
+}
 }
 
 class TestUdpMessageReceiverForServer : public Test {
@@ -38,15 +59,38 @@ public:
   }
 
   void injectMessageInMockUdpSocket(const ApplicationMessage &message) {
-    EXPECT_CALL(m_mockUdpSocket, receive)
-        .WillOnce(DoAll(SetArgReferee<0>(message.convertToBytes()),
-                        Return(message.size())))
-        .WillRepeatedly(Return(0));
+    const auto splittedBytes = splitBigApplicationMessage(message);
+    {
+      InSequence s;
+
+      for (const auto & bytes:splittedBytes)
+      {
+        EXPECT_CALL(m_mockUdpSocket,receive).WillOnce(DoAll(SetArgReferee<0>(bytes),Return(bytes.size())));
+      }
+
+      EXPECT_CALL(m_mockUdpSocket,receive).WillRepeatedly(Return(0));
+    }
+  }
+
+  void injectMessagesInMockUdpSocket(const vector<ApplicationMessage> &messages) {
+    {
+      InSequence s;
+      for(const auto & message:messages)
+      {
+        const auto splittedBytes = splitBigApplicationMessage(message);
+          for (const auto & bytes:splittedBytes)
+          {
+            EXPECT_CALL(m_mockUdpSocket,receive).WillOnce(DoAll(SetArgReferee<0>(bytes),Return(bytes.size())));
+          }
+      }
+
+      EXPECT_CALL(m_mockUdpSocket,receive).WillRepeatedly(Return(0));
+    }
+
   }
 
   NiceMock<MockUdpSocket> m_mockUdpSocket;
-  NiceMock<MockFunction<function<void(ApplicationMessage &&)>>>
-      m_mockReceiveMessageCallback;
+  NiceMock<MockFunction<function<void(ApplicationMessage &&)>>> m_mockReceiveMessageCallback;
 
   unique_ptr<MessageReceiverInterface> m_uut;
 };
@@ -61,8 +105,7 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotRegisterNullCallback) {
   this_thread::sleep_for(2s);
 }
 
-TEST_F(TestUdpMessageReceiverForServer,
-       shouldNotProcessWhenNotReceiveAnything) {
+TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenNotReceiveAnything) {
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
 
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
@@ -71,8 +114,7 @@ TEST_F(TestUdpMessageReceiverForServer,
   this_thread::sleep_for(2s);
 }
 
-TEST_F(TestUdpMessageReceiverForServer,
-       shouldNotProcessWhenReceiveIncompleteMessage) {
+TEST_F(TestUdpMessageReceiverForServer,shouldNotProcessWhenReceiveIncompleteMessage) {
 
   ApplicationMessage testMessageWithIncompletePayload{0, 10, {}};
 
@@ -87,8 +129,7 @@ TEST_F(TestUdpMessageReceiverForServer,
   this_thread::sleep_for(2s);
 }
 
-TEST_F(TestUdpMessageReceiverForServer,
-       shouldNotProcessWhenCallbackNotRegistered) {
+TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistered) {
 
   ApplicationMessage completeMessage{0, 5, {'0', '1', '2', '3', '4'}};
 
@@ -105,38 +146,34 @@ TEST_F(TestUdpMessageReceiverForServer,
 
 TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 
-  vector<uint8_t> payload(1024 * 1024, 'o');
+  vector<uint8_t> payload(1500 * 3, 'o');
 
   ApplicationMessage completeMessage{0, static_cast<uint16_t>(payload.size()),
                                      move(payload)};
 
   injectMessageInMockUdpSocket(completeMessage);
-
-  EXPECT_CALL(m_mockReceiveMessageCallback, Call(Eq(completeMessage)));
+  
+  EXPECT_CALL(m_mockReceiveMessageCallback,Call(Eq(completeMessage)));
 
   m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
+
   registerMessageHandlerCallback();
 
-  this_thread::sleep_for(100ms);
+  this_thread::sleep_for(2s);
 
   EXPECT_TRUE(m_uut->isRunning());
 }
 
 TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
-  vector<uint8_t> payload(1024 * 1024, 'o');
+  vector<uint8_t> payload(1500 * 3, 'o');
 
   ApplicationMessage completeMessage{0, static_cast<uint16_t>(payload.size()),
                                      move(payload)};
 
-  EXPECT_CALL(m_mockUdpSocket, receive)
-      .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      Return(completeMessage.size())))
-      .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      Return(completeMessage.size())))
-      .WillOnce(DoAll(SetArgReferee<0>(completeMessage.convertToBytes()),
-                      Return(completeMessage.size())))
-      .WillRepeatedly(Return(0));
+  vector<ApplicationMessage> messages{completeMessage,completeMessage,completeMessage};
+
+  injectMessagesInMockUdpSocket(messages);
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(Eq(completeMessage))).Times(3);
 

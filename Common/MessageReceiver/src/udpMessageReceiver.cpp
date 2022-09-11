@@ -12,13 +12,8 @@ using std::cout;
 using std::move;
 using std::nullopt;
 using std::optional;
-using std::runtime_error;
 using std::unique_ptr;
 using std::vector;
-
-namespace {
-void receiveMessageHeader(UdpSocket &socket, vector<uint8_t> &outputBuffer) {}
-} // namespace
 
 UdpMessageReceiver::UdpMessageReceiver(unique_ptr<UdpSocket> socket)
     : m_socket(move(socket)) {
@@ -50,13 +45,16 @@ optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
 
   ApplicationMessage message(header.code, header.payloadSize, move(buffer));
 
-  uint32_t totalMessageSize = receivedDataSize;
+  uint32_t amountOfBytesReceived = receivedDataSize;
+  const auto expectMessageTotalSize = header.payloadSize + sizeof(header);
 
-  while (receivedDataSize < header.payloadSize) {
-    auto receivedDataSize = m_socket->receive(message.payload());
+  buffer.resize(MaximumPacketSize);
 
+  while (amountOfBytesReceived < expectMessageTotalSize) {
+    receivedDataSize = m_socket->receive(buffer);
     if (receivedDataSize) {
-      totalMessageSize += receivedDataSize;
+      amountOfBytesReceived += receivedDataSize;
+      copy(buffer.begin(),buffer.begin() + receivedDataSize,back_inserter(message.payload()));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";
       return nullopt;
