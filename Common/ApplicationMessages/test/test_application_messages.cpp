@@ -14,7 +14,7 @@ using std::vector;
 
 namespace {
 constexpr auto DefaultMessageCode = 10u;
-constexpr auto DefaultPayloadSize = 300u;
+constexpr auto DefaultPayloadSize = 7u;
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
 
 }; // namespace
@@ -48,9 +48,10 @@ public:
     m_uut = make_unique<ApplicationMessage>(messageCode, payloadSize,
                                             move(payload));
 
-    EXPECT_THAT(m_uut->code(), messageCode);
-    EXPECT_THAT(m_uut->payloadSize(), payloadSize);
+    EXPECT_THAT(m_uut->header().code, messageCode);
+    EXPECT_THAT(m_uut->header().payloadSize, payloadSize);
     EXPECT_THAT(m_uut->payload(), ContainerEq(payloadCopy));
+    EXPECT_THAT(m_uut->size(),payloadSize + sizeof(messageCode) + sizeof(payloadSize));
   }
 
   unique_ptr<ApplicationMessage> m_uut;

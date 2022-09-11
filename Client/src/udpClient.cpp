@@ -1,27 +1,27 @@
 #include "udpClient.h"
-#include "udpSocketFactory.h"
 
-using std::make_unique;
+#include <applicationMessages.h>
+#include <messageReceiverFactory.h>
+#include <udpSocket.h>
+
+#include <iostream>
+
+using std::cout;
 using std::string;
 using std::vector;
 
-UdpClient::UdpClient(const string &url, uint16_t port)
-    : m_remoteEndpoint(boost::asio::ip::address::from_string(url), port) {
-  UdpSocketFactory socketFactory(m_ioContext);
-  m_socket = socketFactory.createAndOpenSocket(m_remoteEndpoint.protocol());
+UdpClient::UdpClient(const string &address, uint16_t port)
+    : m_destinationEndpoint{address, port} {
+  m_messageReceiver = MessageReceiverFactory().createUdpClientMessageReceiver();
+  m_socket.open();
 }
+
+UdpClient::~UdpClient() { m_messageReceiver->stop(); }
 
 void UdpClient::sendMessage(vector<uint8_t> &&message) {
-  m_socket->send_to(boost::asio::buffer(move(message)), m_remoteEndpoint);
-}
-
-vector<uint8_t> UdpClient::receiveMessage() {
-  vector<uint8_t> message(20);
-
-  auto size =
-      m_socket->receive_from(boost::asio::buffer(message), m_remoteEndpoint);
-
-  message.resize(size);
-
-  return message;
+  if (m_socket.sendTo(move(message), m_destinationEndpoint)) {
+    cout << "[INFO::UdpClient] Send message to "
+         << m_destinationEndpoint.address << ":" << m_destinationEndpoint.port
+         << "\n";
+  }
 }

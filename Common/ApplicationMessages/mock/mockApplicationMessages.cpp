@@ -2,6 +2,7 @@
 
 using std::logic_error;
 using std::move;
+using std::size_t;
 using std::vector;
 
 namespace {
@@ -14,7 +15,7 @@ void assertMockExists() {
 }
 
 void assertMockNotExists() {
-  if (!g_mock) {
+  if (g_mock) {
     throw logic_error("MockApplicationMessage should be null!");
   }
 }
@@ -31,9 +32,13 @@ MockApplicationMessage::~MockApplicationMessage() {
 }
 
 ApplicationMessage::Header::Header(uint8_t code, uint16_t payloadSize)
-    : m_code(code), m_payloadSize(payloadSize) {}
+    : code(code), payloadSize(payloadSize) {}
 
 ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {}
+
+vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
+  return {};
+}
 
 ApplicationMessage::ApplicationMessage(uint8_t code, uint16_t payloadSize,
                                        vector<uint8_t> &&payload)
@@ -48,16 +53,22 @@ ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
   g_mock->constructor(move(message));
 }
 
-uint8_t ApplicationMessage::code() { return g_mock->code(); }
+ApplicationMessage::Header ApplicationMessage::header() const {
+  assertMockExists();
+  return g_mock->header();
+}
 
-uint16_t ApplicationMessage::payloadSize() { return g_mock->payloadSize(); }
-
-vector<uint8_t> &ApplicationMessage::payload() {
+std::vector<uint8_t> &ApplicationMessage::payload() {
   assertMockExists();
   return g_mock->payload();
 }
 
-vector<uint8_t> ApplicationMessage::convertToBytes() {
+vector<uint8_t> ApplicationMessage::convertToBytes() const {
   assertMockExists();
   return g_mock->convertToBytes();
+}
+
+size_t ApplicationMessage::size() const {
+  assertMockExists();
+  return g_mock->size();
 }

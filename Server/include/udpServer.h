@@ -1,17 +1,20 @@
 #pragma once
+
+#include "applicationMessages.h"
 #include "messageHandler.h"
-#include "udpSocketFactory.h"
+#include "messageReceiverInterface.h"
+
 
 #include <boost/asio.hpp>
+#include <memory>
 #include <queue>
 #include <vector>
 
 class UdpServer {
 public:
   UdpServer(const std::string &ip, uint16_t port);
-  ~UdpServer();
+  virtual ~UdpServer();
 
-  void start();
   void stop();
 
   void setMessageHandler(std::unique_ptr<MessageHandler> messageHandler) {
@@ -19,12 +22,16 @@ public:
   }
 
 protected:
+  void initializeMessageReceiver();
+  void registerMessageReceiverCallback();
+
+  void handleMessage(ApplicationMessage &&message);
+
   std::string m_ip;
   uint16_t m_port;
 
+  std::unique_ptr<MessageReceiverInterface> m_messageReceiver;
   std::unique_ptr<MessageHandler> m_messageHandler;
 
-  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
   boost::asio::io_context m_ioContext;
-  std::vector<std::thread> m_clientThreads;
 };
