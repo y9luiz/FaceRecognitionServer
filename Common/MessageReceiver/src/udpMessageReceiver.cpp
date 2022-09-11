@@ -1,6 +1,4 @@
 #include "udpMessageReceiver.h"
-#include <applicationMessages.h>
-#include <udpSocket.h>
 
 #include <iostream>
 #include <memory>
@@ -9,6 +7,7 @@
 #include <vector>
 
 using std::cout;
+using std::exception;
 using std::move;
 using std::nullopt;
 using std::optional;
@@ -23,7 +22,7 @@ UdpMessageReceiver::UdpMessageReceiver(unique_ptr<UdpSocket> socket)
 UdpMessageReceiver::~UdpMessageReceiver() {
   try {
     stop();
-  } catch (std::exception &e) {
+  } catch (exception &e) {
     cout << "[ERROR::~UdpMessageReceiver()] " << e.what() << "\n";
   }
 }

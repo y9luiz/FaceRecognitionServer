@@ -1,17 +1,11 @@
-#include <boost/asio/use_future.hpp>
-#include <boost/system/error_code.hpp>
-#include <chrono>
-#include <mutex>
-#include <udpSocket.h>
+#include "udpSocket.h"
 
-#include <future>
 #include <memory>
 #include <stdexcept>
-#include <thread>
-
-using namespace std::chrono_literals;
 
 using boost::asio::ip::address;
+using boost::asio::ip::make_address;
+using boost::system::error_code;
 using std::invalid_argument;
 using std::logic_error;
 using std::make_unique;
@@ -36,8 +30,8 @@ BoostUdp IpProtocolVersionToBoost(IpProtocolVersion ipProtocolVersion) {
 }
 
 void assertValidEndpoint(const Endpoint &endpoint) {
-  boost::system::error_code errorCode;
-  boost::asio::ip::make_address(endpoint.address, errorCode);
+  error_code errorCode;
+  make_address(endpoint.address, errorCode);
 
   if (errorCode) {
     throw invalid_argument("Invalid IP Address");
@@ -85,7 +79,7 @@ size_t UdpSocket::receiveFrom(vector<uint8_t> &buffer,
                               Endpoint &remoteEndpoint) {
   assertSocketIsOpen(*this);
 
-  boost::asio::ip::udp::endpoint endpoint;
+  BoostEndpoint endpoint;
   auto numberOfBytesReceived =
       m_socket->receive_from(boost::asio::buffer(buffer), endpoint);
   if (numberOfBytesReceived) {
