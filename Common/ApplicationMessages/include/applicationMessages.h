@@ -3,23 +3,32 @@
 #include <stdint.h>
 #include <vector>
 
+#include <opencv2/core/mat.hpp>
+
 constexpr uint16_t MaximumPacketSize = 1500;
 
 class ApplicationMessage {
 public:
+
+enum class Types : uint8_t{
+  FaceDetectionRequest,
+  FaceDetectionResponse,
+  FaceRecognitionRequest,
+  FaceRecognitionResponse
+};
+
 #pragma pack(push, 1)
   struct Header {
     uint8_t code;
-    uint16_t payloadSize;
+    uint32_t payloadSize;
 
-    Header(uint8_t code, uint16_t payloadSize);
+    Header(uint8_t code, uint32_t payloadSize);
     Header(const std::vector<uint8_t> &message);
 
     std::vector<uint8_t> convertToBytes() const;
   };
 #pragma pack(pop)
-  ApplicationMessage(uint8_t code, uint16_t payloadSize,
-                     std::vector<uint8_t> &&payload);
+  ApplicationMessage(Header header,std::vector<uint8_t> &&payload);
 
   ApplicationMessage(std::vector<uint8_t> &&message);
 

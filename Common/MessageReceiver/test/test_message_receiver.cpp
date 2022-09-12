@@ -114,24 +114,9 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenNotReceiveAnything) 
   this_thread::sleep_for(2s);
 }
 
-TEST_F(TestUdpMessageReceiverForServer,shouldNotProcessWhenReceiveIncompleteMessage) {
-
-  ApplicationMessage testMessageWithIncompletePayload{0, 10, {}};
-
-  injectMessageInMockUdpSocket(testMessageWithIncompletePayload);
-
-  EXPECT_CALL(m_mockReceiveMessageCallback, Call(_)).Times(0);
-
-  m_uut = MessageReceiverFactory().createUdpServerMessageReceiver(LocalEndpoit);
-
-  registerMessageHandlerCallback();
-
-  this_thread::sleep_for(2s);
-}
-
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistered) {
 
-  ApplicationMessage completeMessage{0, 5, {'0', '1', '2', '3', '4'}};
+  ApplicationMessage completeMessage{ApplicationMessage::Header(0, 5), {'0', '1', '2', '3', '4'}};
 
   injectMessageInMockUdpSocket(completeMessage);
 
@@ -148,8 +133,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 
   vector<uint8_t> payload(1500 * 3, 'o');
 
-  ApplicationMessage completeMessage{0, static_cast<uint16_t>(payload.size()),
-                                     move(payload)};
+  ApplicationMessage completeMessage{ApplicationMessage::Header(0,payload.size()),move(payload)};
 
   injectMessageInMockUdpSocket(completeMessage);
   
@@ -168,8 +152,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
   vector<uint8_t> payload(1500 * 3, 'o');
 
-  ApplicationMessage completeMessage{0, static_cast<uint16_t>(payload.size()),
-                                     move(payload)};
+  ApplicationMessage completeMessage{ApplicationMessage::Header(0,payload.size()), move(payload)};
 
   vector<ApplicationMessage> messages{completeMessage,completeMessage,completeMessage};
 

@@ -11,10 +11,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
+find_package(OpenCV REQUIRED)
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
+
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 include(gtest)
 include(coverage)
@@ -35,4 +38,5 @@ target_link_libraries(client
   PRIVATE
     ${PROJECT_NAME}::Client
     ${PROJECT_NAME}::Common
+    ${OpenCV_LIBS}
 )

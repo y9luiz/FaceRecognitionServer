@@ -42,7 +42,7 @@ optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
     buffer.erase(buffer.begin());
   }
 
-  ApplicationMessage message(header.code, header.payloadSize, move(buffer));
+  ApplicationMessage message(header,move(buffer));
 
   uint32_t amountOfBytesReceived = receivedDataSize;
   const auto expectMessageTotalSize = header.payloadSize + sizeof(header);

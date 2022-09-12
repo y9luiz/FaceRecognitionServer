@@ -1,4 +1,5 @@
 #include "applicationMessages.h"
+#include <serializer.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -11,7 +12,7 @@ using std::move;
 using std::size_t;
 using std::vector;
 
-ApplicationMessage::Header::Header(uint8_t code, uint16_t payloadSize)
+ApplicationMessage::Header::Header(uint8_t code, uint32_t payloadSize)
     : code(code), payloadSize(payloadSize) {}
 
 ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {
@@ -21,23 +22,23 @@ ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {
         "Message size doesn't match with the expected ApplicationMessage size");
   }
 
-  code = bytes[0];
-  payloadSize = (bytes[1] | bytes[2] << 8);
+  auto it = bytes.begin();
+  code = *(it++);
+  payloadSize = Serializer::u32FromBytes({it,bytes.end()});
 }
 
 vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
   vector<uint8_t> bytes(sizeof(Header));
 
   bytes[0] = code;
-  bytes[1] = payloadSize;
-  bytes[2] = payloadSize >> 8;
+  auto payloadSizeInBytes = Serializer::u32ToBytes(payloadSize);
+  copy(payloadSizeInBytes.begin(),payloadSizeInBytes.end(),bytes.begin() + 1);
 
   return bytes;
 }
 
-ApplicationMessage::ApplicationMessage(uint8_t code, uint16_t payloadSize,
-                                       vector<uint8_t> &&payload)
-    : m_header(code, payloadSize), m_payload(move(payload)) {}
+ApplicationMessage::ApplicationMessage(Header header, vector<uint8_t> &&payload)
+    : m_header(header), m_payload(move(payload)) {}
 
 ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
     : m_header(message) {

@@ -14,7 +14,7 @@ using std::vector;
 
 namespace {
 constexpr auto DefaultMessageCode = 10u;
-constexpr auto DefaultPayloadSize = 7u;
+constexpr auto DefaultPayloadSize = 9u;
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
 
 }; // namespace
@@ -29,6 +29,9 @@ public:
     message.push_back(DefaultMessageCode);
     message.push_back(static_cast<uint8_t>(DefaultPayloadSize));
     message.push_back(DefaultPayloadSize >> 8);
+    message.push_back(DefaultPayloadSize >> 16);
+    message.push_back(DefaultPayloadSize >> 24);
+
 
     copy(DefaultPayload.begin(), DefaultPayload.end(), back_inserter(message));
 
@@ -45,8 +48,7 @@ public:
   void createApplicationMessage(uint8_t messageCode, uint16_t payloadSize,
                                 vector<uint8_t> payload) {
     auto payloadCopy = payload;
-    m_uut = make_unique<ApplicationMessage>(messageCode, payloadSize,
-                                            move(payload));
+    m_uut = make_unique<ApplicationMessage>(ApplicationMessage::Header{messageCode,payloadSize},move(payload));
 
     EXPECT_THAT(m_uut->header().code, messageCode);
     EXPECT_THAT(m_uut->header().payloadSize, payloadSize);
@@ -75,3 +77,4 @@ TEST_F(TestApplicationMessages, CreateMessageUsingRawVector) {
   auto messageBuffer = createDefaultMessageAsBytes();
   createApplicationMessage(move(messageBuffer));
 }
+

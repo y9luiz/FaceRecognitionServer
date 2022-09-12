@@ -59,6 +59,5 @@ void MessageReceiverInterface::processMessage(ApplicationMessage &&message) {
     throw logic_error(
         "Could not process message, message receive callback is null");
   }
-
   m_receiveMessageCallback(move(message));
 }

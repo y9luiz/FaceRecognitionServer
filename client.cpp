@@ -1,16 +1,34 @@
 #include <applicationMessages.h>
+#include <faceDetectionRequest.h>
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include <udpClient.h>
+
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace chrono_literals;
 
-int main() {
+int main(int argc, char * argv[]) {
   UdpClient client("127.0.0.1", 5000);
   try {
-    vector<uint8_t> messageData =
-        ApplicationMessage('b', 5, {'h', 'e', 'l', 'l', 'o'}).convertToBytes();
+    
+    if(argc != 2)
+    {
+      throw invalid_argument("./Client <image_path>");
+    }
+    const auto imagePath = argv[1];
+    auto image = cv::imread(imagePath);
+
+    if(image.rows <= 0 || image.cols <= 0)
+    {
+      throw invalid_argument("invalid image");
+    }
+
+    auto message = FaceDetectionRequestMessage(image);
+    cout << "payload size " << message.header().payloadSize << "\n";
+    vector<uint8_t> messageData = message.convertToBytes();
 
     client.sendMessage(move(messageData));
 

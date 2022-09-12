@@ -1,3 +1,4 @@
+add_subdirectory(Utils)
 add_subdirectory(UdpSocket)
 add_subdirectory(ApplicationMessages)
 add_subdirectory(MessageReceiver)
@@ -10,4 +11,5 @@ target_link_libraries(Common
         ${PROJECT_NAME}::UdpSocket
         ${PROJECT_NAME}::ApplicationMessages
         ${PROJECT_NAME}::MessageReceiver
+        Serializer
 )

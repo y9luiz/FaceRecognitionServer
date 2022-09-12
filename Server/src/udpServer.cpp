@@ -30,6 +30,7 @@ void UdpServer::initializeMessageReceiver() {
 }
 
 void UdpServer::registerMessageReceiverCallback() {
+
   m_messageReceiver->setReceiveMessageCallback(
       bind(&UdpServer::handleMessage, this, std::placeholders::_1));
 }
@@ -39,7 +40,9 @@ void UdpServer::handleMessage(ApplicationMessage &&message) {
     throw logic_error("Could not process message, message hander is nullptr!");
   }
   cout << "[INFO::UdpServer]received application message\n";
-  m_messageHandler->processMessage(move(message.convertToBytes()));
+  auto bytes = message.convertToBytes();
+  cout << "xd " <<(int) bytes[0] << "\n";
+  m_messageHandler->processMessage(move(bytes));
 }
 
 void UdpServer::stop() { m_messageReceiver->stop(); }
