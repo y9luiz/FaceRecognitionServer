@@ -28,12 +28,10 @@ int main(int argc, char * argv[]) {
 
     auto message = FaceDetectionRequestMessage(image);
     cout << "payload size " << message.header().payloadSize << "\n";
-    vector<uint8_t> messageData = message.convertToBytes();
 
-    client.sendMessage(move(messageData));
-
+    client.sendMessage(move(message));
   } catch (const exception &e) {
-    cout << e.what() << endl;
+   cout << e.what() << endl;
   }
 
   return 0;

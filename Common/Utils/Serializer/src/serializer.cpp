@@ -37,13 +37,13 @@ std::vector<uint8_t> Serializer::u32ToBytes(uint32_t val)
 
 uint32_t Serializer::u32FromBytes(const std::vector<uint8_t> & bytes)
 {
-    return bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[2] << 24;
+    return bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
 }
 
 uint32_t Serializer::getNumberOfBytes(const cv::Mat & image)
 {
     const auto imageHeaderSize = sizeof(image.cols)+sizeof(image.rows)+sizeof(image.type());
-    const auto imageDataSize = image.cols*image.rows*image.channels();
+    const auto imageDataSize = image.total() * image.elemSize();
 
     return imageHeaderSize + imageDataSize;
 }
