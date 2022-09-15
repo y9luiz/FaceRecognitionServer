@@ -7,6 +7,7 @@ target_link_libraries(test_udp_client
         ${PROJECT_NAME}::MockUdpSocket
         ${PROJECT_NAME}::MockApplicationMessages
         ${PROJECT_NAME}::MockMessageReceiver
+        ${PROJECT_NAME}::MessageSender
 )
 
 addToCoverageReport(test_udp_client)
