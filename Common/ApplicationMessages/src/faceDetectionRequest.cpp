@@ -2,7 +2,11 @@
 #include "applicationMessages.h"
 #include <serializer.h>
 
+#include <stdexcept>
+
 using cv::Mat;
+
+using std::invalid_argument;
 using std::vector;
 
 FaceDetectionRequestMessage::FaceDetectionRequestMessage(const Mat &image)
@@ -11,7 +15,12 @@ FaceDetectionRequestMessage::FaceDetectionRequestMessage(const Mat &image)
                           Serializer::getNumberOfBytes(image)},
                          Serializer::MatToBytes(image)),
       m_image(image.rows, image.cols, image.type(),
-              reinterpret_cast<void *>(payload().data())) {}
+              reinterpret_cast<void *>(payload().data())) {
+  if (m_image.rows <= 0 || m_image.cols <= 0 || m_image.channels() <= 0) {
+    throw invalid_argument(
+        "Could not create Face Detection Request Message, image is null");
+  }
+}
 
 FaceDetectionRequestMessage::FaceDetectionRequestMessage(
     vector<uint8_t> &&payload)

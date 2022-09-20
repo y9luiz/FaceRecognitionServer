@@ -3,6 +3,8 @@
 #include "udpSocket.h"
 #include <applicationMessages.h>
 
+#include <gmock/gmock-spec-builders.h>
+#include <gtest/gtest.h>
 #include <mockUdpSocket.h>
 
 #include <functional>
@@ -18,6 +20,7 @@ namespace this_thread = std::this_thread;
 
 using std::function;
 using std::invalid_argument;
+using std::logic_error;
 using std::make_shared;
 using std::optional;
 using std::pair;
@@ -63,7 +66,8 @@ public:
         m_mockReceiveMessageCallback.AsStdFunction());
   }
 
-  void injectMessageInMockUdpSocket(const ApplicationMessage &message) {
+  void injectMessageInMockUdpSocket(const ApplicationMessage &message,
+                                    bool isIncompleteMessage = false) {
     const auto splittedBytes = splitBigApplicationMessage(message);
     {
       InSequence s;
@@ -77,6 +81,9 @@ public:
           EXPECT_CALL(m_mockUdpSocket, receive)
               .WillOnce(DoAll(SetArgReferee<0>(packet), Return(packet.size())));
         }
+      }
+      if (isIncompleteMessage) {
+        EXPECT_CALL(m_mockUdpSocket, receive).WillOnce(Return(0));
       }
 
       EXPECT_CALL(m_mockUdpSocket, receiveFrom).WillRepeatedly(Return(0));
@@ -151,7 +158,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
 TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 
-  vector<uint8_t> payload(1500 * 3, 'o');
+  vector<uint8_t> payload(MaximumPacketSize * 3, 'o');
 
   ApplicationMessage completeMessage{
       ApplicationMessage::Header(0, payload.size()), move(payload)};
@@ -171,7 +178,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 
 TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
-  vector<uint8_t> payload(1500 * 3, 'o');
+  vector<uint8_t> payload(MaximumPacketSize * 3, 'o');
 
   ApplicationMessage completeMessage{
       ApplicationMessage::Header(0, payload.size()), move(payload)};
@@ -183,6 +190,23 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(Eq(completeMessage), _))
       .Times(3);
+
+  m_uut = MessageReceiverFactory::createUdpServerMessageReceiver(LocalEndpoit);
+  registerMessageHandlerCallback();
+
+  EXPECT_TRUE(m_uut->isRunning());
+
+  this_thread::sleep_for(2s);
+}
+
+TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessIncompleteMessage) {
+  vector<uint8_t> payload(MaximumPacketSize, 'o');
+  ApplicationMessage incompleteMessage{
+      ApplicationMessage::Header{0, MaximumPacketSize + 10}, move(payload)};
+
+  injectMessageInMockUdpSocket(incompleteMessage, true);
+
+  EXPECT_CALL(m_mockReceiveMessageCallback, Call(_, _)).Times(0);
 
   m_uut = MessageReceiverFactory::createUdpServerMessageReceiver(LocalEndpoit);
   registerMessageHandlerCallback();
@@ -204,6 +228,17 @@ public:
 
   unique_ptr<MessageReceiverInterface> m_uut;
 };
+
+TEST_F(TestUdpMessageReceiverForClient, notCreateIfSocketIsClosed) {
+  EXPECT_CALL(m_mockUdpSocket, isOpen).WillOnce(Return(false));
+
+  EXPECT_THROW(
+      [this]() {
+        auto socket = make_shared<UdpSocket>();
+        m_uut = MessageReceiverFactory::createUdpClientMessageReceiver(socket);
+      }(),
+      logic_error);
+}
 
 TEST_F(TestUdpMessageReceiverForClient, createClient) {
   EXPECT_CALL(m_mockUdpSocket, isOpen).WillOnce(Return(true));

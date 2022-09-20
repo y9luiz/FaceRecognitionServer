@@ -10,9 +10,6 @@ public:
   using ReceiveMessageCallbackT =
       std::function<void(ApplicationMessage &&, const Origin &)>;
 
-  ParallelMessageReceiver(
-      std::unique_ptr<MessageReceiverInterface> messageReceiver);
-
   void setReceiveMessageCallback(ReceiveMessageCallbackT callback);
 
   virtual ~ParallelMessageReceiver();
@@ -24,6 +21,9 @@ public:
   bool isRunning();
 
 protected:
+   ParallelMessageReceiver(
+      std::unique_ptr<MessageReceiverInterface> messageReceiver);
+
   std::optional<std::pair<ApplicationMessage, Origin>>
   receiveMessage() override;
 

@@ -95,6 +95,15 @@ public:
   unique_ptr<FaceDetectionRequestMessage> m_uut;
 };
 
+TEST_F(TestFaceDetectionRequestMessage, createUsingEmptyMat) {
+  EXPECT_THROW(
+      [this]() {
+        Mat img;
+        m_uut = make_unique<FaceDetectionRequestMessage>(img);
+      }(),
+      invalid_argument);
+}
+
 TEST_F(TestFaceDetectionRequestMessage, DISABLED_internalMessageErase) {
   Mat img = imread("/home/lcorreia/Pictures/car.png");
   m_uut = make_unique<FaceDetectionRequestMessage>(img);
@@ -120,11 +129,13 @@ TEST_F(TestFaceDetectionResponseMessage, createFromBytes) {
   rects.emplace_back(0, 1, 2, 3);
   auto bytes = Serializer::VectorRectToBytes(rects);
   m_uut = make_unique<FaceDetectionResponseMessage>(move(bytes));
+
+  EXPECT_THAT(rects, ContainerEq(m_uut->facesBoudingBoxes()));
 }
 
 TEST_F(TestFaceDetectionResponseMessage, createFromEmptyVector) {
   vector<Rect2i> rects;
-  auto bytes = Serializer::VectorRectToBytes(rects);
-  m_uut = make_unique<FaceDetectionResponseMessage>(move(bytes));
   m_uut = make_unique<FaceDetectionResponseMessage>(rects);
+
+  EXPECT_THAT(rects, ContainerEq(m_uut->facesBoudingBoxes()));
 }
