@@ -9,12 +9,14 @@ You can watch the development of this project on my [Youtube Channel](https://ww
   
   - C++17
   - Boost Library 1.65+
+  - OpenCV 4.5.4+
   
 ### Ubuntu 18.04+
 
 On ubuntu 18.04+ run the following command lines: 
 
-#### Installing dependencies
+#### Installing dependencies - Part 1
+
 ```
 sudo apt-get update
 sudo apt-get install -y git
@@ -24,6 +26,27 @@ sudo apt-get install -y libboost-dev
 sudo apt-get install -y libboost-system-dev
 sudo apt-get install -y libboost-date-time-dev
 ```
+
+#### Installing dependencies - Part 2 (OpenCV) (if ubuntu < 22.04)
+
+```
+mkdir ~/Libraries
+cd ~/Libraries
+git clone https://github.com/opencv/opencv.git
+cd opencv
+mkdir build
+cd build
+cmake ..
+cmake --build .
+sudo cmake --install .
+```
+
+#### Installing dependencies - Part 2 (OpenCV) (if ubuntu >= 22.04)
+
+```
+sudo apt-get install libopencv-dev
+```
+
 #### Build from souce 
 
 ```
