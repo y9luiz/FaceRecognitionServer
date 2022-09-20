@@ -1,7 +1,7 @@
 #pragma once
 
-#include "applicationMessages.h"
 #include "messageReceiverInterface.h"
+#include <applicationMessages.h>
 
 #include <gmock/gmock.h>
 
@@ -10,11 +10,6 @@ public:
   MockMessageReceiver();
   ~MockMessageReceiver();
 
-  MOCK_METHOD(void, setReceiveMessageCallback, (ReceiveMessageCallbackT));
-  MOCK_METHOD(void, start, ());
-  MOCK_METHOD(void, stop, ());
-  MOCK_METHOD(bool, isRunning, ());
-  MOCK_METHOD(std::optional<ApplicationMessage>, receiveMessage, (),
-              (override));
-  MOCK_METHOD(void, processMessage, (ApplicationMessage &&));
+  MOCK_METHOD((std::optional<std::pair<ApplicationMessage, Origin>>),
+              receiveMessage, (), (override));
 };

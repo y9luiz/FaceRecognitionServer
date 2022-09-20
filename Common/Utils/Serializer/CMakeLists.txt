@@ -13,6 +13,7 @@ target_include_directories(Serializer
 target_link_libraries(Serializer
     PUBLIC
         ${OpenCV_LIBS}
+        ${PROJECT_NAME}::Types
 )
 
 add_subdirectory(test)

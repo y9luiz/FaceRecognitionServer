@@ -6,4 +6,8 @@ add_library(${PROJECT_NAME}::Utils
         Utils
 )
 
-target_link_libraries(Utils INTERFACE ${PROJECT_NAME}::Serializer)
+target_link_libraries(Utils
+    INTERFACE
+        ${PROJECT_NAME}::Serializer
+        ${PROJECT_NAME}::Types
+)

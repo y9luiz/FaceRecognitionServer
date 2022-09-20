@@ -1,13 +1,10 @@
 #pragma once
 
+#include <endpoint.h>
+
 #include <boost/asio.hpp>
 #include <chrono>
 #include <memory>
-
-struct Endpoint {
-  std::string address;
-  uint16_t port;
-};
 
 enum class IpProtocolVersion : uint8_t { V4, V6 };
 

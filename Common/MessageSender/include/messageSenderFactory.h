@@ -9,7 +9,7 @@ class Endpoint;
 
 class MessageSenderFactory {
 public:
-  static std::unique_ptr<MessageSenderInterface> createUdpMessageSender();
+  static std::unique_ptr<UdpMessageSender> createUdpMessageSender();
 
   static void sendMessage(MessageSenderInterface &udpMessageSender,
                           ApplicationMessage &&message,

@@ -1,30 +1,58 @@
 #include "faceDetectionUdpServer.h"
-#include "applicationMessages.h"
-#include "messageHandler.h"
-#include "serializer.h"
-#include "udpServer.h"
 #include "faceDetectionRequest.h"
+#include "faceDetectionResponse.h"
+#include "messageHandler.h"
+#include "messageSenderFactory.h"
 
 #include <memory>
+#include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
+using cv::FaceDetectorYN;
+using cv::Mat;
+using cv::Rect2i;
+using cv::Size;
+
+using std::cout;
+using std::make_unique;
+using std::move;
 using std::string;
 using std::vector;
-using std::move;
-using std::make_unique;
 
-FaceDetectionUdpServer::FaceDetectionUdpServer(const std::string &ip, uint16_t port) : UdpServer(ip,port)
-{
-    m_messageHandler = std::make_unique<MessageHandler>();
-    m_messageHandler->registerCallback(static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionRequest),[](std::vector<uint8_t> && message){         
-        auto payloadSize = Serializer::u32FromBytes(message);
-        
-        message.erase(message.begin(),message.begin()+sizeof(uint32_t));
-        message.resize(payloadSize);
-        
-        auto image = Serializer::MatFromBytes(message);
-        cv::imshow("img", image);
-        cv::waitKey();
-        
-    });
+FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
+    : UdpServer(ip, port) {
+  m_faceDetector = FaceDetectorYN::create(
+      "../models/face_detection_yunet_2022mar-act_int8-wt_int8-quantized.onnx",
+      "", Size(320, 240));
+
+  m_messageHandler = make_unique<MessageHandler>();
+  m_messageHandler->registerCallback(
+      static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionRequest),
+      [this](ApplicationMessage &&message, const Endpoint &endpoint) {
+        FaceDetectionRequestMessage request(move(message.payload()));
+
+        auto image = request.image();
+
+        if (m_faceDetector) {
+          Mat faces;
+          m_faceDetector->setInputSize(image.size());
+          m_faceDetector->detect(image, faces);
+
+          if (faces.rows) {
+            vector<Rect2i> boundingBoxes;
+            boundingBoxes.reserve(faces.rows);
+            for (int i = 0; i < faces.rows; i++) {
+              boundingBoxes.emplace_back(
+                  Rect2i(faces.at<float>(i, 0), faces.at<float>(i, 1),
+                         faces.at<float>(i, 2), faces.at<float>(i, 3)));
+            }
+
+            FaceDetectionResponseMessage response(boundingBoxes);
+
+            MessageSenderFactory::sendMessage(*m_messageSender, move(response),
+                                              endpoint);
+          }
+        }
+        cout << "callback finished\n";
+      });
 }

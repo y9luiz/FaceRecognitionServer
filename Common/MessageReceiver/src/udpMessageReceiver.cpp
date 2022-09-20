@@ -1,36 +1,33 @@
 #include "udpMessageReceiver.h"
+#include "messageReceiverInterface.h"
+
+#include <applicationMessages.h>
+#include <serializer.h>
 
 #include <iostream>
-#include <memory>
-#include <optional>
-#include <stdexcept>
-#include <vector>
 
 using std::cout;
-using std::exception;
+using std::make_pair;
+using std::make_shared;
 using std::move;
 using std::nullopt;
 using std::optional;
-using std::unique_ptr;
+using std::pair;
+using std::shared_ptr;
 using std::vector;
 
-UdpMessageReceiver::UdpMessageReceiver(unique_ptr<UdpSocket> socket)
-    : m_socket(move(socket)) {
-  start();
-}
+UdpMessageReceiver::UdpMessageReceiver() : m_socket(make_shared<UdpSocket>()) {}
 
-UdpMessageReceiver::~UdpMessageReceiver() {
-  try {
-    stop();
-  } catch (exception &e) {
-    cout << "[ERROR::~UdpMessageReceiver()] " << e.what() << "\n";
-  }
-}
+UdpMessageReceiver::UdpMessageReceiver(shared_ptr<UdpSocket> socket)
+    : m_socket(move(socket)) {}
 
-optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
+optional<pair<ApplicationMessage, MessageReceiverInterface::Origin>>
+UdpMessageReceiver::receiveMessage() {
+
   vector<uint8_t> buffer(MaximumPacketSize);
 
-  auto receivedDataSize = m_socket->receive(buffer);
+  Endpoint endpoint;
+  auto receivedDataSize = m_socket->receiveFrom(buffer, endpoint);
 
   if (!receivedDataSize) {
     return nullopt;
@@ -42,7 +39,7 @@ optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
     buffer.erase(buffer.begin());
   }
 
-  ApplicationMessage message(header,move(buffer));
+  ApplicationMessage message(header, move(buffer));
 
   uint32_t amountOfBytesReceived = receivedDataSize;
   const auto expectMessageTotalSize = header.payloadSize + sizeof(header);
@@ -53,19 +50,13 @@ optional<ApplicationMessage> UdpMessageReceiver::receiveMessage() {
     receivedDataSize = m_socket->receive(buffer);
     if (receivedDataSize) {
       amountOfBytesReceived += receivedDataSize;
-      copy(buffer.begin(),buffer.begin() + receivedDataSize,back_inserter(message.payload()));
+      copy(buffer.begin(), buffer.begin() + receivedDataSize,
+           back_inserter(message.payload()));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";
       return nullopt;
     }
   }
-
-  return message;
+  return make_pair<ApplicationMessage, Origin>(
+      move(message), Serializer::EndpointToBytes(endpoint));
 }
-
-void UdpMessageReceiver::start() {
-  cout << "[INFO::UdpMessageReceiver] created UdpMessageReceiver\n";
-  MessageReceiverInterface::start();
-}
-
-void UdpMessageReceiver::stop() { MessageReceiverInterface::stop(); }

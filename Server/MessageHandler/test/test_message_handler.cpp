@@ -1,3 +1,5 @@
+#include "applicationMessages.h"
+#include "endpoint.h"
 #include <gmock/gmock-spec-builders.h>
 #include <messageHandler.h>
 
@@ -13,7 +15,9 @@ using std::vector;
 
 namespace {
 constexpr auto DefaultMessageCode = 0u;
-}
+const Endpoint DefaultEndpoint{"127.0.0.1", 5000};
+
+} // namespace
 
 class TestMessageHandler : public Test {
 public:
@@ -21,7 +25,8 @@ public:
 
   MessageHandler m_uut;
 
-  MockFunction<void(vector<uint8_t> &&)> m_mockProcessMessageCallback;
+  MockFunction<void(ApplicationMessage &&, const Endpoint &)>
+      m_mockProcessMessageCallback;
 };
 
 TEST_F(TestMessageHandler, shouldNotRegisterNullCallback) {
@@ -36,21 +41,25 @@ TEST_F(TestMessageHandler, shouldRegisterCallback) {
 
 TEST_F(TestMessageHandler, shouldNotProcessEmptyMessage) {
   vector<uint8_t> emptyMessage;
-  EXPECT_THROW(m_uut.processMessage(move(emptyMessage)), invalid_argument);
+  EXPECT_THROW(m_uut.processMessage(move(emptyMessage), DefaultEndpoint),
+               invalid_argument);
 }
 
 TEST_F(TestMessageHandler,
        shouldNotProcessMessageWhenNotHaveRegisteredCallback) {
   vector<uint8_t> message{DefaultMessageCode};
-  EXPECT_THROW(m_uut.processMessage(move(message)), invalid_argument);
+  EXPECT_THROW(m_uut.processMessage(move(message), DefaultEndpoint),
+               invalid_argument);
 }
 
 TEST_F(TestMessageHandler, shouldProcessMessage) {
   m_uut.registerCallback(DefaultMessageCode,
                          m_mockProcessMessageCallback.AsStdFunction());
+  ApplicationMessage message{{DefaultMessageCode, 0}, {}};
+  auto messageCopy = message;
 
-  EXPECT_CALL(m_mockProcessMessageCallback, Call(_));
+  EXPECT_CALL(m_mockProcessMessageCallback,
+              Call(move(messageCopy), DefaultEndpoint));
 
-  vector<uint8_t> message{DefaultMessageCode};
-  m_uut.processMessage(move(message));
+  m_uut.processMessage(move(message), DefaultEndpoint);
 }

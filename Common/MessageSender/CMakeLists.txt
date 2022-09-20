@@ -1,7 +1,7 @@
 add_library(MessageSender
     STATIC 
         include/messageSenderInterface.h
-        src/udpMessageSender.h
+        include/udpMessageSender.h
         src/udpMessageSender.cpp
         include/messageSenderFactory.h
         src/messageSenderFactory.cpp

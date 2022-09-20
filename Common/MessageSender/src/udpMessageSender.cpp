@@ -1,5 +1,6 @@
 #include "udpMessageSender.h"
 #include "applicationMessages.h"
+#include "serializer.h"
 #include "udpSocket.h"
 
 #include <iostream>
@@ -9,17 +10,25 @@
 #include <thread>
 #include <vector>
 
+using namespace std::chrono_literals;
+
+namespace this_thread = std::this_thread;
+
 using std::invalid_argument;
 using std::lock_guard;
 using std::make_pair;
+using std::make_shared;
 using std::make_unique;
 using std::move;
 using std::pair;
 using std::queue;
+using std::string;
 using std::thread;
 using std::vector;
 
 UdpMessageSender::UdpMessageSender() : m_isRunning{true} {
+  m_socket = make_shared<UdpSocket>();
+  m_socket->open();
   m_sendMessageThread =
       make_unique<thread>(&UdpMessageSender::sendMessageWorker, this);
 }
@@ -42,7 +51,7 @@ void UdpMessageSender::sendMessage(ApplicationMessage &&applicationMessage,
 
     sendMessage(move(applicationMessage), udpDestination.endpoint);
   } else {
-    std::string message = "Destination isn't a udp endpoint ";
+    string message = "Destination isn't a udp endpoint ";
     throw invalid_argument(message + typeid(destination).name());
   }
 }
@@ -53,33 +62,29 @@ void UdpMessageSender::sendMessage(ApplicationMessage &&applicationMessage,
   lock_guard _(m_messageQueueMutex);
   m_messageQueue.push(make_pair<ApplicationMessage, Endpoint>(
       move(applicationMessage), move(ep)));
-
-  std::cout << "jogou dentro\n";
 }
 
 void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
                             const Endpoint &destination) {
+
   auto header = message.header();
   auto payload = message.payload();
-
-  std::cout << "Payload size " << payload.size() << "\n";
 
   vector<uint8_t> buffer(header.convertToBytes());
   buffer.reserve(MaximumPacketSize);
 
-  if (message.size() < MaximumPacketSize) {
-    std::move(payload.begin(), payload.end(), std::back_inserter(buffer));
+  if (message.size() < MaximumPacketSize - buffer.size()) {
+    move(payload.begin(), payload.end(), back_inserter(buffer));
     socket.sendTo(buffer, destination);
     return;
   }
 
   auto startIt = payload.begin();
-  auto endIt = payload.begin() +
-               (MaximumPacketSize - sizeof(ApplicationMessage::Header));
+  auto endIt = payload.begin() + (MaximumPacketSize - buffer.size());
 
   uint32_t numberOfBytesSended = 0;
-  
-  std::move(startIt, endIt,std::back_inserter(buffer));
+
+  move(startIt, endIt, back_inserter(buffer));
 
   while (numberOfBytesSended < message.size()) {
 
@@ -95,14 +100,12 @@ void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
       buffer.resize(reminderBytesAmount);
     }
 
-    std::move(startIt, endIt, buffer.begin());
-    std::this_thread::sleep_for(std::chrono::microseconds(10));
+    move(startIt, endIt, buffer.begin());
+    this_thread::sleep_for(1ms);
   }
 }
 
 void UdpMessageSender::sendMessageWorker() {
-  m_socket.open();
-
   queue<pair<ApplicationMessage, Endpoint>> temporaryMessageQueue;
 
   while (m_isRunning) {
@@ -114,9 +117,11 @@ void UdpMessageSender::sendMessageWorker() {
 
       auto [message, destination] = move(temporaryMessageQueue.front());
 
-      sendApplicationMessage(m_socket, move(message), destination);
+      sendApplicationMessage(*m_socket, move(message), destination);
 
       temporaryMessageQueue.pop();
     }
+
+    this_thread::sleep_for(1us);
   }
 }

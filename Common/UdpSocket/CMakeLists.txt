@@ -9,10 +9,14 @@ add_library(${PROJECT_NAME}::UdpSocket
         UdpSocket
 )
 
-target_include_directories(
-    UdpSocket 
+target_include_directories(UdpSocket
     PUBLIC 
         include/
+)
+
+target_link_libraries(UdpSocket
+    PUBLIC
+        ${PROJECT_NAME}::Types
 )
 
 add_subdirectory(mock)

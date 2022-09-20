@@ -21,12 +21,14 @@ public:
   void sendMessage(ApplicationMessage &&applicationMessage,
                    const Endpoint &destination);
 
+  std::shared_ptr<UdpSocket> socket() { return m_socket; }
+
 private:
   void sendMessage(ApplicationMessage &&applicationMessage,
                    const Destination &destination) override;
   void sendMessageWorker();
 
-  UdpSocket m_socket;
+  std::shared_ptr<UdpSocket> m_socket;
   std::atomic<bool> m_isRunning;
   std::mutex m_messageQueueMutex;
   std::queue<std::pair<ApplicationMessage, Endpoint>> m_messageQueue;

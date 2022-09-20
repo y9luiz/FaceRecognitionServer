@@ -1,5 +1,8 @@
 #include "udpServer.h"
 #include "messageReceiverFactory.h"
+#include "messageReceiverInterface.h"
+#include "messageSenderFactory.h"
+#include "serializer.h"
 #include <udpSocket.h>
 
 #include <functional>
@@ -16,6 +19,7 @@ using namespace boost::asio::ip;
 
 UdpServer::UdpServer(const string &ip, uint16_t port) : m_ip(ip), m_port(port) {
   initializeMessageReceiver();
+  m_messageSender = MessageSenderFactory::createUdpMessageSender();
 }
 
 UdpServer::~UdpServer() { stop(); }
@@ -32,17 +36,22 @@ void UdpServer::initializeMessageReceiver() {
 void UdpServer::registerMessageReceiverCallback() {
 
   m_messageReceiver->setReceiveMessageCallback(
-      bind(&UdpServer::handleMessage, this, std::placeholders::_1));
+      [this](ApplicationMessage &&message,
+             const MessageReceiverInterface::Origin &origin) {
+        auto originCopy = origin;
+        auto endpoint = Serializer::EndpointFromBytes(originCopy);
+        handleMessage(move(message), endpoint);
+      });
 }
 
-void UdpServer::handleMessage(ApplicationMessage &&message) {
+void UdpServer::handleMessage(ApplicationMessage &&message,
+                              const Endpoint &endpoint) {
   if (!m_messageHandler) {
     throw logic_error("Could not process message, message hander is nullptr!");
   }
   cout << "[INFO::UdpServer]received application message\n";
-  auto bytes = message.convertToBytes();
-  cout << "xd " <<(int) bytes[0] << "\n";
-  m_messageHandler->processMessage(move(bytes));
+
+  m_messageHandler->processMessage(move(message), endpoint);
 }
 
 void UdpServer::stop() { m_messageReceiver->stop(); }

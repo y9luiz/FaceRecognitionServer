@@ -9,8 +9,7 @@ using std::make_unique;
 using std::move;
 using std::unique_ptr;
 
-unique_ptr<MessageSenderInterface>
-MessageSenderFactory::createUdpMessageSender() {
+unique_ptr<UdpMessageSender> MessageSenderFactory::createUdpMessageSender() {
   return make_unique<UdpMessageSender>();
 }
 

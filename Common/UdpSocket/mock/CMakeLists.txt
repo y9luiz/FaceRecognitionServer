@@ -10,4 +10,6 @@ target_include_directories(MockUdpSocket
 target_link_libraries(MockUdpSocket
     PRIVATE
         gmock_main
+    PUBLIC
+        ${PROJECT_NAME}::Types
 )

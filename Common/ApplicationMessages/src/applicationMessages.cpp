@@ -1,6 +1,8 @@
 #include "applicationMessages.h"
+
 #include <serializer.h>
 
+#include <cstdint>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -24,7 +26,7 @@ ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {
 
   auto it = bytes.begin();
   code = *(it++);
-  payloadSize = Serializer::u32FromBytes({it,bytes.end()});
+  payloadSize = Serializer::u32FromBytes({it, bytes.end()});
 }
 
 vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
@@ -32,7 +34,7 @@ vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
 
   bytes[0] = code;
   auto payloadSizeInBytes = Serializer::u32ToBytes(payloadSize);
-  copy(payloadSizeInBytes.begin(),payloadSizeInBytes.end(),bytes.begin() + 1);
+  copy(payloadSizeInBytes.begin(), payloadSizeInBytes.end(), bytes.begin() + 1);
 
   return bytes;
 }

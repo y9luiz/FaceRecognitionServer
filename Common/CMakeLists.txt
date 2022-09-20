@@ -1,3 +1,4 @@
+add_subdirectory(Types)
 add_subdirectory(Utils)
 add_subdirectory(UdpSocket)
 add_subdirectory(ApplicationMessages)

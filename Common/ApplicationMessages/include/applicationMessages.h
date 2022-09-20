@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <stdint.h>
 #include <vector>
 
@@ -9,13 +10,12 @@ constexpr uint16_t MaximumPacketSize = 1500;
 
 class ApplicationMessage {
 public:
-
-enum class Types : uint8_t{
-  FaceDetectionRequest,
-  FaceDetectionResponse,
-  FaceRecognitionRequest,
-  FaceRecognitionResponse
-};
+  enum class Types : uint8_t {
+    FaceDetectionRequest,
+    FaceDetectionResponse,
+    FaceRecognitionRequest,
+    FaceRecognitionResponse
+  };
 
 #pragma pack(push, 1)
   struct Header {
@@ -28,7 +28,7 @@ enum class Types : uint8_t{
     std::vector<uint8_t> convertToBytes() const;
   };
 #pragma pack(pop)
-  ApplicationMessage(Header header,std::vector<uint8_t> &&payload);
+  ApplicationMessage(Header header, std::vector<uint8_t> &&payload);
 
   ApplicationMessage(std::vector<uint8_t> &&message);
 
@@ -39,11 +39,10 @@ enum class Types : uint8_t{
   std::vector<uint8_t> convertToBytes() const;
   std::size_t size() const;
 
-  bool operator==(const ApplicationMessage & other) const
-  {
-    return other.m_header.code == m_header.code
-            && other.m_header.payloadSize == m_header.payloadSize
-            && other.m_payload == m_payload;
+  bool operator==(const ApplicationMessage &other) const {
+    return other.m_header.code == m_header.code &&
+           other.m_header.payloadSize == m_header.payloadSize &&
+           other.m_payload == m_payload;
   }
 
 private:
