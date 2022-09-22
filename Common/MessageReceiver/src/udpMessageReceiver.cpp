@@ -57,7 +57,6 @@ UdpMessageReceiver::receiveMessage() {
     }
   }
 
-  std::cout << message.size() << "\n";
   return make_pair<ApplicationMessage, Origin>(
       ApplicationMessage(header.code, move(message)), endpoint.toBytes());
 }
