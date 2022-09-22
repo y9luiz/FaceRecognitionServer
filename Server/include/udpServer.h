@@ -3,7 +3,6 @@
 #include "applicationMessages.h"
 #include "messageHandler.h"
 #include "messageReceiverInterface.h"
-#include "messageSenderInterface.h"
 #include "parallelMessageReceiver.h"
 #include "udpMessageSender.h"
 

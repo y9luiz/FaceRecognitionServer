@@ -55,7 +55,7 @@ TEST_F(TestMessageHandler,
 TEST_F(TestMessageHandler, shouldProcessMessage) {
   m_uut.registerCallback(DefaultMessageCode,
                          m_mockProcessMessageCallback.AsStdFunction());
-  ApplicationMessage message{{DefaultMessageCode, 0}, {}};
+  ApplicationMessage message{DefaultMessageCode, {}};
   auto messageCopy = message;
 
   EXPECT_CALL(m_mockProcessMessageCallback,

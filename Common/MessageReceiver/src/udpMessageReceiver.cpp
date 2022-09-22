@@ -1,4 +1,5 @@
 #include "udpMessageReceiver.h"
+#include "endpoint.h"
 #include "messageReceiverInterface.h"
 
 #include <applicationMessages.h>
@@ -24,39 +25,39 @@ UdpMessageReceiver::UdpMessageReceiver(shared_ptr<UdpSocket> socket)
 optional<pair<ApplicationMessage, MessageReceiverInterface::Origin>>
 UdpMessageReceiver::receiveMessage() {
 
-  vector<uint8_t> buffer(MaximumPacketSize);
+  vector<uint8_t> tempBuffer(MaximumPacketSize);
 
   Endpoint endpoint;
-  auto receivedDataSize = m_socket->receiveFrom(buffer, endpoint);
+  auto receivedDataSize = m_socket->receiveFrom(tempBuffer, endpoint);
 
   if (!receivedDataSize) {
     return nullopt;
   }
 
-  ApplicationMessage::Header header(buffer);
-
-  for (int i = 0; i < sizeof(ApplicationMessage::Header); i++) {
-    buffer.erase(buffer.begin());
-  }
-
-  ApplicationMessage message(header, move(buffer));
+  ApplicationMessage::Header header(tempBuffer);
 
   uint32_t amountOfBytesReceived = receivedDataSize;
-  const auto expectMessageTotalSize = header.payloadSize + sizeof(header);
+  const auto expectMessageTotalSize =
+      header.payloadSize + sizeof(ApplicationMessage::Header);
 
-  buffer.resize(MaximumPacketSize);
+  vector<uint8_t> message;
+  message.reserve(expectMessageTotalSize);
 
+  copy(tempBuffer.begin(), tempBuffer.end(), back_inserter(message));
+  tempBuffer.resize(MaximumPacketSize);
   while (amountOfBytesReceived < expectMessageTotalSize) {
-    receivedDataSize = m_socket->receive(buffer);
+    receivedDataSize = m_socket->receive(tempBuffer);
     if (receivedDataSize) {
       amountOfBytesReceived += receivedDataSize;
-      copy(buffer.begin(), buffer.begin() + receivedDataSize,
-           back_inserter(message.payload()));
+      move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+           back_inserter(message));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";
       return nullopt;
     }
   }
+
+  std::cout << message.size() << "\n";
   return make_pair<ApplicationMessage, Origin>(
-      move(message), Serializer::EndpointToBytes(endpoint));
+      ApplicationMessage(header.code, move(message)), endpoint.toBytes());
 }

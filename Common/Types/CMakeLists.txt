@@ -1,8 +1,20 @@
-add_library(Types INTERFACE)
+add_library(Types
+  STATIC
+    include/endpoint.h
+    src/endpoint.cpp
+)
 
-add_library(${PROJECT_NAME}::Types ALIAS Types)
+add_library(${PROJECT_NAME}::Types
+  ALIAS
+    Types
+)
 
 target_include_directories(Types 
-  INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC
+    include
+)
+
+target_link_libraries(Types
+  PRIVATE
+    Serializer
 )

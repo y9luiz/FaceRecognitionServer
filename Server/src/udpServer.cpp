@@ -1,17 +1,18 @@
 #include "udpServer.h"
+#include "endpoint.h"
 #include "messageReceiverFactory.h"
 #include "messageReceiverInterface.h"
-#include "messageSenderFactory.h"
 #include "serializer.h"
+#include "udpMessageSender.h"
 #include <udpSocket.h>
 
 #include <functional>
 #include <iostream>
 #include <memory>
 
-using std::bind;
 using std::cout;
 using std::logic_error;
+using std::make_unique;
 using std::move;
 using std::string;
 
@@ -19,7 +20,7 @@ using namespace boost::asio::ip;
 
 UdpServer::UdpServer(const string &ip, uint16_t port) : m_ip(ip), m_port(port) {
   initializeMessageReceiver();
-  m_messageSender = MessageSenderFactory::createUdpMessageSender();
+  m_messageSender = make_unique<UdpMessageSender>();
 }
 
 UdpServer::~UdpServer() { stop(); }
@@ -39,7 +40,7 @@ void UdpServer::registerMessageReceiverCallback() {
       [this](ApplicationMessage &&message,
              const MessageReceiverInterface::Origin &origin) {
         auto originCopy = origin;
-        auto endpoint = Serializer::EndpointFromBytes(originCopy);
+        auto endpoint = Endpoint::fromBytes(move(originCopy));
         handleMessage(move(message), endpoint);
       });
 }

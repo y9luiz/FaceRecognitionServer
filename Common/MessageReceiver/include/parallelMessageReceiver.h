@@ -3,6 +3,7 @@
 #include "messageReceiverInterface.h"
 
 #include <atomic>
+#include <condition_variable>
 #include <thread>
 
 class ParallelMessageReceiver : public MessageReceiverInterface {
@@ -21,7 +22,7 @@ public:
   bool isRunning();
 
 protected:
-   ParallelMessageReceiver(
+  ParallelMessageReceiver(
       std::unique_ptr<MessageReceiverInterface> messageReceiver);
 
   std::optional<std::pair<ApplicationMessage, Origin>>

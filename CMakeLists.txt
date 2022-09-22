@@ -25,6 +25,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include(gtest)
 include(coverage)
 
+add_subdirectory(assets)
 add_subdirectory(Common)
 add_subdirectory(Server)
 add_subdirectory(Client)

@@ -1,10 +1,7 @@
 add_library(MessageSender
     STATIC 
-        include/messageSenderInterface.h
         include/udpMessageSender.h
         src/udpMessageSender.cpp
-        include/messageSenderFactory.h
-        src/messageSenderFactory.cpp
 )
 
 add_library(${PROJECT_NAME}::MessageSender
@@ -24,3 +21,5 @@ target_link_libraries(MessageSender
        ${PROJECT_NAME}::ApplicationMessages
        ${PROJECT_NAME}::UdpSocket
 )
+
+add_subdirectory(test)

@@ -18,7 +18,6 @@ using namespace testing;
 using namespace std::chrono_literals;
 namespace this_thread = std::this_thread;
 
-using std::function;
 using std::invalid_argument;
 using std::logic_error;
 using std::make_shared;
@@ -141,9 +140,7 @@ TEST_F(TestUdpMessageReceiverForServer,
 
 TEST_F(TestUdpMessageReceiverForServer,
        shouldNotProcessWhenCallbackNotRegistered) {
-
-  ApplicationMessage completeMessage{ApplicationMessage::Header(0, 5),
-                                     {'0', '1', '2', '3', '4'}};
+  ApplicationMessage completeMessage{0, {'0', '1', '2', '3', '4'}};
 
   injectMessageInMockUdpSocket(completeMessage);
 
@@ -157,11 +154,9 @@ TEST_F(TestUdpMessageReceiverForServer,
 }
 
 TEST_F(TestUdpMessageReceiverForServer, processMessage) {
-
   vector<uint8_t> payload(MaximumPacketSize * 3, 'o');
 
-  ApplicationMessage completeMessage{
-      ApplicationMessage::Header(0, payload.size()), move(payload)};
+  ApplicationMessage completeMessage{0, move(payload)};
 
   injectMessageInMockUdpSocket(completeMessage);
 
@@ -177,11 +172,9 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
 }
 
 TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
-
   vector<uint8_t> payload(MaximumPacketSize * 3, 'o');
 
-  ApplicationMessage completeMessage{
-      ApplicationMessage::Header(0, payload.size()), move(payload)};
+  ApplicationMessage completeMessage{0, move(payload)};
 
   vector<ApplicationMessage> messages{completeMessage, completeMessage,
                                       completeMessage};
@@ -201,9 +194,8 @@ TEST_F(TestUdpMessageReceiverForServer, processMultipleMessages) {
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessIncompleteMessage) {
   vector<uint8_t> payload(MaximumPacketSize, 'o');
-  ApplicationMessage incompleteMessage{
-      ApplicationMessage::Header{0, MaximumPacketSize + 10}, move(payload)};
-
+  ApplicationMessage incompleteMessage{0, move(payload)};
+  incompleteMessage.reserve(MaximumPacketSize + 10);
   injectMessageInMockUdpSocket(incompleteMessage, true);
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_, _)).Times(0);

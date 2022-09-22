@@ -1,4 +1,9 @@
 #include "mockApplicationMessages.h"
+#include "applicationMessages.h"
+#include <gmock/gmock-actions.h>
+#include <gmock/gmock-spec-builders.h>
+
+using namespace testing;
 
 using std::logic_error;
 using std::move;
@@ -7,6 +12,9 @@ using std::vector;
 
 namespace {
 MockApplicationMessage *g_mock = nullptr;
+
+const vector<uint8_t> DefaultPayload = {'p', 'a', 'y', 'l', 'o', 'a', 'd'};
+constexpr auto DefaultCode = 0u;
 
 void assertMockExists() {
   if (!g_mock) {
@@ -19,10 +27,17 @@ void assertMockNotExists() {
     throw logic_error("MockApplicationMessage should be null!");
   }
 }
+
 }; // namespace
 
 MockApplicationMessage::MockApplicationMessage() {
   assertMockNotExists();
+
+  ON_CALL(*this, payload).WillByDefault(ReturnRefOfCopy(DefaultPayload));
+  ON_CALL(*this, header)
+      .WillByDefault(Return(
+          ApplicationMessage::Header(DefaultCode, DefaultPayload.size())));
+
   g_mock = this;
 }
 
@@ -34,16 +49,14 @@ MockApplicationMessage::~MockApplicationMessage() {
 ApplicationMessage::Header::Header(uint8_t code, uint32_t payloadSize)
     : code(code), payloadSize(payloadSize) {}
 
-ApplicationMessage::Header::Header(const vector<uint8_t> &bytes) {}
+ApplicationMessage::Header::Header(vector<uint8_t> &bytes) {}
 
-vector<uint8_t> ApplicationMessage::Header::convertToBytes() const {
-  return {};
-}
+vector<uint8_t> ApplicationMessage::Header::toBytes() const { return {}; }
 
-ApplicationMessage::ApplicationMessage(ApplicationMessage::Header header,vector<uint8_t> &&payload)
-    : m_header(header) {
+ApplicationMessage::ApplicationMessage(uint8_t code, vector<uint8_t> &&payload)
+    : m_header(code, payload.size()) {
   assertMockExists();
-  g_mock->constructor(header, move(payload));
+  g_mock->constructor(code, move(payload));
 }
 
 ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)

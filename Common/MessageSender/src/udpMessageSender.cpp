@@ -35,6 +35,7 @@ UdpMessageSender::UdpMessageSender() : m_isRunning{true} {
 
 UdpMessageSender::~UdpMessageSender() {
   m_isRunning = false;
+  m_messageQueueCondVar.notify_all();
   if (m_sendMessageThread) {
     if (m_sendMessageThread->joinable()) {
       m_sendMessageThread->join();
@@ -43,25 +44,14 @@ UdpMessageSender::~UdpMessageSender() {
 }
 
 void UdpMessageSender::sendMessage(ApplicationMessage &&applicationMessage,
-                                   const Destination &destination) {
-
-  if (typeid(destination) == typeid(UdpMessageSender::UdpDestination)) {
-    const auto udpDestination =
-        *reinterpret_cast<const UdpDestination *>(&destination);
-
-    sendMessage(move(applicationMessage), udpDestination.endpoint);
-  } else {
-    string message = "Destination isn't a udp endpoint ";
-    throw invalid_argument(message + typeid(destination).name());
-  }
-}
-
-void UdpMessageSender::sendMessage(ApplicationMessage &&applicationMessage,
                                    const Endpoint &destination) {
-  auto ep = destination;
-  lock_guard _(m_messageQueueMutex);
-  m_messageQueue.push(make_pair<ApplicationMessage, Endpoint>(
-      move(applicationMessage), move(ep)));
+  auto endpoint = destination;
+  {
+    lock_guard _(m_messageQueueMutex);
+    m_messageQueue.push(make_pair<ApplicationMessage, Endpoint>(
+        move(applicationMessage), move(endpoint)));
+  }
+  m_messageQueueCondVar.notify_one();
 }
 
 void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
@@ -70,7 +60,7 @@ void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
   auto header = message.header();
   auto payload = message.payload();
 
-  vector<uint8_t> buffer(header.convertToBytes());
+  vector<uint8_t> buffer = header.toBytes();
   buffer.reserve(MaximumPacketSize);
 
   if (message.size() < MaximumPacketSize - buffer.size()) {
@@ -87,9 +77,7 @@ void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
   move(startIt, endIt, back_inserter(buffer));
 
   while (numberOfBytesSended < message.size()) {
-
     numberOfBytesSended += socket.sendTo(buffer, destination);
-
     startIt = endIt;
     auto reminderBytesAmount = message.size() - numberOfBytesSended;
 
@@ -101,7 +89,7 @@ void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
     }
 
     move(startIt, endIt, buffer.begin());
-    this_thread::sleep_for(1ms);
+    this_thread::sleep_for(10us);
   }
 }
 
@@ -110,18 +98,18 @@ void UdpMessageSender::sendMessageWorker() {
 
   while (m_isRunning) {
     {
-      lock_guard _(m_messageQueueMutex);
+      std::unique_lock lock(m_messageQueueMutex);
+      m_messageQueueCondVar.wait(
+          lock, [this]() { return !m_isRunning || !m_messageQueue.empty(); });
       m_messageQueue.swap(temporaryMessageQueue);
     }
-    while (!temporaryMessageQueue.empty()) {
 
+    while (!temporaryMessageQueue.empty()) {
       auto [message, destination] = move(temporaryMessageQueue.front());
 
       sendApplicationMessage(*m_socket, move(message), destination);
 
       temporaryMessageQueue.pop();
     }
-
-    this_thread::sleep_for(1us);
   }
 }

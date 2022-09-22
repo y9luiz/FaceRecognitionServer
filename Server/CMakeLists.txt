@@ -25,4 +25,5 @@ target_link_libraries(Server
         Threads::Threads 
         ${PROJECT_NAME}::MessageHandler
         ${PROJECT_NAME}::Common
+        ${PROJECT_NAME}::Assets
 )

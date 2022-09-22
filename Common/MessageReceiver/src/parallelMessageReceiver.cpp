@@ -55,7 +55,6 @@ void ParallelMessageReceiver::start() {
           m_isRunning = false;
         }
       }
-      this_thread::sleep_for(1ms);
     }
   });
 }

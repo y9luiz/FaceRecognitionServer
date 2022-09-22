@@ -23,7 +23,6 @@ using std::vector;
 
 namespace {
 constexpr auto DefaultMessageCode = 10u;
-constexpr auto DefaultPayloadSize = 9u;
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
 
 }; // namespace
@@ -36,10 +35,10 @@ public:
     vector<uint8_t> message;
 
     message.push_back(DefaultMessageCode);
-    message.push_back(static_cast<uint8_t>(DefaultPayloadSize));
-    message.push_back(DefaultPayloadSize >> 8);
-    message.push_back(DefaultPayloadSize >> 16);
-    message.push_back(DefaultPayloadSize >> 24);
+    message.push_back(static_cast<uint8_t>(DefaultPayload.size()));
+    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 8));
+    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 16));
+    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 24));
 
     copy(DefaultPayload.begin(), DefaultPayload.end(), back_inserter(message));
 
@@ -53,17 +52,14 @@ public:
     EXPECT_THAT(m_uut->convertToBytes(), ContainerEq(messageCopy));
   }
 
-  void createApplicationMessage(uint8_t messageCode, uint16_t payloadSize,
-                                vector<uint8_t> payload) {
+  void createApplicationMessage(uint8_t messageCode, vector<uint8_t> payload) {
     auto payloadCopy = payload;
-    m_uut = make_unique<ApplicationMessage>(
-        ApplicationMessage::Header{messageCode, payloadSize}, move(payload));
+    m_uut = make_unique<ApplicationMessage>(messageCode, move(payload));
 
     EXPECT_THAT(m_uut->header().code, messageCode);
-    EXPECT_THAT(m_uut->header().payloadSize, payloadSize);
     EXPECT_THAT(m_uut->payload(), ContainerEq(payloadCopy));
     EXPECT_THAT(m_uut->size(),
-                payloadSize + sizeof(messageCode) + sizeof(payloadSize));
+                payloadCopy.size() + sizeof(uint32_t) + sizeof(uint8_t));
   }
 
   unique_ptr<ApplicationMessage> m_uut;
@@ -79,8 +75,7 @@ TEST_F(TestApplicationMessages, ShouldCreateNotMessageWithNotValidSize) {
 }
 
 TEST_F(TestApplicationMessages, CreateMessageUsingParameters) {
-  createApplicationMessage(DefaultMessageCode, DefaultPayloadSize,
-                           DefaultPayload);
+  createApplicationMessage(DefaultMessageCode, DefaultPayload);
 }
 
 TEST_F(TestApplicationMessages, CreateMessageUsingRawVector) {
@@ -127,7 +122,7 @@ TEST_F(TestFaceDetectionResponseMessage, createFromRects) {
 TEST_F(TestFaceDetectionResponseMessage, createFromBytes) {
   vector<Rect2i> rects;
   rects.emplace_back(0, 1, 2, 3);
-  auto bytes = Serializer::VectorRectToBytes(rects);
+  auto bytes = Serializer::vectorRectToBytes(rects);
   m_uut = make_unique<FaceDetectionResponseMessage>(move(bytes));
 
   EXPECT_THAT(rects, ContainerEq(m_uut->facesBoudingBoxes()));

@@ -5,11 +5,14 @@
 #include <iterator>
 
 #include <opencv2/core/base.hpp>
+#include <opencv2/core/types.hpp>
+#include <stdexcept>
 
 using cv::Mat;
 using cv::Rect2i;
 
 using std::back_inserter;
+using std::invalid_argument;
 using std::string;
 using std::vector;
 
@@ -22,8 +25,14 @@ vector<uint8_t> Serializer::u16ToBytes(uint16_t val) {
   return vec;
 }
 
-uint16_t Serializer::u16FromBytes(const vector<uint8_t> &bytes) {
-  return bytes[0] | bytes[1] << 8;
+uint16_t Serializer::u16FromBytes(vector<uint8_t> &bytes) {
+  if (bytes.size() < sizeof(uint16_t)) {
+    throw invalid_argument("Byte set to short, could not extract uint16_t");
+  }
+
+  uint16_t val = bytes[0] | bytes[1] << 8;
+  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint16_t));
+  return val;
 }
 
 vector<uint8_t> Serializer::u32ToBytes(uint32_t val) {
@@ -37,8 +46,14 @@ vector<uint8_t> Serializer::u32ToBytes(uint32_t val) {
   return vec;
 }
 
-uint32_t Serializer::u32FromBytes(const vector<uint8_t> &bytes) {
-  return bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
+uint32_t Serializer::u32FromBytes(vector<uint8_t> &bytes) {
+  if (bytes.size() < sizeof(uint32_t)) {
+    throw invalid_argument("Byte set to short, could not extract uint32_t");
+  }
+
+  uint32_t val = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
+  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
+  return val;
 }
 
 vector<uint8_t> Serializer::stringToBytes(const string &str) {
@@ -55,8 +70,6 @@ string Serializer::stringFromBytes(vector<uint8_t> &bytes) {
   string str;
   auto length = Serializer::u32FromBytes(bytes);
 
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   if (length > 0) {
     str.reserve(length);
     copy(bytes.begin(), bytes.begin() + length, back_inserter(str));
@@ -67,21 +80,7 @@ string Serializer::stringFromBytes(vector<uint8_t> &bytes) {
   return str;
 }
 
-void Serializer::concatenate(vector<uint8_t> &left,
-                             const vector<uint8_t> &right) {
-  copy(right.begin(), right.end(), back_inserter(left));
-}
-
-vector<uint8_t> Serializer::concatenate(const vector<uint8_t> &left,
-                                        const vector<uint8_t> &right) {
-  vector<uint8_t> output(left);
-
-  copy(right.begin(), right.end(), back_inserter(output));
-
-  return output;
-}
-
-uint32_t Serializer::getNumberOfBytes(const Mat &image) {
+uint32_t getNumberOfBytes(const Mat &image) {
   const auto imageHeaderSize =
       sizeof(image.cols) + sizeof(image.rows) + sizeof(image.type());
   const auto imageDataSize = image.total() * image.elemSize();
@@ -89,7 +88,7 @@ uint32_t Serializer::getNumberOfBytes(const Mat &image) {
   return imageHeaderSize + imageDataSize;
 }
 
-vector<uint8_t> Serializer::MatToBytes(const Mat &image) {
+vector<uint8_t> Serializer::matToBytes(const Mat &image) {
   vector<uint8_t> bytes;
   bytes.reserve(getNumberOfBytes(image));
 
@@ -110,21 +109,17 @@ vector<uint8_t> Serializer::MatToBytes(const Mat &image) {
   return bytes;
 }
 
-Mat Serializer::MatFromBytes(vector<uint8_t> &bytes) {
+Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
   const auto rows = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   const auto cols = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   const auto type = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
 
   Mat image(rows, cols, type, reinterpret_cast<void *>(bytes.data()));
+  bytes.clear();
   return image;
 }
 
-vector<uint8_t> Serializer::RectToBytes(const Rect2i &rect) {
+vector<uint8_t> Serializer::rectToBytes(const Rect2i &rect) {
   vector<uint8_t> bytes;
   bytes.reserve(sizeof(Rect2i));
 
@@ -141,67 +136,40 @@ vector<uint8_t> Serializer::RectToBytes(const Rect2i &rect) {
   return bytes;
 }
 
-Rect2i Serializer::RectFromBytes(vector<uint8_t> &bytes) {
+Rect2i Serializer::rectFromBytes(vector<uint8_t> &bytes) {
   const auto positionX = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   const auto positionY = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   const auto height = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
-
   const auto width = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
 
   return Rect2i(positionX, positionY, width, height);
 }
 
-vector<uint8_t> Serializer::VectorRectToBytes(const vector<Rect2i> &rects) {
+vector<uint8_t> Serializer::vectorRectToBytes(const vector<Rect2i> &rects) {
   vector<uint8_t> bytes;
   bytes.reserve(rects.size() * sizeof(Rect2i) + sizeof(uint32_t));
 
   auto numberOfRects = u32ToBytes(rects.size());
   move(numberOfRects.begin(), numberOfRects.end(), back_inserter(bytes));
   for (const auto &rect : rects) {
-    auto rectBytes = Serializer::RectToBytes(rect);
+    auto rectBytes = Serializer::rectToBytes(rect);
     move(rectBytes.begin(), rectBytes.end(), back_inserter(bytes));
   }
 
   return bytes;
 }
 
-vector<Rect2i> Serializer::VectorRectFromBytes(vector<uint8_t> &bytes) {
+vector<Rect2i> Serializer::vectorRectFromBytes(vector<uint8_t> &bytes) {
   vector<Rect2i> rects;
   rects.reserve(bytes.size() / sizeof(Rect2i));
 
   auto numberOfRects = u32FromBytes(bytes);
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
+  if (numberOfRects * sizeof(Rect2i) > bytes.size()) {
+    throw invalid_argument("Byte set doesn't correspond to vector of rects");
+  }
   for (uint32_t i = 0; i < numberOfRects; i++) {
-    rects.emplace_back(RectFromBytes(bytes));
+    rects.emplace_back(rectFromBytes(bytes));
   }
 
   return rects;
-}
-
-vector<uint8_t> Serializer::EndpointToBytes(const Endpoint &endpoint) {
-
-  vector<uint8_t> address = Serializer::stringToBytes(endpoint.address);
-  vector<uint8_t> port = Serializer::u16ToBytes(endpoint.port);
-
-  vector<uint8_t> bytes = move(address);
-  copy(port.begin(), port.end(), back_inserter(bytes));
-
-  return bytes;
-}
-
-Endpoint Serializer::EndpointFromBytes(vector<uint8_t> &bytes) {
-  const auto address = Serializer::stringFromBytes(bytes);
-  const auto port = Serializer::u16FromBytes(bytes);
-
-  Endpoint endpoint;
-  endpoint.address = address;
-  endpoint.port = port;
-
-  return endpoint;
 }

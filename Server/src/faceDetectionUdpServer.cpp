@@ -2,11 +2,14 @@
 #include "faceDetectionRequest.h"
 #include "faceDetectionResponse.h"
 #include "messageHandler.h"
-#include "messageSenderFactory.h"
+#include <assets.h>
 
 #include <memory>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include <stdexcept>
+
+using namespace assets::models;
 
 using cv::FaceDetectorYN;
 using cv::Mat;
@@ -14,6 +17,7 @@ using cv::Rect2i;
 using cv::Size;
 
 using std::cout;
+using std::logic_error;
 using std::make_unique;
 using std::move;
 using std::string;
@@ -21,9 +25,8 @@ using std::vector;
 
 FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
     : UdpServer(ip, port) {
-  m_faceDetector = FaceDetectorYN::create(
-      "../models/face_detection_yunet_2022mar-act_int8-wt_int8-quantized.onnx",
-      "", Size(320, 240));
+  m_faceDetector =
+      FaceDetectorYN::create(FACE_DETECTION_MODEL, "", Size(320, 240));
 
   m_messageHandler = make_unique<MessageHandler>();
   m_messageHandler->registerCallback(
@@ -48,9 +51,11 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
             }
 
             FaceDetectionResponseMessage response(boundingBoxes);
-
-            MessageSenderFactory::sendMessage(*m_messageSender, move(response),
-                                              endpoint);
+            if (!m_messageSender) {
+              throw logic_error("Could not sendapplication  message. UDP "
+                                "Message Sender is null.");
+            }
+            m_messageSender->sendMessage(move(response), endpoint);
           }
         }
         cout << "callback finished\n";

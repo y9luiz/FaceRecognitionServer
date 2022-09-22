@@ -23,18 +23,19 @@ public:
     uint32_t payloadSize;
 
     Header(uint8_t code, uint32_t payloadSize);
-    Header(const std::vector<uint8_t> &message);
+    Header(std::vector<uint8_t> &message);
 
-    std::vector<uint8_t> convertToBytes() const;
+    std::vector<uint8_t> toBytes() const;
   };
 #pragma pack(pop)
-  ApplicationMessage(Header header, std::vector<uint8_t> &&payload);
 
+  ApplicationMessage(uint8_t code, std::vector<uint8_t> &&payload);
   ApplicationMessage(std::vector<uint8_t> &&message);
 
   virtual ~ApplicationMessage() = default;
 
   Header header() const;
+  void reserve(uint32_t size);
   std::vector<uint8_t> &payload();
   std::vector<uint8_t> convertToBytes() const;
   std::size_t size() const;
@@ -45,7 +46,7 @@ public:
            other.m_payload == m_payload;
   }
 
-private:
+protected:
   Header m_header;
   std::vector<uint8_t> m_payload;
 };
