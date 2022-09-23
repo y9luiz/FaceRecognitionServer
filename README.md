@@ -1,7 +1,33 @@
-# FaceRecognitionServer - C++ server for face recognition [![Build Status](https://app.travis-ci.com/y9luiz/FaceRecognitionServer.svg?token=fPusPkh6wzzikQNicthZ&branch=master)](https://app.travis-ci.com/y9luiz/FaceRecognitionServer)
+# C++ Server for face recognition [![Build Status](https://app.travis-ci.com/y9luiz/FaceRecognitionServer.svg?token=fPusPkh6wzzikQNicthZ&branch=master)](https://app.travis-ci.com/y9luiz/FaceRecognitionServer)
 
+This server allows you to send and receive request for face recognition on any kind of camera resolution.
 
-You can watch the development of this project on my [Youtube Channel](https://www.youtube.com/channel/UCSSw2imkxpZ-_8PPds_5sQA)
+## Features :
+
+- <b>Face Detection - Working 👍</b>
+
+- <b>Face Recognition - Under development 👎</b>
+
+- <b>Face Anti-Spoofing - Under development 👎</b>
+
+## Messages Framework:
+
+The base message class was created on top of these 3 fields:
+
+| code (1 byte) |  payload size (4 bytes)|  payload |
+
+The application works with 4 main messages:
+
+- Face Detection Request
+  - Payload: [any resolution image]
+- Face Detection Response
+  - Payload: [set of faces bouding boxes]
+- Face Recognition Request
+  - Payload: [any resolution image | bounding boxes];
+- Face Recognition Response:
+  - Payload: [set of descriptors]
+
+For more details [@see](https://github.com/y9luiz/FaceRecognitionServer/tree/master/Common/ApplicationMessages/include)
 
 ## Enviroment Setup
 

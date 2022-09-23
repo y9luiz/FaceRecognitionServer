@@ -41,7 +41,7 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
           m_faceDetector->setInputSize(image.size());
           m_faceDetector->detect(image, faces);
 
-          if (faces.rows) {
+          if (faces.rows >= 0) {
             vector<Rect2i> boundingBoxes;
             boundingBoxes.reserve(faces.rows);
             for (int i = 0; i < faces.rows; i++) {
@@ -49,7 +49,6 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
                   Rect2i(faces.at<float>(i, 0), faces.at<float>(i, 1),
                          faces.at<float>(i, 2), faces.at<float>(i, 3)));
             }
-
             FaceDetectionResponseMessage response(boundingBoxes);
             if (!m_messageSender) {
               throw logic_error("Could not sendapplication  message. UDP "
