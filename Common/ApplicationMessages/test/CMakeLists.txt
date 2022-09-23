@@ -4,6 +4,7 @@ target_link_libraries(test_application_messages
   PRIVATE
     gmock_main
     ${PROJECT_NAME}::ApplicationMessages
+    ${PROJECT_NAME}::Assets
 )
 
 addToCoverageReport(test_application_messages)

@@ -5,6 +5,6 @@ namespace testUtils {
 #define IMAGE1 "@TEST_IMAGE1@"
 } // namespace testUtils
 namespace models {
-#define FACE_DETECTION_MODEL "@FACE_DETECTION_MODEL@"
+constexpr auto FACE_DETECTION_MODEL = "@FACE_DETECTION_MODEL@";
 } // namespace models
 } // namespace assets

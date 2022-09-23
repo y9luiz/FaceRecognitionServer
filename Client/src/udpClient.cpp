@@ -1,4 +1,5 @@
 #include "udpClient.h"
+#include "applicationMessages.h"
 #include "udpMessageSender.h"
 
 #include <faceDetectionResponse.h>
@@ -37,5 +38,13 @@ void UdpClient::sendMessage(ApplicationMessage &&applicationMessage) {
 
 ApplicationMessage UdpClient::receiveMessage() {
   auto optionalMessageAndSender = m_udpMessageReceiver->receiveMessage();
-  return optionalMessageAndSender.value().first;
+
+  if (optionalMessageAndSender.has_value()) {
+    return optionalMessageAndSender.value().first;
+  }
+
+  const auto invalidCode =
+      static_cast<uint8_t>(ApplicationMessage::Types::InvalidMessage);
+
+  return ApplicationMessage(invalidCode, {});
 }

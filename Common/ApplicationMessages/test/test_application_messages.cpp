@@ -2,6 +2,7 @@
 #include "faceDetectionRequest.h"
 #include "faceDetectionResponse.h"
 
+#include <assets.h>
 #include <serializer.h>
 
 #include <gmock/gmock.h>
@@ -11,6 +12,7 @@
 #include <stdint.h>
 
 using namespace testing;
+using namespace assets::testUtils;
 
 using cv::imread;
 using cv::Mat;
@@ -99,8 +101,8 @@ TEST_F(TestFaceDetectionRequestMessage, createUsingEmptyMat) {
       invalid_argument);
 }
 
-TEST_F(TestFaceDetectionRequestMessage, DISABLED_internalMessageErase) {
-  Mat img = imread("/home/lcorreia/Pictures/car.png");
+TEST_F(TestFaceDetectionRequestMessage, internalMessageErase) {
+  Mat img = imread(IMAGE1);
   m_uut = make_unique<FaceDetectionRequestMessage>(img);
 
   m_uut->payload().clear();

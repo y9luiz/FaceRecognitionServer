@@ -15,9 +15,7 @@ using std::size_t;
 using std::vector;
 
 ApplicationMessage::Header::Header(uint8_t code, uint32_t payloadSize)
-    : code(code), payloadSize(payloadSize) {
-  std::cout << "payload size " << payloadSize << "\n";
-}
+    : code(code), payloadSize(payloadSize) {}
 
 ApplicationMessage::Header::Header(vector<uint8_t> &bytes) {
   const bool isValidMessage = bytes.size() >= sizeof(m_header);
@@ -29,8 +27,6 @@ ApplicationMessage::Header::Header(vector<uint8_t> &bytes) {
   code = bytes[0];
   bytes.erase(bytes.begin());
   payloadSize = Serializer::u32FromBytes(bytes);
-  std::cout << "code " << (int)code << "\n";
-  std::cout << "payload size " << payloadSize << "\n";
 }
 
 vector<uint8_t> ApplicationMessage::Header::toBytes() const {

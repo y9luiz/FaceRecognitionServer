@@ -1,8 +1,19 @@
-add_library(Client include/udpClient.h src/udpClient.cpp)
-add_library(${PROJECT_NAME}::Client ALIAS Client)
+add_library(Client
+    STATIC
+        include/udpClient.h
+        src/udpClient.cpp
+)
+
+add_library(${PROJECT_NAME}::Client
+    ALIAS
+        Client
+)
 
 
-target_include_directories(Client PUBLIC include)
+target_include_directories(Client
+    PUBLIC
+        include
+)
 
 target_link_libraries(Client 
     PUBLIC 

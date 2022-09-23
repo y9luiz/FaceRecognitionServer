@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <stdint.h>
 #include <vector>
 
@@ -14,7 +15,8 @@ public:
     FaceDetectionRequest,
     FaceDetectionResponse,
     FaceRecognitionRequest,
-    FaceRecognitionResponse
+    FaceRecognitionResponse,
+    InvalidMessage = 255
   };
 
 #pragma pack(push, 1)
