@@ -2,6 +2,8 @@
 
 #include "applicationMessages.h"
 
+#include <opencv2/core/mat.hpp>
+
 class FaceDetectionRequestMessage : public ApplicationMessage {
 public:
   FaceDetectionRequestMessage(const cv::Mat &payload);

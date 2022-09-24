@@ -12,7 +12,7 @@ int main() {
 
   try {
     server = make_unique<FaceDetectionUdpServer>("127.0.0.1", 5000);
-   
+
     cout << "press enter key to finish the program\n";
     char key = getchar();
 

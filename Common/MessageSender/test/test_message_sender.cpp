@@ -1,15 +1,17 @@
 #include "applicationMessages.h"
 #include "endpoint.h"
 #include "udpMessageSender.h"
-#include <iterator>
+#include <applicationMessages.h>
 #include <serializer.h>
 
-#include <applicationMessages.h>
+
 #include <mockUdpSocket.h>
 
 #include <gmock/gmock.h>
+#include <iterator>
 #include <memory>
 #include <thread>
+
 
 using namespace testing;
 using namespace std::chrono_literals;

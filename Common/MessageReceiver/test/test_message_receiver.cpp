@@ -3,8 +3,6 @@
 #include "udpSocket.h"
 #include <applicationMessages.h>
 
-#include <gmock/gmock-spec-builders.h>
-#include <gtest/gtest.h>
 #include <mockUdpSocket.h>
 
 #include <functional>

@@ -1,7 +1,9 @@
 #include "endpoint.h"
 
+#include <iterator>
 #include <serializer.h>
 
+using std::back_inserter;
 using std::move;
 using std::vector;
 
