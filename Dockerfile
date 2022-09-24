@@ -1,18 +1,18 @@
-from ubuntu:20.04
+from dkimg/opencv:4.5.5-ubuntu
 
 LABEL maintainer="y9luiz"
 
-RUN apt-get update
-RUN apt-get install -y clang
-RUN apt-get install -y cmake
-RUN apt-get install -y libboost-dev
-RUN apt-get install -y libboost-system-dev
-RUN apt-get install -y libboost-date-time-dev
-RUN apt-get install -y ninja-build
+RUN apt-get update && apt-get install -y \
+    clang \
+    cmake \
+    libboost-dev \
+    libboost-system-dev \
+    libboost-date-time-dev \
+    ninja-build
 
-RUN mkdir /home/faceRecognitionServer
+RUN mkdir faceRecognitionServer
 
-WORKDIR /home/faceRecognitionServer
+WORKDIR faceRecognitionServer
 
 COPY . .
 
