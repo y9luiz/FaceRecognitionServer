@@ -1,7 +1,4 @@
 #include "mockApplicationMessages.h"
-#include "applicationMessages.h"
-#include <gmock/gmock-actions.h>
-#include <gmock/gmock-spec-builders.h>
 
 using namespace testing;
 

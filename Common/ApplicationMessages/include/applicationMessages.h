@@ -1,13 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <limits>
-#include <stdint.h>
 #include <vector>
 
-#include <opencv2/core/mat.hpp>
-
-constexpr uint16_t MaximumPacketSize = 1500;
+constexpr auto MaximumPacketSize = 1500u;
 
 class ApplicationMessage {
 public:

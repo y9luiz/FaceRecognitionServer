@@ -1,8 +1,9 @@
-#include "applicationMessages.h"
-#include "endpoint.h"
-#include "messageReceiverInterface.h"
 #include "udpClient.h"
 
+#include <applicationMessages.h>
+#include <endpoint.h>
+
+#include <memory>
 #include <mockMessageReceiver.h>
 #include <mockMessageReceiverFactory.h>
 #include <mockUdpMessageSender.h>
@@ -10,22 +11,25 @@
 
 #include <exception>
 #include <gmock/gmock.h>
+#include <optional>
 
 namespace {
 const auto DefaultIpAddress = "127.0.0.1";
 const auto DefaultPort = 5000;
-
-MATCHER_P(isSameMessage, message, "check if two messages are equals") {
-  return arg == message;
-}
+const auto DefaultMessage =
+    ApplicationMessage(2, {'P', 'a', 'y', 'l', 'o', 'a', 'd'});
 
 } // namespace
 
 using namespace testing;
 
+using std::make_pair;
 using std::make_unique;
 using std::move;
+using std::optional;
+using std::pair;
 using std::unique_ptr;
+using std::vector;
 
 class TestUdpClient : public Test {
 public:
@@ -56,7 +60,7 @@ public:
 
 TEST_F(TestUdpClient, sendMessage) {
 
-  ApplicationMessage message(33, {'h', 'e', 'l', 'l', 'o'});
+  ApplicationMessage message = DefaultMessage;
 
   EXPECT_CALL(m_mockMessageSender, sendMessage(move(message), _))
       .WillOnce(Invoke([&message](ApplicationMessage &&msg, const Endpoint &) {
@@ -79,16 +83,16 @@ TEST_F(TestUdpClient, invalidMessageWhenNotReceive) {
 
 TEST_F(TestUdpClient, receive) {
 
-  ApplicationMessage message(2, {'P', 'a', 'y', 'l', 'o', 'a', 'd'});
-  auto messageCopy = message;
+  auto movedMessage = DefaultMessage;
+  auto endpoint = Endpoint{DefaultIpAddress, DefaultPort};
 
-  auto ret = std::optional<std::pair<ApplicationMessage, std::vector<uint8_t>>>(
-      std::make_pair<ApplicationMessage, std::vector<uint8_t>>(
-          move(message), Endpoint{DefaultIpAddress, DefaultPort}.toBytes()));
+  auto ret = optional<pair<ApplicationMessage, vector<uint8_t>>>(
+      make_pair<ApplicationMessage, vector<uint8_t>>(move(movedMessage),
+                                                     endpoint.toBytes()));
 
   EXPECT_CALL(*m_mockMessageReceiver, receiveMessage()).WillOnce(Return(ret));
 
-  message = m_uut->receiveMessage();
+  auto receivedMessage = m_uut->receiveMessage();
 
-  EXPECT_THAT(message, isSameMessage(messageCopy));
+  EXPECT_THAT(receivedMessage, DefaultMessage);
 }
