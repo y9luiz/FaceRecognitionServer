@@ -19,6 +19,7 @@ target_link_libraries(MessageHandler
     ${Boost_LIBRARIES}
   PRIVATE
     ${PROJECT_NAME}::ApplicationMessages
+    ${PROJECT_NAME}::Types
 )
 
 add_subdirectory(test)

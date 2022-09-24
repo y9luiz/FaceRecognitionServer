@@ -1,7 +1,7 @@
-#include "applicationMessages.h"
-#include "endpoint.h"
-#include <gmock/gmock-spec-builders.h>
-#include <messageHandler.h>
+#include "messageHandler.h"
+
+#include <applicationMessages.h>
+#include <endpoint.h>
 
 #include <gmock/gmock.h>
 #include <stdexcept>
@@ -16,7 +16,6 @@ using std::vector;
 namespace {
 constexpr auto DefaultMessageCode = 0u;
 const Endpoint DefaultEndpoint{"127.0.0.1", 5000};
-
 } // namespace
 
 class TestMessageHandler : public Test {

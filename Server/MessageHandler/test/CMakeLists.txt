@@ -5,6 +5,7 @@ target_link_libraries(test_message_handler
     gmock_main
     ${PROJECT_NAME}::MessageHandler
     ${PROJECT_NAME}::ApplicationMessages
+    ${PROJECT_NAME}::Types
 )
 
 addToCoverageReport(test_message_handler)

@@ -1,6 +1,9 @@
 #include "messageHandler.h"
-#include <applicationMessages.h>
 
+#include <applicationMessages.h>
+#include <endpoint.h>
+
+#include <functional>
 #include <stdexcept>
 
 using std::function;

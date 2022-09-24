@@ -20,6 +20,7 @@ public:
   void registerCallback(
       uint8_t code,
       std::function<void(ApplicationMessage &&, const Endpoint &)> callback);
+
   void processMessage(ApplicationMessage &&message, const Endpoint &endpoint);
 
 private:
