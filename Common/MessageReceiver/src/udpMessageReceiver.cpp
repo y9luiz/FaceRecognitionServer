@@ -6,6 +6,9 @@
 #include <serializer.h>
 
 #include <iostream>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 using std::cout;
 using std::make_pair;
@@ -34,21 +37,20 @@ UdpMessageReceiver::receiveMessage() {
     return nullopt;
   }
 
-  ApplicationMessage::Header header(tempBuffer);
+  uint8_t code = tempBuffer[0];
+  uint32_t payloadSize = Serializer::u32FromBytes(tempBuffer.begin() + 1);
 
-  uint32_t amountOfBytesReceived = receivedDataSize;
   const auto expectMessageTotalSize =
-      header.payloadSize + sizeof(ApplicationMessage::Header);
+      sizeof(ApplicationMessage::Header) + payloadSize;
 
   vector<uint8_t> message;
   message.reserve(expectMessageTotalSize);
 
   copy(tempBuffer.begin(), tempBuffer.end(), back_inserter(message));
-  tempBuffer.resize(MaximumPacketSize);
-  while (amountOfBytesReceived < expectMessageTotalSize) {
+
+  while (message.size() < expectMessageTotalSize) {
     receivedDataSize = m_socket->receive(tempBuffer);
     if (receivedDataSize) {
-      amountOfBytesReceived += receivedDataSize;
       move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
     } else {
@@ -58,5 +60,5 @@ UdpMessageReceiver::receiveMessage() {
   }
 
   return make_pair<ApplicationMessage, Origin>(
-      ApplicationMessage(header.code, move(message)), endpoint.toBytes());
+      ApplicationMessage(move(message)), endpoint.toBytes());
 }

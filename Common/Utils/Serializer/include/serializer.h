@@ -11,8 +11,11 @@ class Serializer {
 public:
   static std::vector<uint8_t> u16ToBytes(uint16_t val);
   static uint16_t u16FromBytes(std::vector<uint8_t> &bytes);
+  static uint16_t u16FromBytes(const std::vector<uint8_t> &bytes);
   static std::vector<uint8_t> u32ToBytes(uint32_t val);
   static uint32_t u32FromBytes(std::vector<uint8_t> &bytes);
+  static uint32_t u32FromBytes(const std::vector<uint8_t> &bytes);
+  static uint32_t u32FromBytes(std::vector<uint8_t>::const_iterator start);
   static std::vector<uint8_t> stringToBytes(const std::string &str);
   static std::string stringFromBytes(std::vector<uint8_t> &bytes);
 

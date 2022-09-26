@@ -26,12 +26,17 @@ vector<uint8_t> Serializer::u16ToBytes(uint16_t val) {
 }
 
 uint16_t Serializer::u16FromBytes(vector<uint8_t> &bytes) {
+  auto val = u16FromBytes(cref(bytes));
+  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint16_t));
+  return val;
+}
+
+uint16_t Serializer::u16FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint16_t)) {
     throw invalid_argument("Byte set to short, could not extract uint16_t");
   }
 
   uint16_t val = bytes[0] | bytes[1] << 8;
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint16_t));
   return val;
 }
 
@@ -47,13 +52,29 @@ vector<uint8_t> Serializer::u32ToBytes(uint32_t val) {
 }
 
 uint32_t Serializer::u32FromBytes(vector<uint8_t> &bytes) {
+  auto val = u32FromBytes(cref(bytes));
+  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
+  return val;
+}
+
+uint32_t Serializer::u32FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint32_t)) {
     throw invalid_argument("Byte set to short, could not extract uint32_t");
   }
 
   uint32_t val = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
-  bytes.erase(bytes.begin(), bytes.begin() + sizeof(uint32_t));
+
   return val;
+}
+
+uint32_t Serializer::u32FromBytes(vector<uint8_t>::const_iterator start) {
+  vector<uint8_t> bytes;
+  bytes.reserve(sizeof(uint32_t));
+  for (int i = 0; i < sizeof(uint32_t); i++) {
+    bytes.emplace_back(*start++);
+  }
+
+  return u32FromBytes(bytes);
 }
 
 vector<uint8_t> Serializer::stringToBytes(const string &str) {
