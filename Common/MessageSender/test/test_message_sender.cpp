@@ -1,11 +1,12 @@
-#include "applicationMessages.h"
 #include "endpoint.h"
 #include "udpMessageSender.h"
 #include <applicationMessages.h>
+#include <gmock/gmock-nice-strict.h>
 #include <serializer.h>
 
 
 #include <mockUdpSocket.h>
+#include <mockApplicationMessages.h>
 
 #include <gmock/gmock.h>
 #include <iterator>
@@ -16,8 +17,6 @@
 using namespace testing;
 using namespace std::chrono_literals;
 
-using std::back_inserter;
-using std::copy;
 using std::make_unique;
 using std::move;
 using std::unique_ptr;
@@ -42,6 +41,7 @@ public:
     EXPECT_CALL(m_mockUdpSocket, open);
   }
 
+  NiceMock<MockApplicationMessage> m_mockApplicationMessage;
   NiceMock<MockUdpSocket> m_mockUdpSocket;
 
   Endpoint m_destination{"127.0.0.1", 5000};
@@ -53,15 +53,16 @@ TEST_F(TestUdpMessageSender, getSocket) {
 }
 
 TEST_F(TestUdpMessageSender, sendSmallMessage) {
-  ApplicationMessage applicationMessage(0, {});
-
   EXPECT_CALL(m_mockUdpSocket, sendTo(_, m_destination)).Times(1);
 
-  m_uut->sendMessage(move(applicationMessage), m_destination);
+  m_uut->sendMessage(move(m_mockApplicationMessage.convertToBytes()), m_destination);
 }
 
 TEST_F(TestUdpMessageSender, sendBigMessage) {
   auto payloadCopy = DefaultPayload;
+  EXPECT_CALL(m_mockApplicationMessage,payload).WillOnce(ReturnRefOfCopy(payloadCopy));
+    EXPECT_CALL(m_mockApplicationMessage,size).WillRepeatedly(Return(payloadCopy.size() + sizeof(ApplicationMessage::Header)));
+
   ApplicationMessage applicationMessage(0, move(payloadCopy));
 
   const auto totalOfPackets =

@@ -4,7 +4,7 @@ target_link_libraries(test_message_sender
         gmock_main
         ${PROJECT_NAME}::MessageSender
         ${PROJECT_NAME}::Serializer
-        ${PROJECT_NAME}::ApplicationMessages
+        ${PROJECT_NAME}::MockApplicationMessages
         ${PROJECT_NAME}::MockUdpSocket
 )
 

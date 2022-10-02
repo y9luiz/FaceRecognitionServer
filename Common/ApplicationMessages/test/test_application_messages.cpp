@@ -67,7 +67,7 @@ public:
   unique_ptr<ApplicationMessage> m_uut;
 };
 
-TEST_F(TestApplicationMessages, ShouldCreateNotMessageWithNotValidSize) {
+TEST_F(TestApplicationMessages, ShouldCreateNotMessageFromEmptyBuffer) {
 
   auto createEmptyMessage = [this]() {
     m_uut = make_unique<ApplicationMessage>(vector<uint8_t>{});
@@ -76,8 +76,27 @@ TEST_F(TestApplicationMessages, ShouldCreateNotMessageWithNotValidSize) {
   EXPECT_THROW(createEmptyMessage(), invalid_argument);
 }
 
+TEST_F(TestApplicationMessages, ShouldCreateNotMessageWithoutPayloadSize) {
+
+  auto createEmptyMessage = [this]() {
+    const auto code = 0;
+    m_uut = make_unique<ApplicationMessage>(vector<uint8_t>{code});
+  };
+
+  EXPECT_THROW(createEmptyMessage(), invalid_argument);
+}
+
 TEST_F(TestApplicationMessages, CreateMessageUsingParameters) {
   createApplicationMessage(DefaultMessageCode, DefaultPayload);
+}
+
+TEST_F(TestApplicationMessages,reserveSpace)
+{
+  createApplicationMessage(DefaultMessageCode,DefaultPayload);
+  const auto extraSize = DefaultPayload.size()*2;
+  m_uut->reserve(extraSize);
+
+  EXPECT_THAT(m_uut->payload().capacity(),Eq(extraSize));
 }
 
 TEST_F(TestApplicationMessages, CreateMessageUsingRawVector) {
