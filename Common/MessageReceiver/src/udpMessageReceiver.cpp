@@ -3,6 +3,7 @@
 #include "messageReceiverInterface.h"
 
 #include <applicationMessages.h>
+#include <optional>
 #include <serializer.h>
 
 #include <iostream>
@@ -51,7 +52,7 @@ UdpMessageReceiver::receiveMessage() {
   while (message.size() < expectMessageTotalSize) {
     receivedDataSize = m_socket->receive(tempBuffer);
     if (receivedDataSize) {
-      move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+        move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";
@@ -59,6 +60,10 @@ UdpMessageReceiver::receiveMessage() {
     }
   }
 
-  return make_pair<ApplicationMessage, Origin>(
+  if(expectMessageTotalSize  == message.size())
+  {
+    return make_pair<ApplicationMessage, Origin>(
       ApplicationMessage(move(message)), endpoint.toBytes());
+  }
+  return nullopt;
 }
