@@ -1,8 +1,17 @@
-# C++ Server for face recognition [![Build Status](https://app.travis-ci.com/y9luiz/FaceRecognitionServer.svg?token=fPusPkh6wzzikQNicthZ&branch=master)](https://app.travis-ci.com/y9luiz/FaceRecognitionServer)
+# C++ Server for face recognition
+
+## Build status
+
+![Build Status ubuntu](https://github.com/y9luiz/FaceRecognitionServer/actions/workflows/build-code-coverage-ubuntu-20-04.yml/badge.svg)
+
+![Build Status Windows](https://github.com/y9luiz/FaceRecognitionServer/actions/workflows/build-debug-ms-windows.yml/badge.svg)
+
+
+## Project Description
 
 This server allows you to send and receive request for face recognition on any kind of camera resolution.
 
-## Features :
+## Supported Features
 
 - <b>Face Detection - Working 👍</b>
 
