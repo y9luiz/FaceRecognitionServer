@@ -1,5 +1,6 @@
 #include "mockApplicationMessages.h"
 #include "applicationMessages.h"
+
 #include <algorithm>
 
 using namespace testing;

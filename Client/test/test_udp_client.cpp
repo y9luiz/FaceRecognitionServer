@@ -3,7 +3,6 @@
 #include <applicationMessages.h>
 #include <endpoint.h>
 
-#include <memory>
 #include <mockMessageReceiver.h>
 #include <mockMessageReceiverFactory.h>
 #include <mockUdpMessageSender.h>
@@ -12,6 +11,8 @@
 #include <exception>
 #include <gmock/gmock.h>
 #include <optional>
+#include <memory>
+
 
 namespace {
 const auto DefaultIpAddress = "127.0.0.1";

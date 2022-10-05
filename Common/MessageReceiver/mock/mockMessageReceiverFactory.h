@@ -2,7 +2,6 @@
 
 #include "messageReceiverFactory.h"
 
-#include <gmock/gmock-function-mocker.h>
 #include <gmock/gmock.h>
 
 class MockMessageReceiverFactory {

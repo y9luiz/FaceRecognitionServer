@@ -51,9 +51,10 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
             }
             FaceDetectionResponseMessage response(boundingBoxes);
             if (!m_messageSender) {
-              throw logic_error("Could not sendapplication  message. UDP "
-                                "Message Sender is null.");
+              throw logic_error("Could not send application message."
+                                "UDP Message Sender is null.");
             }
+
             m_messageSender->sendMessage(move(response), endpoint);
           }
         }

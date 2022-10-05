@@ -47,7 +47,8 @@ UdpMessageReceiver::receiveMessage() {
   vector<uint8_t> message;
   message.reserve(expectMessageTotalSize);
 
-  copy(tempBuffer.begin(), tempBuffer.end(), back_inserter(message));
+  move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+           back_inserter(message));
 
   while (message.size() < expectMessageTotalSize) {
     receivedDataSize = m_socket->receive(tempBuffer);
@@ -65,5 +66,6 @@ UdpMessageReceiver::receiveMessage() {
     return make_pair<ApplicationMessage, Origin>(
       ApplicationMessage(move(message)), endpoint.toBytes());
   }
+
   return nullopt;
 }

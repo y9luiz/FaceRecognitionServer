@@ -13,8 +13,8 @@ using std::make_unique;
 using std::move;
 using std::string;
 
-UdpClient::UdpClient(const string &address, uint16_t port)
-    : m_destinationEndpoint{address, port} {
+UdpClient::UdpClient(const string &ipAddress, uint16_t port)
+    : m_destinationEndpoint{ipAddress, port} {
   m_udpMessageSender = make_unique<UdpMessageSender>();
 
   m_udpMessageReceiver = MessageReceiverFactory::createUdpClientMessageReceiver(

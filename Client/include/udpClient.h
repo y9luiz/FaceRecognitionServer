@@ -9,7 +9,7 @@
 
 class UdpClient {
 public:
-  UdpClient(const std::string &url, uint16_t port);
+  UdpClient(const std::string &ipAddress, uint16_t port);
 
   void sendMessage(ApplicationMessage &&message);
   ApplicationMessage receiveMessage();

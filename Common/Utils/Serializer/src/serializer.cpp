@@ -188,11 +188,12 @@ vector<uint8_t> Serializer::vectorRectToBytes(const vector<Rect2i> &rects) {
 vector<Rect2i> Serializer::vectorRectFromBytes(vector<uint8_t> &bytes) {
   vector<Rect2i> rects;
   rects.reserve(bytes.size() / sizeof(Rect2i));
-
   auto numberOfRects = u32FromBytes(bytes);
+
   if (numberOfRects * sizeof(Rect2i) > bytes.size()) {
-    throw invalid_argument("Byte set doesn't correspond to vector of rects");
+    throw invalid_argument("Could not extract rectangles from byte set");
   }
+
   for (uint32_t i = 0; i < numberOfRects; i++) {
     rects.emplace_back(rectFromBytes(bytes));
   }
