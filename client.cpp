@@ -1,20 +1,25 @@
+#include "faceDetectionResponse.h"
 #include <applicationMessages.h>
+#include <faceDetectionRequest.h>
 #include <iostream>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
+#include <stdexcept>
 #include <thread>
-#include <udpClient.h>
+#include <faceDetectionUdpClient.h>
+
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 using namespace chrono_literals;
 
-int main() {
-  UdpClient client("127.0.0.1", 5000);
+int main(int argc, char *argv[]) {
+  FaceDetectionUdpClient client("127.0.0.1", 5000);
   try {
-    vector<uint8_t> messageData =
-        ApplicationMessage('b', 5, {'h', 'e', 'l', 'l', 'o'}).convertToBytes();
-
-    client.sendMessage(move(messageData));
-
-  } catch (const exception &e) {
+    client.run(argc, argv);
+  } 
+  catch (const exception &e) {
     cout << e.what() << endl;
   }
 

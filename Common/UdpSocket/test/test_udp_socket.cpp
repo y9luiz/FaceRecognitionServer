@@ -71,7 +71,8 @@ public:
           socket.bind(receiverEndpoint);
           // Lets receive more the once just to have sure that everything is
           // fine
-          EXPECT_THAT(socket.receive(buffer), expectedData.size());
+          EXPECT_THAT(socket.receiveFrom(buffer, receiverEndpoint),
+                      expectedData.size());
           EXPECT_THAT(buffer, Eq(expectedData));
 
           EXPECT_THAT(socket.receive(buffer), expectedData.size());

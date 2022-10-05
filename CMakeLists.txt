@@ -11,14 +11,21 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Boost REQUIRED)
 find_package(Threads REQUIRED)
+find_package(OpenCV 4.5.4 QUIET)
+if(NOT ${OpenCV_FOUND})
+  find_package(OpenCV 5 REQUIRED)
+endif()
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 include(gtest)
 include(coverage)
 
+add_subdirectory(assets)
 add_subdirectory(Common)
 add_subdirectory(Server)
 add_subdirectory(Client)
@@ -35,4 +42,5 @@ target_link_libraries(client
   PRIVATE
     ${PROJECT_NAME}::Client
     ${PROJECT_NAME}::Common
+    ${OpenCV_LIBS}
 )

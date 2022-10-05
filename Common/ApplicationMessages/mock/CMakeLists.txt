@@ -1,5 +1,13 @@
-add_library(MockApplicationMessages OBJECT mockApplicationMessages.cpp mockApplicationMessages.h)
-add_library(${PROJECT_NAME}::MockApplicationMessages ALIAS MockApplicationMessages)
+add_library(MockApplicationMessages
+    OBJECT
+        mockApplicationMessages.cpp
+        mockApplicationMessages.h
+)
+
+add_library(${PROJECT_NAME}::MockApplicationMessages
+    ALIAS
+        MockApplicationMessages
+)
 
 target_include_directories(MockApplicationMessages 
     PUBLIC 

@@ -1,18 +1,17 @@
 #pragma once
 
 #include "messageReceiverInterface.h"
+#include "parallelMessageReceiver.h"
 
 #include <memory>
 
 class UdpSocket;
-class UdpMessageReceiver;
 class Endpoint;
 
 class MessageReceiverFactory {
 public:
-  MessageReceiverFactory();
-
-  std::unique_ptr<MessageReceiverInterface>
+  static std::unique_ptr<ParallelMessageReceiver>
   createUdpServerMessageReceiver(const Endpoint &localEndpoint);
-  std::unique_ptr<MessageReceiverInterface> createUdpClientMessageReceiver();
+  static std::unique_ptr<MessageReceiverInterface>
+  createUdpClientMessageReceiver(std::shared_ptr<UdpSocket> socket);
 };

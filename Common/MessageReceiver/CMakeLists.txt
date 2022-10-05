@@ -1,9 +1,12 @@
 add_library(MessageReceiver 
     STATIC 
-        src/messageReceiverInterface.cpp
         include/messageReceiverInterface.h
+        include/parallelMessageReceiver.h
+        src/parallelMessageReceiver.cpp
         src/udpMessageReceiver.cpp
         src/udpMessageReceiver.h
+        src/udpParallelMessageReceiver.cpp
+        src/udpParallelMessageReceiver.h
         include/messageReceiverFactory.h
         src/messageReceiverFactory.cpp
 )
