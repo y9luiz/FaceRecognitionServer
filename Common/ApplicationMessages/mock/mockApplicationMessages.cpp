@@ -15,7 +15,7 @@ namespace {
 MockApplicationMessage *g_mock = nullptr;
 
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
-constexpr auto DefaultCode = 0u;
+constexpr uint8_t DefaultCode = 0u;
 const auto DefaultHeader =
     ApplicationMessage::Header(DefaultCode, DefaultPayload.size());
 
