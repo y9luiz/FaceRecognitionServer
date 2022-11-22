@@ -1,5 +1,4 @@
 add_executable(test_application_messages test_application_messages.cpp)
 target_link_libraries(test_application_messages gmock_main ${PROJECT_NAME}::ApplicationMessages)
 
-addToCoverageReport(test_application_messages)
 gtest_discover_tests(test_application_messages)

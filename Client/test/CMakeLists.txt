@@ -7,5 +7,4 @@ target_link_libraries(test_udp_client
         ${PROJECT_NAME}::MockUdpSocketFactory
 )
 
-addToCoverageReport(test_udp_client)
 gtest_discover_tests(test_udp_client)
