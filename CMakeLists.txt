@@ -9,21 +9,14 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(Boost REQUIRED)
-find_package(Threads REQUIRED)
-
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
-include(gtest)
-include(coverage)
+include(dependencies)
 
 add_subdirectory(Common)
 add_subdirectory(Server)
 add_subdirectory(Client)
 
 add_executable(server server.cpp)
+
 target_link_libraries(server 
   PRIVATE
     ${PROJECT_NAME}::Server  
@@ -31,6 +24,7 @@ target_link_libraries(server
 )
 
 add_executable(client client.cpp)
+
 target_link_libraries(client 
   PRIVATE
     ${PROJECT_NAME}::Client
