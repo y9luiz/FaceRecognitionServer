@@ -20,7 +20,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: {{ ./build_coverage/report/ }}
+        path: ./build_coverage/report/
 
   upload-to-codecov:
       needs: code-coverage-report
