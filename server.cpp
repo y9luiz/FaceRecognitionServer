@@ -1,7 +1,8 @@
+#include "faceDetectionUdpServer.h"
 #include "udpServer.h"
 
-#include <thread>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -10,33 +11,16 @@ int main() {
   unique_ptr<UdpServer> server = nullptr;
 
   try {
-    server = make_unique<UdpServer>("127.0.0.1", 5000);
-    auto messageHandler = std::make_unique<MessageHandler>();
-    messageHandler->registerCallback('a', [](std::vector<uint8_t> &&buffer) {
-      const auto threadId = this_thread::get_id();
-      for (int i = 0; i < 10; i++) {
-        cout << "Thread id " << threadId << " i = " << i << endl;
-        this_thread::sleep_for(chrono::seconds(1));
-      }
+    server = make_unique<FaceDetectionUdpServer>("127.0.0.1", 5000);
 
-      for (const auto &val : buffer) {
-        cout << val;
-      }
-      cout << endl;
-    });
+    cout << "press enter key to finish the program\n";
+    char key = getchar();
 
-    messageHandler->registerCallback('b', [](std::vector<uint8_t> &&buffer) {
-      (void)buffer;
-      cout << "callback B\n";
-    });
+    if (key) {
+      server->stop();
+    }
 
-    server->setMessageHandler(std::move(messageHandler));
-
-    server->start();
   } catch (const exception &e) {
-
-    server->stop();
-
     cout << e.what() << endl;
   }
   return 0;

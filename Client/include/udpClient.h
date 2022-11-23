@@ -1,21 +1,21 @@
 #pragma once
 
-#include <udpSocketFactory.h>
+#include <applicationMessages.h>
+#include <messageReceiverInterface.h>
+#include <udpMessageSender.h>
 
-#include <boost/asio.hpp>
 #include <memory>
 #include <string>
-#include <vector>
 
 class UdpClient {
 public:
-  UdpClient(const std::string &url, uint16_t port);
+  UdpClient(const std::string &ipAddress, uint16_t port);
 
-  void sendMessage(std::vector<uint8_t> &&message);
-  std::vector<uint8_t> receiveMessage();
+  void sendMessage(ApplicationMessage &&message);
+  ApplicationMessage receiveMessage();
 
 private:
-  std::unique_ptr<boost::asio::ip::udp::socket> m_socket;
-  boost::asio::io_context m_ioContext;
-  boost::asio::ip::udp::endpoint m_remoteEndpoint;
+  Endpoint m_destinationEndpoint;
+  std::unique_ptr<MessageReceiverInterface> m_udpMessageReceiver;
+  std::unique_ptr<UdpMessageSender> m_udpMessageSender;
 };

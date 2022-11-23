@@ -11,6 +11,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(dependencies)
 
+add_subdirectory(assets)
 add_subdirectory(Common)
 add_subdirectory(Server)
 add_subdirectory(Client)
@@ -29,4 +30,5 @@ target_link_libraries(client
   PRIVATE
     ${PROJECT_NAME}::Client
     ${PROJECT_NAME}::Common
+    ${OpenCV_LIBS}
 )

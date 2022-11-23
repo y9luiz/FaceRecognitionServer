@@ -1,31 +1,32 @@
 #include "messageHandler.h"
+
+#include <applicationMessages.h>
+#include <endpoint.h>
+
+#include <functional>
 #include <stdexcept>
 
 using std::function;
 using std::invalid_argument;
 using std::move;
-using std::vector;
 
 void MessageHandler::registerCallback(
-    uint8_t code, function<void(vector<uint8_t> &&)> callback) {
+    uint8_t code,
+    function<void(ApplicationMessage &&, const Endpoint &)> callback) {
   if (!callback) {
     throw invalid_argument("Could not register null callback");
   }
   m_messageHandlerCallbackMap[code] = callback;
 }
 
-void MessageHandler::processMessage(vector<uint8_t> &&message) {
-  if (message.empty()) {
-    throw invalid_argument("Could not process empty message");
-  }
-
-  const auto code = message[0];
-  message.erase(message.begin());
-
-  invokeCallback(code, move(message));
+void MessageHandler::processMessage(ApplicationMessage &&message,
+                                    const Endpoint &endpoint) {
+  auto code = message.header().code;
+  invokeCallback(code, move(message), endpoint);
 }
 
-void MessageHandler::invokeCallback(uint8_t code, vector<uint8_t> &&message) {
+void MessageHandler::invokeCallback(uint8_t code, ApplicationMessage &&message,
+                                    const Endpoint &endpoint) {
   const auto &it = m_messageHandlerCallbackMap.find(code);
 
   const bool haveRegisteredCallback = it != m_messageHandlerCallbackMap.end();
@@ -34,5 +35,5 @@ void MessageHandler::invokeCallback(uint8_t code, vector<uint8_t> &&message) {
     throw invalid_argument("Callback not registered");
   }
 
-  it->second(move(message));
+  it->second(move(message), endpoint);
 }

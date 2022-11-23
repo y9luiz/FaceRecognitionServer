@@ -1,6 +1,5 @@
 function InstallDependencies {
-
-    #choco install opencv
+    choco install opencv --version 4.5.4
     choco install choco install boost-msvc-14.1 -y
     choco install cmake -y
 }

@@ -1,4 +1,5 @@
 include(boost)
+include(opencv)
 include(threads)
 include(coverage)
 include(gtest)

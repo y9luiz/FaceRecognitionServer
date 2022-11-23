@@ -2,3 +2,4 @@ build/
 .cache
 .vscode
 .launch
+assets/include/assets.h

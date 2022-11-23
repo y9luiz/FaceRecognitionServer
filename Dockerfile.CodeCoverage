@@ -1,4 +1,4 @@
-from ubuntu:20.04
+from dkimg/opencv:4.5.5-ubuntu
 
 LABEL maintainer="y9luiz"
 

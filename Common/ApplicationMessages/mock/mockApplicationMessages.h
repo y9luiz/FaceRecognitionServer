@@ -10,10 +10,11 @@ public:
   MockApplicationMessage();
   virtual ~MockApplicationMessage();
 
-  MOCK_METHOD(void, constructor, (uint8_t, uint16_t, std::vector<uint8_t> &&));
+  MOCK_METHOD(void, constructor, (uint8_t, std::vector<uint8_t> &&));
   MOCK_METHOD(void, constructor, (std::vector<uint8_t> &&));
-  MOCK_METHOD(uint8_t, code, ());
-  MOCK_METHOD(uint16_t, payloadSize, ());
+  MOCK_METHOD(ApplicationMessage::Header, header, ());
+  MOCK_METHOD(void, reserve, (uint32_t));
   MOCK_METHOD(std::vector<uint8_t> &, payload, ());
-  MOCK_METHOD(std::vector<uint8_t>, convertToBytes, ());
+  MOCK_METHOD(std::vector<uint8_t>, convertToBytes, (), (const));
+  MOCK_METHOD(std::size_t, size, (), (const));
 };

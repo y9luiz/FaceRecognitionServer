@@ -1,27 +1,49 @@
 #include "udpClient.h"
-#include "udpSocketFactory.h"
 
+#include <faceDetectionResponse.h>
+#include <messageReceiverFactory.h>
+
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+
+using std::cout;
+using std::logic_error;
 using std::make_unique;
+using std::move;
 using std::string;
-using std::vector;
 
-UdpClient::UdpClient(const string &url, uint16_t port)
-    : m_remoteEndpoint(boost::asio::ip::address::from_string(url), port) {
-  UdpSocketFactory socketFactory(m_ioContext);
-  m_socket = socketFactory.createAndOpenSocket(m_remoteEndpoint.protocol());
+UdpClient::UdpClient(const string &ipAddress, uint16_t port)
+    : m_destinationEndpoint{ipAddress, port} {
+  m_udpMessageSender = make_unique<UdpMessageSender>();
+
+  m_udpMessageReceiver = MessageReceiverFactory::createUdpClientMessageReceiver(
+      m_udpMessageSender->socket());
 }
 
-void UdpClient::sendMessage(vector<uint8_t> &&message) {
-  m_socket->send_to(boost::asio::buffer(move(message)), m_remoteEndpoint);
+void UdpClient::sendMessage(ApplicationMessage &&applicationMessage) {
+
+  if (!m_udpMessageSender) {
+    throw logic_error(
+        "Could not send application  message. UDP Message Sender is null.");
+  }
+
+  m_udpMessageSender->sendMessage(move(applicationMessage),
+                                  m_destinationEndpoint);
+  cout << "[INFO::UdpClient] Sent message to " << m_destinationEndpoint.address
+       << ":" << m_destinationEndpoint.port << "\n";
 }
 
-vector<uint8_t> UdpClient::receiveMessage() {
-  vector<uint8_t> message(20);
+ApplicationMessage UdpClient::receiveMessage() {
+  auto optionalMessageAndSender = m_udpMessageReceiver->receiveMessage();
 
-  auto size =
-      m_socket->receive_from(boost::asio::buffer(message), m_remoteEndpoint);
+  if (optionalMessageAndSender.has_value()) {
+    return optionalMessageAndSender.value().first;
+  }
 
-  message.resize(size);
+  const auto invalidCode =
+      static_cast<uint8_t>(ApplicationMessage::Types::InvalidMessage);
 
-  return message;
+  // Todo: Create InvalidMessage class
+  return ApplicationMessage(invalidCode, {});
 }
