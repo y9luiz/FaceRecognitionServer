@@ -20,12 +20,12 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: ./build_coverage/report/
+        path: /home/faceRecognitionServer/build_coverage/report/
 
     - uses: actions/download-artifact@v3
       with:
         name: code-coverage-report
-        path: ./build_coverage/report/
+        path: /home/faceRecognitionServer/build_coverage/report/
     - name: Display structure of downloaded files
       run: ls -R
-      working-directory: ./build_coverage/report/
+      working-directory: /home/faceRecognitionServer/build_coverage/report/
