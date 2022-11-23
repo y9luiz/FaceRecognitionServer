@@ -22,12 +22,10 @@ jobs:
         name: code-coverage-report
         path: ./build_coverage/report/
 
-  upload-to-codecov:
-      needs: code-coverage-report
-      steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+    - uses: actions/download-artifact@v3
+      with:
+        name: code-coverage-report
+        path: ./build_coverage/report/
+    - name: Display structure of downloaded files
+      run: ls -R
+      working-directory: ./build_coverage/report/
