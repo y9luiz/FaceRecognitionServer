@@ -16,9 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build ubuntu 20-04 Code Coverage
-      run: export IMAGE_NAME=face-recongition-server-code-coverage-ubuntu-20.04:$(date +%s)
-      run: docker build . --file Dockerfile --tag $IMAGE_NAME
-      run: docker run -it -v $(pwd)/build_coverage/report:/home/faceRecognitionServer/build_coverage/report \
+      run: |
+           export IMAGE_NAME=face-recongition-server-code-coverage-ubuntu-20.04:$(date +%s)
+           docker build . --file Dockerfile --tag $IMAGE_NAME
+           docker run -it -v $(pwd)/build_coverage/report:/home/faceRecognitionServer/build_coverage/report \
             --rm $IMAGE_NAME bash scripts/build_coverage.sh
     - uses: actions/upload-artifact@v3
       with:
