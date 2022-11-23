@@ -19,6 +19,6 @@ WORKDIR /home/faceRecognitionServer
 
 COPY . .
 
-RUN chown -R y9luiz:default /home/faceRecognitionServer/
+RUN chown -R ubuntu:default /home/faceRecognitionServer/
 
 USER ubuntu
