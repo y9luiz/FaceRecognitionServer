@@ -7,5 +7,4 @@ target_link_libraries(test_application_messages
     ${PROJECT_NAME}::Assets
 )
 
-addToCoverageReport(test_application_messages)
 gtest_discover_tests(test_application_messages)
