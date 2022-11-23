@@ -8,5 +8,4 @@ target_link_libraries(test_message_sender
         ${PROJECT_NAME}::MockUdpSocket
 )
 
-addToCoverageReport(test_message_sender)
 gtest_discover_tests(test_message_sender)
