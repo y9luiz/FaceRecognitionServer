@@ -16,23 +16,19 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build ubuntu 20-04 Code Coverage
-      run: docker build . --file Dockerfile.CodeCoverage --tag my-image-name:$(date +%s)
-    
-    - run: echo "<LF>"
-    - run: ls
-    - run: ls /home/faceRecognitionServer/
-    - run: ls /home/faceRecognitionServer/build_coverage
-    - run: ls /home/faceRecognitionServer/build_coverage/report/
-
+      run: export IMAGE_NAME=face-recongition-server-code-coverage-ubuntu-20.04:$(date +%s)
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      run: docker run -it -v $(pwd)/build_coverage/report:/home/faceRecognitionServer/build_coverage/report \
+            --rm $IMAGE_NAME bash scripts/build_coverage.sh
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: /home/faceRecognitionServer/build_coverage/report/
+        path: ./build_coverage/report/
 
     - uses: actions/download-artifact@v3
       with:
         name: code-coverage-report
-        path: /home/faceRecognitionServer/build_coverage/report/
+        path: ./build_coverage/report/
     - name: Display structure of downloaded files
       run: ls -R
-      working-directory: /home/faceRecognitionServer/build_coverage/report/
+      working-directory: ./build_coverage/report/

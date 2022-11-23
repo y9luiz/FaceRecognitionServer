@@ -16,4 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build ubuntu 20-04 Debug
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: export IMAGE_NAME=face-recongition-server-debug-ubuntu-20.04:$(date +%s)
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      run: docker run --rm $IMAGE_NAME bash scripts/build_coverage.sh
