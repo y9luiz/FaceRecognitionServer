@@ -2,7 +2,7 @@ from dkimg/opencv:4.5.5-ubuntu
 
 LABEL maintainer="y9luiz"
 
-RUN groupadd -g 1000 default
+RUN groupadd -g 1001 default
 
 RUN useradd -ou 0 -g 0 runner
 
