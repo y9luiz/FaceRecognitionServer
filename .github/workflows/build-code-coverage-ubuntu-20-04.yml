@@ -17,6 +17,13 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build ubuntu 20-04 Code Coverage
       run: docker build . --file Dockerfile.CodeCoverage --tag my-image-name:$(date +%s)
+    
+    - run: echo "<LF>"
+    - run: ls
+    - run: ls /home/faceRecognitionServer/
+    - run: ls /home/faceRecognitionServer/build_coverage
+    - run: ls /home/faceRecognitionServer/build_coverage/report/
+
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
