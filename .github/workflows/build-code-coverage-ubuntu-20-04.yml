@@ -17,3 +17,17 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build ubuntu 20-04 Code Coverage
       run: docker build . --file Dockerfile.CodeCoverage --tag my-image-name:$(date +%s)
+    - uses: actions/upload-artifact@v3
+      with:
+      name: {{ Code Coverage }}
+      path: {{ ./build_coverage/report }}
+
+  upload-to-codecov:
+      needs: [ Code Coverage ]
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v3
