@@ -4,7 +4,7 @@ LABEL maintainer="y9luiz"
 
 RUN groupadd -g 1000 default
 
-RUN adduser --disabled-password --gecos "" --force-badname --gid 1000 ubuntu
+RUN adduser --disabled-password --gecos "" --force-badname --gid 1000 runner
 
 RUN apt-get update && apt-get install -y \
     cmake \
@@ -19,6 +19,6 @@ WORKDIR /home/faceRecognitionServer
 
 COPY . .
 
-RUN chown -R ubuntu:default /home/faceRecognitionServer/
+RUN chown -R runner:default /home/faceRecognitionServer/
 
-USER ubuntu
+USER runner
