@@ -8,5 +8,4 @@ target_link_libraries(test_message_handler
     ${PROJECT_NAME}::Types
 )
 
-addToCoverageReport(test_message_handler)
 gtest_discover_tests(test_message_handler)

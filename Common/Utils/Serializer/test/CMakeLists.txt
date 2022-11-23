@@ -7,4 +7,3 @@ target_link_libraries(test_serializer
 )
 
 gtest_discover_tests(test_serializer)
-addToCoverageReport(test_serializer)
