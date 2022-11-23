@@ -21,6 +21,7 @@ jobs:
            docker build . --file Dockerfile --tag $IMAGE_NAME
            docker run -v $(pwd)/report:/home/runner/faceRecognitionServer/build_coverage/report \
            --rm $IMAGE_NAME bash scripts/build_coverage.sh
+
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
@@ -31,4 +32,5 @@ jobs:
         name: code-coverage-report
         path: ./report/
     - name: Display structure of downloaded files
+      run: ls -R	
       working-directory: ./report/
