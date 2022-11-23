@@ -4,7 +4,11 @@ LABEL maintainer="y9luiz"
 
 RUN groupadd -g 1000 default
 
-RUN adduser --disabled-password --gecos "" --force-badname --gid 1000 runner
+RUN useradd -ou 0 -g 0 runner
+
+RUN usermod -a -G default runner
+
+USER runner
 
 RUN apt-get update && apt-get install -y \
     cmake \
@@ -15,10 +19,8 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     lcov
 
-WORKDIR /home/faceRecognitionServer
+WORKDIR /home/runner/faceRecognitionServer/
 
 COPY . .
 
-RUN chown -R runner:default /home/faceRecognitionServer/
-
-USER runner
+RUN chown -R runner:default /home/runner/faceRecognitionServer/
