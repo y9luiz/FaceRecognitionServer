@@ -18,7 +18,6 @@ jobs:
     - name: Build ubuntu 20-04 Code Coverage
       run: docker build . --file Dockerfile.CodeCoverage --tag my-image-name:$(date +%s)
     - uses: actions/upload-artifact@v3
-      with:
       name: {{ Code Coverage }}
       path: {{ ./build_coverage/report }}
 
