@@ -19,20 +19,18 @@ jobs:
       run: |
            export IMAGE_NAME=face-recongition-server-code-coverage-ubuntu-20.04:$(date +%s)
            docker build . --build-arg UID=$(id -u) --file Dockerfile --tag $IMAGE_NAME
-           docker run -v $(pwd)/report:/report \
+           docker run -v $(pwd)/report:/$(pwd)/report \
            --rm $IMAGE_NAME bash scripts/build_coverage.sh
-           mv ./build_coverage/report /report
-           chmod -R 777 /report
 
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: /report/
+        path: ./report/
 
     - uses: actions/download-artifact@v3
       with:
         name: code-coverage-report
-        path: /report/
+        path: ./report/
     - name: Display structure of downloaded files
       run: ls -R	
-      working-directory: /report/
+      working-directory: ./report/
