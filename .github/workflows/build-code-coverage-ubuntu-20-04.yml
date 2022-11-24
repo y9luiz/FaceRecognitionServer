@@ -21,6 +21,7 @@ jobs:
            docker build . --build-arg UID=$(id -u) --file Dockerfile --tag $IMAGE_NAME
            docker run -v $(pwd)/report:/report \
            --rm $IMAGE_NAME bash scripts/build_coverage.sh
+           mv build_coverage/report /report
            chmod -R 777 /report
 
     - uses: actions/upload-artifact@v3
