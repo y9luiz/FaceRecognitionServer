@@ -21,16 +21,18 @@ jobs:
            docker build . --build-arg UID=$(id -u) --file Dockerfile --tag $IMAGE_NAME
            docker run -v $(pwd)/report:/$(pwd)/report \
            --rm $IMAGE_NAME bash scripts/build_coverage.sh
+           ls
+           ls ./report
 
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: $(pwd)/report/
+        path: ./report/
 
     - uses: actions/download-artifact@v3
       with:
         name: code-coverage-report
-        path: $(pwd)/report/
+        path: ./report/
     - name: Display structure of downloaded files
       run: ls -R	
-      working-directory: $(pwd)/report/
+      working-directory: ./report/
