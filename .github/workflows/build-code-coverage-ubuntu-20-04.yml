@@ -25,12 +25,12 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: ./report/
+        path: $(pwd)/report/
 
     - uses: actions/download-artifact@v3
       with:
         name: code-coverage-report
-        path: ./report/
+        path: $(pwd)/report/
     - name: Display structure of downloaded files
       run: ls -R	
-      working-directory: ./report/
+      working-directory: $(pwd)/report/
