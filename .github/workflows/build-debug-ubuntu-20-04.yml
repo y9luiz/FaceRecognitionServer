@@ -18,5 +18,5 @@ jobs:
     - name: Build ubuntu 20-04 Debug
       run: |
            IMAGE_NAME=face-recongition-server-debug-ubuntu-20.04:$(date +%s)
-           docker build . --file Dockerfile --tag $IMAGE_NAM
+           docker build . --file Dockerfile --tag $IMAGE_NAME
            docker run --rm $IMAGE_NAME bash scripts/build_coverage.sh
