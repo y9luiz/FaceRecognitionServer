@@ -2,18 +2,26 @@ from dkimg/opencv:4.5.5-ubuntu
 
 LABEL maintainer="y9luiz"
 
+ARG UID=1000
+
+RUN useradd -m -u $UID -g root -o -s /bin/bash runner
+
 RUN apt-get update && apt-get install -y \
-    clang \
     cmake \
+    build-essential \
     libboost-dev \
     libboost-system-dev \
     libboost-date-time-dev \
-    ninja-build
+    ninja-build \
+    lcov
 
-RUN mkdir faceRecognitionServer
 
-WORKDIR faceRecognitionServer
+RUN mkdir /faceRecognitionServer
 
-COPY . .
+RUN chown $UID:$UID /faceRecognitionServer
 
-RUN bash scripts/build_debug.sh
+USER $UID
+
+WORKDIR /faceRecognitionServer
+
+COPY --chown=$UID . .
