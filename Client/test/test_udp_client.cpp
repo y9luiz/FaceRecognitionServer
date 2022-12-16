@@ -89,7 +89,7 @@ TEST_F(TestUdpClient, receive) {
 
   auto ret = optional<pair<ApplicationMessage, vector<uint8_t>>>(
       make_pair<ApplicationMessage, vector<uint8_t>>(move(movedMessage),
-                                                     endpoint.toBytes()));
+                                                     endpoint.serialize()));
 
   EXPECT_CALL(*m_mockMessageReceiver, receiveMessage()).WillOnce(Return(ret));
 

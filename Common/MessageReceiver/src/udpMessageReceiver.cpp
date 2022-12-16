@@ -64,7 +64,7 @@ UdpMessageReceiver::receiveMessage() {
   if(expectMessageTotalSize  == message.size())
   {
     return make_pair<ApplicationMessage, Origin>(
-      ApplicationMessage(move(message)), endpoint.toBytes());
+      ApplicationMessage(move(message)), endpoint.serialize());
   }
 
   return nullopt;
