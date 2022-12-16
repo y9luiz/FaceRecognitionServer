@@ -59,16 +59,19 @@ void ApplicationMessage::reserve(uint32_t size) {
 
 vector<uint8_t> &ApplicationMessage::payload() { return m_payload; }
 
-vector<uint8_t> ApplicationMessage::convertToBytes() const {
-  vector<uint8_t> bytes;
-  bytes.reserve(size());
-  auto headerBytes = m_header.toBytes();
-  copy(headerBytes.begin(), headerBytes.end(), back_inserter(bytes));
-  copy(m_payload.begin(), m_payload.end(), back_inserter(bytes));
-
-  return bytes;
-}
-
 size_t ApplicationMessage::size() const {
   return sizeof(Header) + m_payload.size();
+}
+
+vector<uint8_t> ApplicationMessage::serialize() const
+{
+    vector<uint8_t> bytes;
+    bytes.reserve(size());
+
+    const auto headerBytes = m_header.toBytes();
+
+    copy(headerBytes.begin(),headerBytes.end(),back_inserter(bytes));
+    copy(m_payload.begin(),m_payload.end(),back_inserter(bytes));
+
+    return bytes;
 }

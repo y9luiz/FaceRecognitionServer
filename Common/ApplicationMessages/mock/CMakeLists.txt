@@ -18,4 +18,6 @@ target_include_directories(MockApplicationMessages
 target_link_libraries(MockApplicationMessages
     PRIVATE
         gmock_main
+    PUBLIC
+        ${PROJECT_NAME}::Types
 )

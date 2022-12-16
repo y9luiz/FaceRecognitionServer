@@ -143,7 +143,7 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenNotReceiveAnything) 
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistered) {
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
-      .WillOnce(DoAll(SetArgReferee<0>(m_mockApplicationMessage.convertToBytes()),
+      .WillOnce(DoAll(SetArgReferee<0>(m_mockApplicationMessage.serialize()),
                       SetArgReferee<1>(LocalEndpoit),
                       Return(m_mockApplicationMessage.size())));
 
@@ -159,7 +159,7 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistere
 }
 
 TEST_F(TestUdpMessageReceiverForServer, processMessage) {
-  vector<uint8_t> bytes = m_mockApplicationMessage.convertToBytes();
+  vector<uint8_t> bytes = m_mockApplicationMessage.serialize();
 
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
       .WillOnce(DoAll(SetArgReferee<0>(bytes),
@@ -197,7 +197,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessageBigMessage) {
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessIncompleteMessage) {
   queue<vector<uint8_t>> packets;
-  auto bytes = m_mockApplicationMessage.convertToBytes();
+  auto bytes = m_mockApplicationMessage.serialize();
   bytes.pop_back();
   packets.push(bytes);
   injectPacketsInSocket(packets);

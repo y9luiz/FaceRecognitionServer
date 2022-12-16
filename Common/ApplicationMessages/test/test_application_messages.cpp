@@ -51,7 +51,7 @@ public:
     auto messageCopy = message;
     m_uut = make_unique<ApplicationMessage>(move(message));
 
-    EXPECT_THAT(m_uut->convertToBytes(), ContainerEq(messageCopy));
+    EXPECT_THAT(m_uut->serialize(), ContainerEq(messageCopy));
   }
 
   void createApplicationMessage(uint8_t messageCode, vector<uint8_t> payload) {

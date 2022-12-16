@@ -1,11 +1,13 @@
 #pragma once
 
+#include "serializable.h"
+
 #include <cstdint>
 #include <vector>
 
 constexpr auto MaximumPacketSize = 1500u;
 
-class ApplicationMessage {
+class ApplicationMessage : public Serializable{
 public:
   enum class Types : uint8_t {
     FaceDetectionRequest,
@@ -35,8 +37,9 @@ public:
   Header header() const;
   void reserve(uint32_t size);
   std::vector<uint8_t> &payload();
-  std::vector<uint8_t> convertToBytes() const;
   std::size_t size() const;
+
+  std::vector<uint8_t> serialize() const override;
 
   bool operator==(const ApplicationMessage &other) const {
     return other.m_header.code == m_header.code &&

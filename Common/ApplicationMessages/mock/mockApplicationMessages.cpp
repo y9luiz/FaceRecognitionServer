@@ -56,7 +56,7 @@ MockApplicationMessage::MockApplicationMessage() {
   ON_CALL(*this, size())
       .WillByDefault(Return(sizeof(DefaultCode) + DefaultPayload.size() +
                             sizeof(uint32_t)));
-  ON_CALL(*this, convertToBytes()).WillByDefault(Return(getDefaultBytes()));
+  ON_CALL(*this, serialize()).WillByDefault(Return(getDefaultBytes()));
 
   g_mock = this;
 }
@@ -100,9 +100,9 @@ std::vector<uint8_t> &ApplicationMessage::payload() {
   return g_mock->payload();
 }
 
-vector<uint8_t> ApplicationMessage::convertToBytes() const {
+vector<uint8_t> ApplicationMessage::serialize() const {
   assertMockExists();
-  return g_mock->convertToBytes();
+  return g_mock->serialize();
 }
 
 size_t ApplicationMessage::size() const {

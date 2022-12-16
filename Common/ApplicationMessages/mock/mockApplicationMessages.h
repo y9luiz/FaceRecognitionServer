@@ -15,6 +15,6 @@ public:
   MOCK_METHOD(ApplicationMessage::Header, header, ());
   MOCK_METHOD(void, reserve, (uint32_t));
   MOCK_METHOD(std::vector<uint8_t> &, payload, ());
-  MOCK_METHOD(std::vector<uint8_t>, convertToBytes, (), (const));
+  MOCK_METHOD(std::vector<uint8_t>, serialize, (), (const));
   MOCK_METHOD(std::size_t, size, (), (const));
 };

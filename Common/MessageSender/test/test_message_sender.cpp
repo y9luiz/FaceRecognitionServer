@@ -55,7 +55,7 @@ TEST_F(TestUdpMessageSender, getSocket) {
 TEST_F(TestUdpMessageSender, sendSmallMessage) {
   EXPECT_CALL(m_mockUdpSocket, sendTo(_, m_destination)).Times(1);
 
-  m_uut->sendMessage(move(m_mockApplicationMessage.convertToBytes()), m_destination);
+  m_uut->sendMessage(move(m_mockApplicationMessage.serialize()), m_destination);
 }
 
 TEST_F(TestUdpMessageSender, sendBigMessage) {
