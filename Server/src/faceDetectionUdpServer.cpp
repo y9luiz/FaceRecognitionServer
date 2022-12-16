@@ -31,10 +31,10 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
   m_messageHandler = make_unique<MessageHandler>();
   m_messageHandler->registerCallback(
       static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionRequest),
-      [this](ApplicationMessage &&message, const Endpoint &endpoint) {
-        FaceDetectionRequestMessage request(move(message.payload()));
+      [this](auto message, const Endpoint &endpoint) {
+        auto request = static_cast<FaceDetectionRequestMessage*>(message.get());
 
-        auto image = request.image();
+        auto image = request->image();
 
         if (m_faceDetector) {
           Mat faces;
@@ -55,7 +55,7 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
                                 "UDP Message Sender is null.");
             }
 
-            m_messageSender->sendMessage(move(response), endpoint);
+            m_messageSender->sendMessage(move(message), endpoint);
           }
         }
         cout << "callback finished\n";

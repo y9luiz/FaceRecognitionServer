@@ -9,7 +9,7 @@ public:
   UdpMessageReceiver();
   UdpMessageReceiver(std::shared_ptr<UdpSocket> socket);
 
-  virtual std::optional<std::pair<ApplicationMessage, Origin>> receiveMessage();
+  virtual std::optional<std::pair<std::unique_ptr<ApplicationMessage>, Origin>> receiveMessage();
 
 private:
   std::shared_ptr<UdpSocket> m_socket;

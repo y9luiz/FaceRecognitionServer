@@ -9,7 +9,7 @@
 
 using std::invalid_argument;
 using std::move;
-using cv::Mat;
+using std::make_unique;
 using cv::imread;
 using cv::rectangle;
 using std::runtime_error;
@@ -30,18 +30,18 @@ void FaceDetectionUdpClient::run(int argc, char * argv[])
     const auto imagePath = argv[1];
     const auto image = imread(imagePath);
     
-    auto message = FaceDetectionRequestMessage(image.clone());
+    auto message = make_unique<FaceDetectionRequestMessage>(image.clone());
     sendMessage(move(message));
 
     auto response = receiveMessage();
-    if(response.header().code != static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionResponse))
+    if(response->header().code != static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionResponse))
     {
         throw runtime_error("invalid message response");
     }
 
-    FaceDetectionResponseMessage faceDetectionResponse(move(response.payload()));
+    auto faceDetectionResponse = static_cast<FaceDetectionResponseMessage*>(response.get());
 
-    for (const auto boundingBox : faceDetectionResponse.facesBoudingBoxes()) {
+    for (const auto boundingBox : faceDetectionResponse->facesBoudingBoxes()) {
         rectangle(image, boundingBox, cv::Scalar(255, 0, 0));
     }
 

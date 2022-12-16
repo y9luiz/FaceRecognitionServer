@@ -26,7 +26,7 @@ protected:
   void initializeMessageReceiver();
   void registerMessageReceiverCallback();
 
-  void handleMessage(ApplicationMessage &&message, const Endpoint &endpoint);
+  void handleMessage(std::unique_ptr<ApplicationMessage> message, const Endpoint &endpoint);
 
   std::string m_ip;
   uint16_t m_port;

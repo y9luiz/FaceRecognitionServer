@@ -12,20 +12,20 @@ using std::move;
 
 void MessageHandler::registerCallback(
     uint8_t code,
-    function<void(ApplicationMessage &&, const Endpoint &)> callback) {
+    function<void(std::unique_ptr<ApplicationMessage>, const Endpoint &)> callback) {
   if (!callback) {
     throw invalid_argument("Could not register null callback");
   }
   m_messageHandlerCallbackMap[code] = callback;
 }
 
-void MessageHandler::processMessage(ApplicationMessage &&message,
+void MessageHandler::processMessage(std::unique_ptr<ApplicationMessage> message,
                                     const Endpoint &endpoint) {
-  auto code = message.header().code;
+  auto code = message->header().code;
   invokeCallback(code, move(message), endpoint);
 }
 
-void MessageHandler::invokeCallback(uint8_t code, ApplicationMessage &&message,
+void MessageHandler::invokeCallback(uint8_t code, std::unique_ptr<ApplicationMessage> message,
                                     const Endpoint &endpoint) {
   const auto &it = m_messageHandlerCallbackMap.find(code);
 

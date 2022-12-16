@@ -21,8 +21,6 @@ using std::thread;
 using std::unique_ptr;
 using std::vector;
 
-namespace this_thread = std::this_thread;
-
 ParallelMessageReceiver::ParallelMessageReceiver(
     unique_ptr<MessageReceiverInterface> messageReceiver)
     : m_messageReceiver(move(messageReceiver)) {
@@ -47,8 +45,8 @@ void ParallelMessageReceiver::start() {
         try {
           cout << "[INFO::ParallelMessageReceiver] Processing "
                   "message\n";
-          auto [applicationMessage, origin] =
-              applicationMessageAndOrigin.value();
+          auto applicationMessage = move(applicationMessageAndOrigin.value().first);
+          auto origin = applicationMessageAndOrigin.value().second;
           processMessage(move(applicationMessage), origin);
         } catch (const logic_error &e) {
           cout << "[ERROR::ParallelMessageReceiver] " << e.what() << "\n";
@@ -79,7 +77,7 @@ void ParallelMessageReceiver::setReceiveMessageCallback(
   m_receiveMessageCallback = callback;
 }
 
-void ParallelMessageReceiver::processMessage(ApplicationMessage &&message,
+void ParallelMessageReceiver::processMessage(unique_ptr<ApplicationMessage> message,
                                              const vector<uint8_t> &origin) {
   if (!m_receiveMessageCallback) {
     throw logic_error(
@@ -88,7 +86,7 @@ void ParallelMessageReceiver::processMessage(ApplicationMessage &&message,
   m_receiveMessageCallback(move(message), origin);
 }
 
-optional<pair<ApplicationMessage, MessageReceiverInterface::Origin>>
+optional<pair<unique_ptr<ApplicationMessage>, MessageReceiverInterface::Origin>>
 ParallelMessageReceiver::receiveMessage() {
   return m_messageReceiver->receiveMessage();
 }

@@ -22,21 +22,17 @@ public:
     uint8_t code;
     uint32_t payloadSize;
 
-    Header(uint8_t code, uint32_t payloadSize);
-    Header(std::vector<uint8_t> &message);
-
     std::vector<uint8_t> toBytes() const;
   };
 #pragma pack(pop)
 
-  ApplicationMessage(uint8_t code, std::vector<uint8_t> &&payload);
-  ApplicationMessage(std::vector<uint8_t> &&message);
+  ApplicationMessage();
 
   virtual ~ApplicationMessage() = default;
 
   Header header() const;
   void reserve(uint32_t size);
-  std::vector<uint8_t> &payload();
+  const char * payload();
   std::size_t size() const;
 
   std::vector<uint8_t> serialize() const override;
@@ -49,5 +45,11 @@ public:
 
 protected:
   Header m_header;
-  std::vector<uint8_t> m_payload;
+  char* m_payload;
+};
+
+class FactoryApplicationMessage
+{
+public:
+  static std::unique_ptr<ApplicationMessage> create(std::vector<uint8_t> && byteSequence);
 };

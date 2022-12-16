@@ -12,6 +12,7 @@ using std::logic_error;
 using std::make_unique;
 using std::move;
 using std::string;
+using std::unique_ptr;
 
 UdpClient::UdpClient(const string &ipAddress, uint16_t port)
     : m_destinationEndpoint{ipAddress, port} {
@@ -21,7 +22,7 @@ UdpClient::UdpClient(const string &ipAddress, uint16_t port)
       m_udpMessageSender->socket());
 }
 
-void UdpClient::sendMessage(ApplicationMessage &&applicationMessage) {
+void UdpClient::sendMessage(unique_ptr<ApplicationMessage> applicationMessage) {
 
   if (!m_udpMessageSender) {
     throw logic_error(
@@ -34,16 +35,16 @@ void UdpClient::sendMessage(ApplicationMessage &&applicationMessage) {
        << ":" << m_destinationEndpoint.port << "\n";
 }
 
-ApplicationMessage UdpClient::receiveMessage() {
+unique_ptr<ApplicationMessage> UdpClient::receiveMessage() {
   auto optionalMessageAndSender = m_udpMessageReceiver->receiveMessage();
 
   if (optionalMessageAndSender.has_value()) {
-    return optionalMessageAndSender.value().first;
+    return move(optionalMessageAndSender.value().first);
   }
 
   const auto invalidCode =
       static_cast<uint8_t>(ApplicationMessage::Types::InvalidMessage);
 
   // Todo: Create InvalidMessage class
-  return ApplicationMessage(invalidCode, {});
+  return nullptr;
 }

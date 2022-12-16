@@ -6,11 +6,10 @@ using cv::Rect2i;
 using std::vector;
 
 FaceDetectionResponseMessage::FaceDetectionResponseMessage(
-    const vector<Rect2i> &payload)
-    : ApplicationMessage(static_cast<uint8_t>(
-                             ApplicationMessage::Types::FaceDetectionResponse),
-                         Serializer::vectorRectToBytes(payload)),
-      m_boudingBoxes(payload) {}
+    const vector<Rect2i> &payload):
+      m_boudingBoxes(payload) {
+    m_payload = reinterpret_cast<char *>(m_boudingBoxes.data());
+}
 
 FaceDetectionResponseMessage::FaceDetectionResponseMessage(
     vector<uint8_t> &&payload)
