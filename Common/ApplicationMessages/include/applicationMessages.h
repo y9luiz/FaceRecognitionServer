@@ -9,43 +9,28 @@ constexpr auto MaximumPacketSize = 1500u;
 
 class ApplicationMessage : public Serializable{
 public:
-  enum class Types : uint8_t {
-    FaceDetectionRequest,
+  enum class Code : uint8_t {
+    FaceDetectionRequest = 42,
     FaceDetectionResponse,
     FaceRecognitionRequest,
     FaceRecognitionResponse,
     InvalidMessage = 255
   };
 
-#pragma pack(push, 1)
-  struct Header {
-    uint8_t code;
-    uint32_t payloadSize;
-
-    std::vector<uint8_t> toBytes() const;
-  };
-#pragma pack(pop)
-
-  ApplicationMessage();
+  ApplicationMessage() = delete;
+  ApplicationMessage(ApplicationMessage &) = delete;
 
   virtual ~ApplicationMessage() = default;
 
-  Header header() const;
-  void reserve(uint32_t size);
-  const char * payload();
-  std::size_t size() const;
+  Code code() const;
 
-  std::vector<uint8_t> serialize() const override;
-
-  bool operator==(const ApplicationMessage &other) const {
-    return other.m_header.code == m_header.code &&
-           other.m_header.payloadSize == m_header.payloadSize &&
-           other.m_payload == m_payload;
-  }
+  virtual std::vector<uint8_t> serialize() const = 0;
 
 protected:
-  Header m_header;
-  char* m_payload;
+
+  ApplicationMessage(Code code);
+
+  Code m_code;
 };
 
 class FactoryApplicationMessage

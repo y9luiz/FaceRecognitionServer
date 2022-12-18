@@ -3,11 +3,11 @@
 #include "messageReceiverInterface.h"
 
 #include <applicationMessages.h>
-#include <optional>
 #include <serializer.h>
 
 #include <iostream>
 #include <thread>
+#include <optional>
 
 using namespace std::chrono_literals;
 
@@ -43,18 +43,18 @@ UdpMessageReceiver::receiveMessage() {
   uint32_t payloadSize = Serializer::u32FromBytes(tempBuffer.begin() + 1);
 
   const auto expectMessageTotalSize =
-      sizeof(ApplicationMessage::Header) + payloadSize;
+      sizeof(ApplicationMessage::Code) + sizeof(uint32_t) +  payloadSize;
 
   vector<uint8_t> message;
   message.reserve(expectMessageTotalSize);
 
-  move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+  copy(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
 
   while (message.size() < expectMessageTotalSize) {
     receivedDataSize = m_socket->receive(tempBuffer);
     if (receivedDataSize) {
-        move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+        copy(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";

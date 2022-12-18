@@ -4,9 +4,9 @@
 #include "messageHandler.h"
 #include <assets.h>
 
+#include <iostream>
 #include <memory>
-#include <opencv2/highgui.hpp>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 #include <stdexcept>
 
 using namespace assets::models;
@@ -30,9 +30,10 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
 
   m_messageHandler = make_unique<MessageHandler>();
   m_messageHandler->registerCallback(
-      static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionRequest),
+      static_cast<uint8_t>(ApplicationMessage::Code::FaceDetectionRequest),
       [this](auto message, const Endpoint &endpoint) {
-        auto request = static_cast<FaceDetectionRequestMessage*>(message.get());
+        auto request =
+            static_cast<FaceDetectionRequestMessage *>(message.get());
 
         auto image = request->image();
 
@@ -49,15 +50,16 @@ FaceDetectionUdpServer::FaceDetectionUdpServer(const string &ip, uint16_t port)
                   Rect2i(faces.at<float>(i, 0), faces.at<float>(i, 1),
                          faces.at<float>(i, 2), faces.at<float>(i, 3)));
             }
-            FaceDetectionResponseMessage response(boundingBoxes);
+            auto response =
+                make_unique<FaceDetectionResponseMessage>(boundingBoxes);
             if (!m_messageSender) {
               throw logic_error("Could not send application message."
                                 "UDP Message Sender is null.");
             }
 
-            m_messageSender->sendMessage(move(message), endpoint);
+            m_messageSender->sendMessage(move(response), endpoint);
           }
         }
-        cout << "callback finished\n";
+        cout << "Face detection request processed!\n";
       });
 }

@@ -9,6 +9,8 @@ public:
   FaceDetectionResponseMessage(const std::vector<cv::Rect> &payload);
   FaceDetectionResponseMessage(std::vector<uint8_t> &&payload);
 
+  std::vector<uint8_t> serialize() const override;
+
   std::vector<cv::Rect> &facesBoudingBoxes();
 
 private:

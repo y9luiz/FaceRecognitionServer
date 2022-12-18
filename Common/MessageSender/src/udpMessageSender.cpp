@@ -59,38 +59,37 @@ void sendApplicationMessage(UdpSocket &socket,
                             unique_ptr<ApplicationMessage> message,
                             const Endpoint &destination) {
 
-  auto header = message->header();
-  const auto payload = message->payload();
+  auto bytes = message->serialize();
 
-  vector<uint8_t> buffer = header.toBytes();
+  vector<uint8_t> buffer;
   buffer.reserve(MaximumPacketSize);
 
-  if (message->size() < MaximumPacketSize - buffer.size()) {
-    copy(payload, payload + header.payloadSize, back_inserter(buffer));
+  if (bytes.size() <= MaximumPacketSize) {
+    copy(bytes.begin(), bytes.end(), back_inserter(buffer));
     socket.sendTo(buffer, destination);
     return;
   }
 
-  auto startAddr = payload;
-  auto endAddr = payload + (MaximumPacketSize - buffer.size());
+  auto startIt = bytes.begin();
+  auto endIt = startIt + (MaximumPacketSize);
 
   uint32_t numberOfBytesSended = 0;
 
-  copy(startAddr, endAddr, back_inserter(buffer));
+  copy(startIt, endIt, back_inserter(buffer));
 
-  while (numberOfBytesSended < message->size()) {
+  while (numberOfBytesSended < bytes.size()) {
     numberOfBytesSended += socket.sendTo(buffer, destination);
-    startAddr = endAddr;
-    auto reminderBytesAmount = message->size() - numberOfBytesSended;
+    startIt = endIt;
+    auto reminderBytesAmount = bytes.size() - numberOfBytesSended;
 
     if (reminderBytesAmount > MaximumPacketSize) {
-      endAddr += MaximumPacketSize;
+      endIt += MaximumPacketSize;
     } else if (reminderBytesAmount > 0) {
-      endAddr += reminderBytesAmount;
+      endIt += reminderBytesAmount;
       buffer.resize(reminderBytesAmount);
     }
 
-    copy(startAddr, endAddr, back_inserter(buffer));
+    copy(startIt, endIt, buffer.begin());
     this_thread::sleep_for(10us);
   }
 }

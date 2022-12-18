@@ -34,7 +34,7 @@ void FaceDetectionUdpClient::run(int argc, char * argv[])
     sendMessage(move(message));
 
     auto response = receiveMessage();
-    if(response->header().code != static_cast<uint8_t>(ApplicationMessage::Types::FaceDetectionResponse))
+    if(response->code() != ApplicationMessage::Code::FaceDetectionResponse)
     {
         throw runtime_error("invalid message response");
     }

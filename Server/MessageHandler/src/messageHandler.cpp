@@ -21,8 +21,8 @@ void MessageHandler::registerCallback(
 
 void MessageHandler::processMessage(std::unique_ptr<ApplicationMessage> message,
                                     const Endpoint &endpoint) {
-  auto code = message->header().code;
-  invokeCallback(code, move(message), endpoint);
+  auto code = message->code();
+  invokeCallback(static_cast<uint8_t>(code), move(message), endpoint);
 }
 
 void MessageHandler::invokeCallback(uint8_t code, std::unique_ptr<ApplicationMessage> message,

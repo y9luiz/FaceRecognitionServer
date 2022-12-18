@@ -42,9 +42,6 @@ unique_ptr<ApplicationMessage> UdpClient::receiveMessage() {
     return move(optionalMessageAndSender.value().first);
   }
 
-  const auto invalidCode =
-      static_cast<uint8_t>(ApplicationMessage::Types::InvalidMessage);
-
   // Todo: Create InvalidMessage class
   return nullptr;
 }
