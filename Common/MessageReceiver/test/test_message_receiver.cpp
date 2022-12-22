@@ -116,7 +116,7 @@ public:
   }
 
   NiceMock<MockUdpSocket> m_mockUdpSocket;
-  NiceMock<MockFunction<void(ApplicationMessage &&, const vector<uint8_t> &)>>
+  NiceMock<MockFunction<void(unique_ptr<ApplicationMessage>, const vector<uint8_t> &)>>
       m_mockReceiveMessageCallback;
   NiceMock<MockApplicationMessage> m_mockApplicationMessage;
 
@@ -142,10 +142,12 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenNotReceiveAnything) 
 }
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistered) {
+  const auto bytes = m_mockApplicationMessage.serialize();
+
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
-      .WillOnce(DoAll(SetArgReferee<0>(m_mockApplicationMessage.serialize()),
+      .WillOnce(DoAll(SetArgReferee<0>(bytes),
                       SetArgReferee<1>(LocalEndpoit),
-                      Return(m_mockApplicationMessage.size())));
+                      Return(bytes.size())));
 
   EXPECT_CALL(m_mockUdpSocket, receive).Times(0);
 
@@ -164,7 +166,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessage) {
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
       .WillOnce(DoAll(SetArgReferee<0>(bytes),
                       SetArgReferee<1>(LocalEndpoit),
-                      Return(m_mockApplicationMessage.size())))
+                      Return(bytes.size())))
       .WillRepeatedly(Return(0));
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_, _));

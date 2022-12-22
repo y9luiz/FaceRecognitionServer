@@ -15,7 +15,7 @@ namespace {
 MockApplicationMessage *g_mock = nullptr;
 
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
-constexpr ApplicationMessage::Code DefaultCode = ApplicationMessage::Code::FaceDetectionRequest;
+constexpr ApplicationMessage::Code DefaultCode = ApplicationMessage::Code::InvalidMessage;
 
 void assertMockExists() {
   if (!g_mock) {

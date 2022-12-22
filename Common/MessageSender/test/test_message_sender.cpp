@@ -41,7 +41,21 @@ public:
     EXPECT_CALL(m_mockUdpSocket, open);
   }
 
-  NiceMock<MockApplicationMessage> m_mockApplicationMessage;
+  vector<uint8_t> createMessage(ApplicationMessage::Code code, const vector<uint8_t>& payload){
+    vector<uint8_t> messageBytes;
+    messageBytes.reserve(sizeof(ApplicationMessage::Code) + sizeof(uint32_t) + payload.size());
+
+    messageBytes.push_back(static_cast<uint8_t>(code));
+
+    const auto payloadSizeBytes = Serializer::u32ToBytes(payload.size());
+
+    copy(payloadSizeBytes.begin(),payloadSizeBytes.end(),back_inserter(messageBytes));
+    copy(payload.begin(),payload.end(),back_inserter(messageBytes));
+
+    return messageBytes;
+  }
+
+  unique_ptr<MockApplicationMessage> m_mockApplicationMessage;
   NiceMock<MockUdpSocket> m_mockUdpSocket;
 
   Endpoint m_destination{"127.0.0.1", 5000};
@@ -55,23 +69,25 @@ TEST_F(TestUdpMessageSender, getSocket) {
 TEST_F(TestUdpMessageSender, sendSmallMessage) {
   EXPECT_CALL(m_mockUdpSocket, sendTo(_, m_destination)).Times(1);
 
-  m_uut->sendMessage(move(m_mockApplicationMessage.serialize()), m_destination);
+  m_mockApplicationMessage = make_unique<MockApplicationMessage>();
+
+  m_uut->sendMessage(move(m_mockApplicationMessage), m_destination);
 }
 
 TEST_F(TestUdpMessageSender, sendBigMessage) {
-  auto payloadCopy = DefaultPayload;
-  EXPECT_CALL(m_mockApplicationMessage,payload).WillOnce(ReturnRefOfCopy(payloadCopy));
-    EXPECT_CALL(m_mockApplicationMessage,size).WillRepeatedly(Return(payloadCopy.size() + sizeof(ApplicationMessage::Header)));
+  m_mockApplicationMessage = make_unique<MockApplicationMessage>();
 
-  ApplicationMessage applicationMessage(0, move(payloadCopy));
+  vector<uint8_t> messageBytes = createMessage(ApplicationMessage::Code::FaceDetectionResponse,DefaultPayload);
 
   const auto totalOfPackets =
-      applicationMessage.size() / MaximumPacketSize +
-      (applicationMessage.size() % MaximumPacketSize ? 1 : 0);
+      messageBytes.size() / MaximumPacketSize +
+      (messageBytes.size() % MaximumPacketSize ? 1 : 0);
+
+  EXPECT_CALL(*m_mockApplicationMessage,serialize()).WillRepeatedly(Return(messageBytes));
 
   EXPECT_CALL(m_mockUdpSocket, sendTo(_, m_destination))
       .Times(totalOfPackets)
       .WillRepeatedly(Return(MaximumPacketSize));
 
-  m_uut->sendMessage(move(applicationMessage), m_destination);
+  m_uut->sendMessage(move(m_mockApplicationMessage), m_destination);
 }

@@ -47,6 +47,12 @@ UdpMessageSender::~UdpMessageSender() {
 void UdpMessageSender::sendMessage(
     unique_ptr<ApplicationMessage> applicationMessage,
     const Endpoint &destination) {
+
+  if(!applicationMessage)
+  {
+    throw invalid_argument("Could not send null application message");
+  }
+
   auto endpoint = destination;
   {
     lock_guard _(m_messageQueueMutex);
@@ -58,6 +64,10 @@ void UdpMessageSender::sendMessage(
 void sendApplicationMessage(UdpSocket &socket,
                             unique_ptr<ApplicationMessage> message,
                             const Endpoint &destination) {
+  if(!message)
+  {
+    throw invalid_argument("Could not send null application message");
+  }
 
   auto bytes = message->serialize();
 

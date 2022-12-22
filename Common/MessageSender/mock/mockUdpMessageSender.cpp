@@ -6,6 +6,7 @@
 
 using std::logic_error;
 using std::move;
+using std::unique_ptr;
 
 namespace {
 MockUdpMessageSender *g_mock = nullptr;
@@ -41,7 +42,7 @@ UdpMessageSender::UdpMessageSender() {
 
 UdpMessageSender::~UdpMessageSender() {}
 
-void UdpMessageSender::sendMessage(ApplicationMessage &&message,
+void UdpMessageSender::sendMessage(unique_ptr<ApplicationMessage> message,
                                    const Endpoint &endpoint) {
   assertMockIsNotNull();
   g_mock->sendMessage(move(message), endpoint);
