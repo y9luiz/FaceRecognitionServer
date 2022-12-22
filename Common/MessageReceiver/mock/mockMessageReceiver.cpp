@@ -6,6 +6,7 @@
 using std::logic_error;
 using std::optional;
 using std::pair;
+using std::unique_ptr;
 
 namespace {
 MockMessageReceiver *g_mock = nullptr;
@@ -32,7 +33,7 @@ MockMessageReceiver::~MockMessageReceiver() {
   g_mock = nullptr;
 }
 
-optional<pair<ApplicationMessage, MessageReceiverInterface::Origin>>
+optional<pair<unique_ptr<ApplicationMessage>, MessageReceiverInterface::Origin>>
 MessageReceiverInterface::receiveMessage() {
   assertMockExists();
   return g_mock->receiveMessage();

@@ -21,6 +21,11 @@ void MessageHandler::registerCallback(
 
 void MessageHandler::processMessage(std::unique_ptr<ApplicationMessage> message,
                                     const Endpoint &endpoint) {
+  if(!message)
+  {
+    throw invalid_argument("Could no process null message");
+  }
+
   auto code = message->code();
   invokeCallback(static_cast<uint8_t>(code), move(message), endpoint);
 }

@@ -5,16 +5,13 @@
 #include <gmock/gmock.h>
 #include <vector>
 
-class MockApplicationMessage {
+class MockApplicationMessage : public ApplicationMessage {
 public:
   MockApplicationMessage();
   virtual ~MockApplicationMessage();
 
   MOCK_METHOD(void, constructor, (uint8_t, std::vector<uint8_t> &&));
   MOCK_METHOD(void, constructor, (std::vector<uint8_t> &&));
-  MOCK_METHOD(ApplicationMessage::Header, header, ());
-  MOCK_METHOD(void, reserve, (uint32_t));
-  MOCK_METHOD(std::vector<uint8_t> &, payload, ());
-  MOCK_METHOD(std::vector<uint8_t>, serialize, (), (const));
-  MOCK_METHOD(std::size_t, size, (), (const));
+  MOCK_METHOD(ApplicationMessage::Code, code, ());
+  MOCK_METHOD(std::vector<uint8_t>, serialize, (), (const,override));
 };
