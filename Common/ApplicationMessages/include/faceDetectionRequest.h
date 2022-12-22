@@ -11,7 +11,7 @@ public:
 
   std::vector<uint8_t> serialize() const override;
 
-  cv::Mat &image();
+  const cv::Mat &image();
 
 private:
   cv::Mat m_image;

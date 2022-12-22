@@ -39,7 +39,7 @@ FaceDetectionRequestMessage::FaceDetectionRequestMessage(
     vector<uint8_t> &&payload)
     : FaceDetectionRequestMessage(Serializer::matFromBytes(payload)) {}
 
-Mat &FaceDetectionRequestMessage::image() { return m_image; }
+const Mat &FaceDetectionRequestMessage::image() { return m_image; }
 
 vector<uint8_t> FaceDetectionRequestMessage::serialize() const {
   vector<uint8_t> bytes;
@@ -48,11 +48,11 @@ vector<uint8_t> FaceDetectionRequestMessage::serialize() const {
 
   bytes.emplace_back(static_cast<uint8_t>(m_code));
 
-  const auto payloadSize =
+  const auto payloadSizeBytes =
       Serializer::u32ToBytes(totalMessageSize - sizeof(Code));
   const auto imageBytes = Serializer::matToBytes(m_image);
 
-  copy(payloadSize.begin(), payloadSize.end(), back_inserter(bytes));
+  copy(payloadSizeBytes.begin(), payloadSizeBytes.end(), back_inserter(bytes));
   copy(imageBytes.begin(), imageBytes.end(), back_inserter(bytes));
 
   return bytes;

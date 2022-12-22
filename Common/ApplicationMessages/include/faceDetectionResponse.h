@@ -11,7 +11,7 @@ public:
 
   std::vector<uint8_t> serialize() const override;
 
-  std::vector<cv::Rect> &facesBoudingBoxes();
+  const std::vector<cv::Rect> &facesBoudingBoxes();
 
 private:
   std::vector<cv::Rect> m_boudingBoxes;
