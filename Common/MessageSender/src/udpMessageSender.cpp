@@ -69,7 +69,7 @@ void sendApplicationMessage(UdpSocket &socket,
     throw invalid_argument("Could not send null application message");
   }
 
-  auto bytes = message->serialize();
+  const auto bytes = message->serialize();
 
   vector<uint8_t> buffer;
   buffer.reserve(MaximumPacketSize);
@@ -90,7 +90,7 @@ void sendApplicationMessage(UdpSocket &socket,
   while (numberOfBytesSended < bytes.size()) {
     numberOfBytesSended += socket.sendTo(buffer, destination);
     startIt = endIt;
-    auto reminderBytesAmount = bytes.size() - numberOfBytesSended;
+    const auto reminderBytesAmount = bytes.size() - numberOfBytesSended;
 
     if (reminderBytesAmount > MaximumPacketSize) {
       endIt += MaximumPacketSize;
