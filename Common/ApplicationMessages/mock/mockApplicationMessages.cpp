@@ -31,7 +31,7 @@ void assertMockNotExists() {
 
 vector<uint8_t> serializeDefaultMessage() {
   vector<uint8_t> bytes;
-  bytes.reserve(DefaultPayload.size() + sizeof(uint32_t) + sizeof(DefaultCode));
+  bytes.reserve(DefaultPayload.size() + sizeof(ApplicationMessage::Header));
   bytes.emplace_back(static_cast<uint8_t>(DefaultCode));
 
   uint32_t payloadSize = DefaultPayload.size();

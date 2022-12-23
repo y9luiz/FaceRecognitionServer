@@ -43,7 +43,7 @@ UdpMessageReceiver::receiveMessage() {
   uint32_t payloadSize = Serializer::u32FromBytes(tempBuffer.begin() + 1);
 
   const auto expectMessageTotalSize =
-      sizeof(ApplicationMessage::Code) + sizeof(uint32_t) +  payloadSize;
+      sizeof(ApplicationMessage::Header) + payloadSize;
 
   vector<uint8_t> message;
   message.reserve(expectMessageTotalSize);

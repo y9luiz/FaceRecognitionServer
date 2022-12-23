@@ -43,7 +43,7 @@ public:
 
   vector<uint8_t> createMessage(ApplicationMessage::Code code, const vector<uint8_t>& payload){
     vector<uint8_t> messageBytes;
-    messageBytes.reserve(sizeof(ApplicationMessage::Code) + sizeof(uint32_t) + payload.size());
+    messageBytes.reserve(sizeof(ApplicationMessage::Header) + payload.size());
 
     messageBytes.push_back(static_cast<uint8_t>(code));
 

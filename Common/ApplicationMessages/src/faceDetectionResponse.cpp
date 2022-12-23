@@ -7,7 +7,7 @@ using std::vector;
 
 namespace {
 size_t getNumberOfBytes(const vector<Rect2i> &payload) {
-  return sizeof(Rect2i) * payload.size();
+  return sizeof(Rect2i) * payload.size() + sizeof(uint32_t);
 }
 
 } // namespace
@@ -29,13 +29,13 @@ vector<uint8_t> FaceDetectionResponseMessage::serialize() const {
 
   vector<uint8_t> bytes;
   const auto totalMessageSize =
-      sizeof(Code) + sizeof(uint32_t) + getNumberOfBytes(m_boudingBoxes);
+      sizeof(ApplicationMessage::Header) + getNumberOfBytes(m_boudingBoxes);
   bytes.reserve(totalMessageSize);
 
   bytes.emplace_back(static_cast<uint8_t>(m_code));
 
   const auto payloadSizeBytes =
-      Serializer::u32ToBytes(totalMessageSize - sizeof(Code));
+      Serializer::u32ToBytes(totalMessageSize - sizeof(ApplicationMessage::Header));
   const auto rectsBytes = Serializer::vectorRectToBytes(m_boudingBoxes);
 
   copy(payloadSizeBytes.begin(), payloadSizeBytes.end(), back_inserter(bytes));
