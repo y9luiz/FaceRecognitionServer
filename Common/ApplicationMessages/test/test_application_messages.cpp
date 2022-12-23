@@ -23,6 +23,49 @@ using std::make_unique;
 using std::unique_ptr;
 using std::vector;
 
+class TestFactoryApplicationMessage : public testing::Test {
+public:
+  TestFactoryApplicationMessage() {}
+
+  FactoryApplicationMessage m_uut;
+};
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionRequestMessage)
+{
+  Mat img = imread(IMAGE1);
+  const auto msg = FactoryApplicationMessage::create<FaceDetectionRequestMessage>(img);
+
+  EXPECT_THAT(msg,Not(IsNull()));
+  EXPECT_THAT(FactoryApplicationMessage::create(msg->serialize()),Not(IsNull()));
+}
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionRequestMessageSadPath)
+{
+  Mat emptyImg;
+  EXPECT_THROW(FactoryApplicationMessage::create<FaceDetectionRequestMessage>(emptyImg),invalid_argument);
+  EXPECT_THROW(FactoryApplicationMessage::create({}),invalid_argument);
+
+  ApplicationMessage::Header emptyHeader;
+  vector<uint8_t> bytes;
+  copy(emptyHeader.begin(),emptyHeader.end(), back_inserter(bytes));
+  EXPECT_EQ(FactoryApplicationMessage::create(move(bytes)),nullptr);
+}
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionResponseMessage)
+{
+  vector<Rect2i> rects;
+  rects.emplace_back(0, 1, 2, 3);
+  const auto msg = FactoryApplicationMessage::create<FaceDetectionResponseMessage>(rects);
+
+  EXPECT_THAT(msg,Not(IsNull()));
+  EXPECT_THAT(FactoryApplicationMessage::create(msg->serialize()),Not(IsNull()));
+}
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionResponseMessageSadPath)
+{
+  EXPECT_THROW(FactoryApplicationMessage::create({}),invalid_argument);
+}
+
 class TestFaceDetectionRequestMessage : public testing::Test {
 public:
   TestFaceDetectionRequestMessage() {}
