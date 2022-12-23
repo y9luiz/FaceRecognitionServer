@@ -9,7 +9,7 @@
 class ParallelMessageReceiver : public MessageReceiverInterface {
 public:
   using ReceiveMessageCallbackT =
-      std::function<void(ApplicationMessage &&, const Origin &)>;
+      std::function<void(std::unique_ptr<ApplicationMessage>, const Origin &)>;
 
   void setReceiveMessageCallback(ReceiveMessageCallbackT callback);
 
@@ -25,10 +25,10 @@ protected:
   ParallelMessageReceiver(
       std::unique_ptr<MessageReceiverInterface> messageReceiver);
 
-  std::optional<std::pair<ApplicationMessage, Origin>>
+  std::optional<std::pair<std::unique_ptr<ApplicationMessage>, Origin>>
   receiveMessage() override;
 
-  void processMessage(ApplicationMessage &&message, const Origin &origin);
+  void processMessage(std::unique_ptr<ApplicationMessage> message, const Origin &origin);
 
   ReceiveMessageCallbackT m_receiveMessageCallback;
 

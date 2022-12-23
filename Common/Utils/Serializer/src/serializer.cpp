@@ -33,7 +33,7 @@ uint16_t Serializer::u16FromBytes(vector<uint8_t> &bytes) {
 
 uint16_t Serializer::u16FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint16_t)) {
-    throw invalid_argument("Byte set to short, could not extract uint16_t");
+    throw invalid_argument("Byte sequence too short, could not extract uint16_t");
   }
 
   uint16_t val = bytes[0] | bytes[1] << 8;
@@ -59,7 +59,7 @@ uint32_t Serializer::u32FromBytes(vector<uint8_t> &bytes) {
 
 uint32_t Serializer::u32FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint32_t)) {
-    throw invalid_argument("Byte set to short, could not extract uint32_t");
+    throw invalid_argument("Byte sequence too short, could not extract uint32_t");
   }
 
   uint32_t val = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;

@@ -1,8 +1,8 @@
 #include "udpClient.h"
 
-#include <applicationMessages.h>
 #include <endpoint.h>
 
+#include <mockApplicationMessages.h>
 #include <mockMessageReceiver.h>
 #include <mockMessageReceiverFactory.h>
 #include <mockUdpMessageSender.h>
@@ -17,9 +17,6 @@
 namespace {
 const auto DefaultIpAddress = "127.0.0.1";
 const auto DefaultPort = 5000;
-const auto DefaultMessage =
-    ApplicationMessage(2, {'P', 'a', 'y', 'l', 'o', 'a', 'd'});
-
 } // namespace
 
 using namespace testing;
@@ -60,11 +57,9 @@ public:
 };
 
 TEST_F(TestUdpClient, sendMessage) {
-
-  ApplicationMessage message = DefaultMessage;
-
-  EXPECT_CALL(m_mockMessageSender, sendMessage(move(message), _))
-      .WillOnce(Invoke([&message](ApplicationMessage &&msg, const Endpoint &) {
+  unique_ptr<ApplicationMessage> message = make_unique<MockApplicationMessage>();
+  EXPECT_CALL(m_mockMessageSender, sendMessage(_, _))
+      .WillOnce(Invoke([&message](unique_ptr<ApplicationMessage> msg, const Endpoint &) {
         message = move(msg);
       }));
 
@@ -74,26 +69,24 @@ TEST_F(TestUdpClient, sendMessage) {
 TEST_F(TestUdpClient, invalidMessageWhenNotReceive) {
 
   EXPECT_CALL(*m_mockMessageReceiver, receiveMessage())
-      .WillOnce(Return(std::nullopt));
+      .WillOnce(Return(ByMove(move(std::nullopt))));
 
-  auto invalidMessage = m_uut->receiveMessage();
+  auto invalidMessage = move(m_uut->receiveMessage());
 
-  EXPECT_THAT(invalidMessage.header().code,
-              static_cast<uint8_t>(ApplicationMessage::Types::InvalidMessage));
+  EXPECT_THAT(invalidMessage, IsNull());
 }
 
 TEST_F(TestUdpClient, receive) {
 
-  auto movedMessage = DefaultMessage;
   auto endpoint = Endpoint{DefaultIpAddress, DefaultPort};
 
-  auto ret = optional<pair<ApplicationMessage, vector<uint8_t>>>(
-      make_pair<ApplicationMessage, vector<uint8_t>>(move(movedMessage),
-                                                     endpoint.toBytes()));
+  auto ret = optional<pair<unique_ptr<ApplicationMessage>, vector<uint8_t>>>(
+      make_pair<unique_ptr<ApplicationMessage>, vector<uint8_t>>(make_unique<MockApplicationMessage>(),
+                                                     endpoint.serialize()));
 
-  EXPECT_CALL(*m_mockMessageReceiver, receiveMessage()).WillOnce(Return(ret));
+  EXPECT_CALL(*m_mockMessageReceiver, receiveMessage()).WillOnce(Return(ByMove(move(ret))));
 
   auto receivedMessage = m_uut->receiveMessage();
 
-  EXPECT_THAT(receivedMessage, DefaultMessage);
+  EXPECT_THAT(receivedMessage, Not(IsNull()));
 }

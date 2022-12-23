@@ -24,6 +24,7 @@ using std::pair;
 using std::queue;
 using std::string;
 using std::thread;
+using std::unique_ptr;
 using std::vector;
 
 UdpMessageSender::UdpMessageSender() : m_isRunning{true} {
@@ -43,58 +44,68 @@ UdpMessageSender::~UdpMessageSender() {
   }
 }
 
-void UdpMessageSender::sendMessage(ApplicationMessage &&applicationMessage,
-                                   const Endpoint &destination) {
+void UdpMessageSender::sendMessage(
+    unique_ptr<ApplicationMessage> applicationMessage,
+    const Endpoint &destination) {
+
+  if(!applicationMessage)
+  {
+    throw invalid_argument("Could not send null application message");
+  }
+
   auto endpoint = destination;
   {
     lock_guard _(m_messageQueueMutex);
-    m_messageQueue.push(make_pair<ApplicationMessage, Endpoint>(
-        move(applicationMessage), move(endpoint)));
+    m_messageQueue.push(make_pair(move(applicationMessage), move(endpoint)));
   }
   m_messageQueueCondVar.notify_one();
 }
 
-void sendApplicationMessage(UdpSocket &socket, ApplicationMessage &&message,
+void sendApplicationMessage(UdpSocket &socket,
+                            unique_ptr<ApplicationMessage> message,
                             const Endpoint &destination) {
+  if(!message)
+  {
+    throw invalid_argument("Could not send null application message");
+  }
 
-  auto header = message.header();
-  auto payload = message.payload();
+  const auto bytes = message->serialize();
 
-  vector<uint8_t> buffer = header.toBytes();
+  vector<uint8_t> buffer;
   buffer.reserve(MaximumPacketSize);
 
-  if (message.size() < MaximumPacketSize - buffer.size()) {
-    move(payload.begin(), payload.end(), back_inserter(buffer));
+  if (bytes.size() <= MaximumPacketSize) {
+    copy(bytes.begin(), bytes.end(), back_inserter(buffer));
     socket.sendTo(buffer, destination);
     return;
   }
 
-  auto startIt = payload.begin();
-  auto endIt = payload.begin() + (MaximumPacketSize - buffer.size());
+  auto startIt = bytes.begin();
+  auto endIt = startIt + (MaximumPacketSize);
 
   uint32_t numberOfBytesSended = 0;
 
-  move(startIt, endIt, back_inserter(buffer));
+  copy(startIt, endIt, back_inserter(buffer));
 
-  while (numberOfBytesSended < message.size()) {
+  while (numberOfBytesSended < bytes.size()) {
     numberOfBytesSended += socket.sendTo(buffer, destination);
     startIt = endIt;
-    auto reminderBytesAmount = message.size() - numberOfBytesSended;
+    const auto reminderBytesAmount = bytes.size() - numberOfBytesSended;
 
     if (reminderBytesAmount > MaximumPacketSize) {
       endIt += MaximumPacketSize;
     } else if (reminderBytesAmount > 0) {
-      endIt = payload.end();
+      endIt += reminderBytesAmount;
       buffer.resize(reminderBytesAmount);
     }
 
-    move(startIt, endIt, buffer.begin());
+    copy(startIt, endIt, buffer.begin());
     this_thread::sleep_for(10us);
   }
 }
 
 void UdpMessageSender::sendMessageWorker() {
-  queue<pair<ApplicationMessage, Endpoint>> temporaryMessageQueue;
+  queue<pair<unique_ptr<ApplicationMessage>, Endpoint>> temporaryMessageQueue;
 
   while (m_isRunning) {
     {

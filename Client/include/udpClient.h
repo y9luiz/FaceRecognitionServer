@@ -11,8 +11,8 @@ class UdpClient {
 public:
   UdpClient(const std::string &ipAddress, uint16_t port);
 
-  void sendMessage(ApplicationMessage &&message);
-  ApplicationMessage receiveMessage();
+  void sendMessage(std::unique_ptr<ApplicationMessage> message);
+  std::unique_ptr<ApplicationMessage> receiveMessage();
 
 private:
   Endpoint m_destinationEndpoint;

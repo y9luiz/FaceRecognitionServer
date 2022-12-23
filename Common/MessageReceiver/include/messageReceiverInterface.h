@@ -11,6 +11,6 @@ public:
 
   virtual ~MessageReceiverInterface() = default;
 
-  virtual std::optional<std::pair<ApplicationMessage, Origin>>
+  virtual std::optional<std::pair<std::unique_ptr<ApplicationMessage>, Origin>>
   receiveMessage() = 0;
 };

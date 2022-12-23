@@ -15,6 +15,7 @@ using std::logic_error;
 using std::make_unique;
 using std::move;
 using std::string;
+using std::unique_ptr;
 
 using namespace boost::asio::ip;
 
@@ -37,7 +38,7 @@ void UdpServer::initializeMessageReceiver() {
 void UdpServer::registerMessageReceiverCallback() {
 
   m_messageReceiver->setReceiveMessageCallback(
-      [this](ApplicationMessage &&message,
+      [this](auto message,
              const MessageReceiverInterface::Origin &origin) {
         auto originCopy = origin;
         auto endpoint = Endpoint::fromBytes(move(originCopy));
@@ -45,7 +46,7 @@ void UdpServer::registerMessageReceiverCallback() {
       });
 }
 
-void UdpServer::handleMessage(ApplicationMessage &&message,
+void UdpServer::handleMessage(unique_ptr<ApplicationMessage> message,
                               const Endpoint &endpoint) {
   if (!m_messageHandler) {
     throw logic_error("Could not process message, message hander is nullptr!");

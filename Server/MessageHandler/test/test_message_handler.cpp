@@ -1,7 +1,8 @@
 #include "messageHandler.h"
 
-#include <applicationMessages.h>
 #include <endpoint.h>
+
+#include <mockApplicationMessages.h>
 
 #include <gmock/gmock.h>
 #include <stdexcept>
@@ -10,8 +11,7 @@
 using namespace testing;
 
 using std::invalid_argument;
-using std::move;
-using std::vector;
+using std::unique_ptr;
 
 namespace {
 constexpr auto DefaultMessageCode = 0u;
@@ -22,9 +22,10 @@ class TestMessageHandler : public Test {
 public:
   TestMessageHandler() {}
 
+  unique_ptr<MockApplicationMessage> m_mockApplicationMessage;
   MessageHandler m_uut;
 
-  MockFunction<void(ApplicationMessage &&, const Endpoint &)>
+  MockFunction<void(unique_ptr<ApplicationMessage>, const Endpoint &)>
       m_mockProcessMessageCallback;
 };
 
@@ -38,27 +39,26 @@ TEST_F(TestMessageHandler, shouldRegisterCallback) {
                          m_mockProcessMessageCallback.AsStdFunction());
 }
 
-TEST_F(TestMessageHandler, shouldNotProcessEmptyMessage) {
-  vector<uint8_t> emptyMessage;
-  EXPECT_THROW(m_uut.processMessage(move(emptyMessage), DefaultEndpoint),
+TEST_F(TestMessageHandler, shouldNotProcessNullMessage) {
+  EXPECT_THROW(m_uut.processMessage(nullptr, DefaultEndpoint),
                invalid_argument);
 }
 
 TEST_F(TestMessageHandler,
        shouldNotProcessMessageWhenNotHaveRegisteredCallback) {
-  vector<uint8_t> message{DefaultMessageCode};
-  EXPECT_THROW(m_uut.processMessage(move(message), DefaultEndpoint),
+  unique_ptr<ApplicationMessage> msg = std::make_unique<MockApplicationMessage>();
+  EXPECT_THROW(m_uut.processMessage(move(m_mockApplicationMessage), DefaultEndpoint),
                invalid_argument);
 }
 
 TEST_F(TestMessageHandler, shouldProcessMessage) {
-  m_uut.registerCallback(DefaultMessageCode,
+  unique_ptr<ApplicationMessage> msg = std::make_unique<MockApplicationMessage>();
+
+  m_uut.registerCallback(static_cast<uint8_t>(msg->code()),
                          m_mockProcessMessageCallback.AsStdFunction());
-  ApplicationMessage message{DefaultMessageCode, {}};
-  auto messageCopy = message;
 
   EXPECT_CALL(m_mockProcessMessageCallback,
-              Call(move(messageCopy), DefaultEndpoint));
+              Call(_, DefaultEndpoint));
 
-  m_uut.processMessage(move(message), DefaultEndpoint);
+  m_uut.processMessage(move(msg), DefaultEndpoint);
 }

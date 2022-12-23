@@ -23,85 +23,47 @@ using std::make_unique;
 using std::unique_ptr;
 using std::vector;
 
-namespace {
-constexpr auto DefaultMessageCode = 10u;
-const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
-
-}; // namespace
-
-class TestApplicationMessages : public testing::Test {
+class TestFactoryApplicationMessage : public testing::Test {
 public:
-  TestApplicationMessages() {}
+  TestFactoryApplicationMessage() {}
 
-  vector<uint8_t> createDefaultMessageAsBytes() {
-    vector<uint8_t> message;
-
-    message.push_back(DefaultMessageCode);
-    message.push_back(static_cast<uint8_t>(DefaultPayload.size()));
-    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 8));
-    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 16));
-    message.push_back(static_cast<uint8_t>(DefaultPayload.size() >> 24));
-
-    copy(DefaultPayload.begin(), DefaultPayload.end(), back_inserter(message));
-
-    return message;
-  }
-
-  void createApplicationMessage(vector<uint8_t> &&message) {
-    auto messageCopy = message;
-    m_uut = make_unique<ApplicationMessage>(move(message));
-
-    EXPECT_THAT(m_uut->convertToBytes(), ContainerEq(messageCopy));
-  }
-
-  void createApplicationMessage(uint8_t messageCode, vector<uint8_t> payload) {
-    auto payloadCopy = payload;
-    m_uut = make_unique<ApplicationMessage>(messageCode, move(payload));
-
-    EXPECT_THAT(m_uut->header().code, messageCode);
-    EXPECT_THAT(m_uut->payload(), ContainerEq(payloadCopy));
-    EXPECT_THAT(m_uut->size(),
-                payloadCopy.size() + sizeof(uint32_t) + sizeof(uint8_t));
-  }
-
-  unique_ptr<ApplicationMessage> m_uut;
+  FactoryApplicationMessage m_uut;
 };
 
-TEST_F(TestApplicationMessages, ShouldCreateNotMessageFromEmptyBuffer) {
-
-  auto createEmptyMessage = [this]() {
-    m_uut = make_unique<ApplicationMessage>(vector<uint8_t>{});
-  };
-
-  EXPECT_THROW(createEmptyMessage(), invalid_argument);
-}
-
-TEST_F(TestApplicationMessages, ShouldCreateNotMessageWithoutPayloadSize) {
-
-  auto createEmptyMessage = [this]() {
-    const auto code = 0;
-    m_uut = make_unique<ApplicationMessage>(vector<uint8_t>{code});
-  };
-
-  EXPECT_THROW(createEmptyMessage(), invalid_argument);
-}
-
-TEST_F(TestApplicationMessages, CreateMessageUsingParameters) {
-  createApplicationMessage(DefaultMessageCode, DefaultPayload);
-}
-
-TEST_F(TestApplicationMessages,reserveSpace)
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionRequestMessage)
 {
-  createApplicationMessage(DefaultMessageCode,DefaultPayload);
-  const auto extraSize = DefaultPayload.size()*2;
-  m_uut->reserve(extraSize);
+  Mat img = imread(IMAGE1);
+  const auto msg = FactoryApplicationMessage::create<FaceDetectionRequestMessage>(img);
 
-  EXPECT_THAT(m_uut->payload().capacity(),Eq(extraSize));
+  EXPECT_THAT(msg,Not(IsNull()));
+  EXPECT_THAT(FactoryApplicationMessage::create(msg->serialize()),Not(IsNull()));
 }
 
-TEST_F(TestApplicationMessages, CreateMessageUsingRawVector) {
-  auto messageBuffer = createDefaultMessageAsBytes();
-  createApplicationMessage(move(messageBuffer));
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionRequestMessageSadPath)
+{
+  Mat emptyImg;
+  EXPECT_THROW(FactoryApplicationMessage::create<FaceDetectionRequestMessage>(emptyImg),invalid_argument);
+  EXPECT_THROW(FactoryApplicationMessage::create({}),invalid_argument);
+
+  ApplicationMessage::Header emptyHeader;
+  vector<uint8_t> bytes;
+  copy(emptyHeader.begin(),emptyHeader.end(), back_inserter(bytes));
+  EXPECT_EQ(FactoryApplicationMessage::create(move(bytes)),nullptr);
+}
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionResponseMessage)
+{
+  vector<Rect2i> rects;
+  rects.emplace_back(0, 1, 2, 3);
+  const auto msg = FactoryApplicationMessage::create<FaceDetectionResponseMessage>(rects);
+
+  EXPECT_THAT(msg,Not(IsNull()));
+  EXPECT_THAT(FactoryApplicationMessage::create(msg->serialize()),Not(IsNull()));
+}
+
+TEST_F(TestFactoryApplicationMessage, createFaceDetectionResponseMessageSadPath)
+{
+  EXPECT_THROW(FactoryApplicationMessage::create({}),invalid_argument);
 }
 
 class TestFaceDetectionRequestMessage : public testing::Test {
@@ -123,8 +85,6 @@ TEST_F(TestFaceDetectionRequestMessage, createUsingEmptyMat) {
 TEST_F(TestFaceDetectionRequestMessage, internalMessageErase) {
   Mat img = imread(IMAGE1);
   m_uut = make_unique<FaceDetectionRequestMessage>(img);
-
-  m_uut->payload().clear();
 }
 
 class TestFaceDetectionResponseMessage : public testing::Test {

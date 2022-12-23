@@ -116,7 +116,7 @@ public:
   }
 
   NiceMock<MockUdpSocket> m_mockUdpSocket;
-  NiceMock<MockFunction<void(ApplicationMessage &&, const vector<uint8_t> &)>>
+  NiceMock<MockFunction<void(unique_ptr<ApplicationMessage>, const vector<uint8_t> &)>>
       m_mockReceiveMessageCallback;
   NiceMock<MockApplicationMessage> m_mockApplicationMessage;
 
@@ -142,10 +142,12 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenNotReceiveAnything) 
 }
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistered) {
+  const auto bytes = m_mockApplicationMessage.serialize();
+
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
-      .WillOnce(DoAll(SetArgReferee<0>(m_mockApplicationMessage.convertToBytes()),
+      .WillOnce(DoAll(SetArgReferee<0>(bytes),
                       SetArgReferee<1>(LocalEndpoit),
-                      Return(m_mockApplicationMessage.size())));
+                      Return(bytes.size())));
 
   EXPECT_CALL(m_mockUdpSocket, receive).Times(0);
 
@@ -159,12 +161,12 @@ TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessWhenCallbackNotRegistere
 }
 
 TEST_F(TestUdpMessageReceiverForServer, processMessage) {
-  vector<uint8_t> bytes = m_mockApplicationMessage.convertToBytes();
+  vector<uint8_t> bytes = m_mockApplicationMessage.serialize();
 
   EXPECT_CALL(m_mockUdpSocket, receiveFrom)
       .WillOnce(DoAll(SetArgReferee<0>(bytes),
                       SetArgReferee<1>(LocalEndpoit),
-                      Return(m_mockApplicationMessage.size())))
+                      Return(bytes.size())))
       .WillRepeatedly(Return(0));
 
   EXPECT_CALL(m_mockReceiveMessageCallback, Call(_, _));
@@ -197,7 +199,7 @@ TEST_F(TestUdpMessageReceiverForServer, processMessageBigMessage) {
 
 TEST_F(TestUdpMessageReceiverForServer, shouldNotProcessIncompleteMessage) {
   queue<vector<uint8_t>> packets;
-  auto bytes = m_mockApplicationMessage.convertToBytes();
+  auto bytes = m_mockApplicationMessage.serialize();
   bytes.pop_back();
   packets.push(bytes);
   injectPacketsInSocket(packets);

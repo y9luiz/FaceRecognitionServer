@@ -10,5 +10,5 @@ public:
   virtual ~MockUdpMessageSender();
 
   MOCK_METHOD(void, constructor, ());
-  MOCK_METHOD(void, sendMessage, (ApplicationMessage &&, const Endpoint &));
+  MOCK_METHOD(void, sendMessage, (std::unique_ptr<ApplicationMessage>, const Endpoint &));
 };

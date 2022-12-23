@@ -9,7 +9,9 @@ public:
   FaceDetectionRequestMessage(const cv::Mat &payload);
   FaceDetectionRequestMessage(std::vector<uint8_t> &&payload);
 
-  cv::Mat &image();
+  std::vector<uint8_t> serialize() const override;
+
+  const cv::Mat &image();
 
 private:
   cv::Mat m_image;

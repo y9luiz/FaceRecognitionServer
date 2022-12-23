@@ -3,11 +3,11 @@
 #include "messageReceiverInterface.h"
 
 #include <applicationMessages.h>
-#include <optional>
 #include <serializer.h>
 
 #include <iostream>
 #include <thread>
+#include <optional>
 
 using namespace std::chrono_literals;
 
@@ -20,13 +20,14 @@ using std::optional;
 using std::pair;
 using std::shared_ptr;
 using std::vector;
+using std::unique_ptr;
 
 UdpMessageReceiver::UdpMessageReceiver() : m_socket(make_shared<UdpSocket>()) {}
 
 UdpMessageReceiver::UdpMessageReceiver(shared_ptr<UdpSocket> socket)
     : m_socket(move(socket)) {}
 
-optional<pair<ApplicationMessage, MessageReceiverInterface::Origin>>
+optional<pair<unique_ptr<ApplicationMessage>, MessageReceiverInterface::Origin>>
 UdpMessageReceiver::receiveMessage() {
 
   vector<uint8_t> tempBuffer(MaximumPacketSize);
@@ -47,13 +48,13 @@ UdpMessageReceiver::receiveMessage() {
   vector<uint8_t> message;
   message.reserve(expectMessageTotalSize);
 
-  move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+  copy(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
 
   while (message.size() < expectMessageTotalSize) {
     receivedDataSize = m_socket->receive(tempBuffer);
     if (receivedDataSize) {
-        move(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
+        copy(tempBuffer.begin(), tempBuffer.begin() + receivedDataSize,
            back_inserter(message));
     } else {
       cout << "[ERROR::receiveMessage] could not receive message body\n";
@@ -63,8 +64,8 @@ UdpMessageReceiver::receiveMessage() {
 
   if(expectMessageTotalSize  == message.size())
   {
-    return make_pair<ApplicationMessage, Origin>(
-      ApplicationMessage(move(message)), endpoint.toBytes());
+    return make_pair(
+      FactoryApplicationMessage::create(move(message)), endpoint.serialize());
   }
 
   return nullopt;

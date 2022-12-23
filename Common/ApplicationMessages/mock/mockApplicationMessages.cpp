@@ -15,9 +15,7 @@ namespace {
 MockApplicationMessage *g_mock = nullptr;
 
 const vector<uint8_t> DefaultPayload{'p', 'a', 'y', 'l', 'o', 'a', 'd'};
-constexpr uint8_t DefaultCode = 0u;
-const auto DefaultHeader =
-    ApplicationMessage::Header(DefaultCode, DefaultPayload.size());
+constexpr ApplicationMessage::Code DefaultCode = ApplicationMessage::Code::InvalidMessage;
 
 void assertMockExists() {
   if (!g_mock) {
@@ -31,10 +29,10 @@ void assertMockNotExists() {
   }
 }
 
-vector<uint8_t> getDefaultBytes() {
+vector<uint8_t> serializeDefaultMessage() {
   vector<uint8_t> bytes;
-  bytes.reserve(DefaultPayload.size() + sizeof(uint32_t) + sizeof(DefaultCode));
-  bytes.emplace_back(DefaultCode);
+  bytes.reserve(DefaultPayload.size() + sizeof(ApplicationMessage::Header));
+  bytes.emplace_back(static_cast<uint8_t>(DefaultCode));
 
   uint32_t payloadSize = DefaultPayload.size();
   bytes.emplace_back(payloadSize);
@@ -48,15 +46,11 @@ vector<uint8_t> getDefaultBytes() {
 }
 }; // namespace
 
-MockApplicationMessage::MockApplicationMessage() {
+MockApplicationMessage::MockApplicationMessage() : ApplicationMessage(DefaultCode) {
   assertMockNotExists();
 
-  ON_CALL(*this, payload).WillByDefault(ReturnRefOfCopy(DefaultPayload));
-  ON_CALL(*this, header).WillByDefault(Return(DefaultHeader));
-  ON_CALL(*this, size())
-      .WillByDefault(Return(sizeof(DefaultCode) + DefaultPayload.size() +
-                            sizeof(uint32_t)));
-  ON_CALL(*this, convertToBytes()).WillByDefault(Return(getDefaultBytes()));
+  ON_CALL(*this, code).WillByDefault(Return(DefaultCode));
+  ON_CALL(*this, serialize()).WillByDefault(Return(serializeDefaultMessage()));
 
   g_mock = this;
 }
@@ -66,46 +60,7 @@ MockApplicationMessage::~MockApplicationMessage() {
   g_mock = nullptr;
 }
 
-ApplicationMessage::Header::Header(uint8_t code, uint32_t payloadSize)
-    : code(code), payloadSize(payloadSize) {}
-
-ApplicationMessage::Header::Header(vector<uint8_t> &bytes) {}
-
-vector<uint8_t> ApplicationMessage::Header::toBytes() const { return {}; }
-
-ApplicationMessage::ApplicationMessage(uint8_t code, vector<uint8_t> &&payload)
-    : m_header(code, payload.size()) {
+vector<uint8_t> ApplicationMessage::serialize() const {
   assertMockExists();
-  g_mock->constructor(code, move(payload));
-}
-
-ApplicationMessage::ApplicationMessage(vector<uint8_t> &&message)
-    : m_header(message) {
-  assertMockExists();
-  g_mock->constructor(move(message));
-}
-
-ApplicationMessage::Header ApplicationMessage::header() const {
-  assertMockExists();
-  return g_mock->header();
-}
-
-void ApplicationMessage::reserve(uint32_t size) {
-  assertMockExists();
-  return g_mock->reserve(size);
-}
-
-std::vector<uint8_t> &ApplicationMessage::payload() {
-  assertMockExists();
-  return g_mock->payload();
-}
-
-vector<uint8_t> ApplicationMessage::convertToBytes() const {
-  assertMockExists();
-  return g_mock->convertToBytes();
-}
-
-size_t ApplicationMessage::size() const {
-  assertMockExists();
-  return g_mock->size();
+  return g_mock->serialize();
 }

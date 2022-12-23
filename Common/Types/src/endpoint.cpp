@@ -1,15 +1,27 @@
 #include "endpoint.h"
+#include <serializer.h>
 
 #include <iterator>
-#include <serializer.h>
+#include <vector>
 
 using std::back_inserter;
 using std::move;
 using std::vector;
+using std::string;
+
+Endpoint::Endpoint()
+{
+
+}
+
+Endpoint::Endpoint(string address, uint16_t port) :  address(address), port(port)
+{
+
+}
 
 uint32_t Endpoint::size() const { return sizeof(uint16_t) + address.length(); }
 
-vector<uint8_t> Endpoint::toBytes() const {
+vector<uint8_t> Endpoint::serialize() const {
   vector<uint8_t> bytes;
   bytes.reserve(size());
 

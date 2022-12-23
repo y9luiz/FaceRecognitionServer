@@ -1,50 +1,52 @@
 #pragma once
 
+#include "serializable.h"
+
 #include <cstdint>
 #include <vector>
 
 constexpr auto MaximumPacketSize = 1500u;
 
-class ApplicationMessage {
+class ApplicationMessage : public Serializable{
 public:
-  enum class Types : uint8_t {
-    FaceDetectionRequest,
+  // The header is a set of 5 bytes where
+  // byte 0 -> Code
+  // byte 1 to 4 -> payload size
+  using Header = std::array<uint8_t, 5>;
+
+  enum class Code : uint8_t {
+    FaceDetectionRequest = 42,
     FaceDetectionResponse,
     FaceRecognitionRequest,
     FaceRecognitionResponse,
     InvalidMessage = 255
   };
 
-#pragma pack(push, 1)
-  struct Header {
-    uint8_t code;
-    uint32_t payloadSize;
-
-    Header(uint8_t code, uint32_t payloadSize);
-    Header(std::vector<uint8_t> &message);
-
-    std::vector<uint8_t> toBytes() const;
-  };
-#pragma pack(pop)
-
-  ApplicationMessage(uint8_t code, std::vector<uint8_t> &&payload);
-  ApplicationMessage(std::vector<uint8_t> &&message);
+  ApplicationMessage() = delete;
+  ApplicationMessage(ApplicationMessage &) = delete;
 
   virtual ~ApplicationMessage() = default;
 
-  Header header() const;
-  void reserve(uint32_t size);
-  std::vector<uint8_t> &payload();
-  std::vector<uint8_t> convertToBytes() const;
-  std::size_t size() const;
+  Code code() const;
 
-  bool operator==(const ApplicationMessage &other) const {
-    return other.m_header.code == m_header.code &&
-           other.m_header.payloadSize == m_header.payloadSize &&
-           other.m_payload == m_payload;
-  }
+  virtual std::vector<uint8_t> serialize() const = 0;
 
 protected:
-  Header m_header;
-  std::vector<uint8_t> m_payload;
+
+  ApplicationMessage(Code code);
+
+  Code m_code;
+};
+
+class FactoryApplicationMessage
+{
+public:
+  static std::unique_ptr<ApplicationMessage> create(std::vector<uint8_t> && byteSequence);
+
+  template <typename T, typename... Args>
+  std::enable_if_t<std::is_constructible<T, Args&&...>::value, std::unique_ptr<T>>
+  static create(Args&&... args)
+  {
+    return std::make_unique<T>(std::forward<Args>(args)...);
+  }
 };

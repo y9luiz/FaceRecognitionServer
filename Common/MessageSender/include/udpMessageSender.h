@@ -14,7 +14,7 @@ public:
   UdpMessageSender(UdpMessageSender &) = delete;
   virtual ~UdpMessageSender();
 
-  void sendMessage(ApplicationMessage &&applicationMessage,
+  void sendMessage(std::unique_ptr<ApplicationMessage> applicationMessage,
                    const Endpoint &destination);
 
   std::shared_ptr<UdpSocket> socket() { return m_socket; }
@@ -26,6 +26,6 @@ private:
   std::atomic<bool> m_isRunning;
   std::mutex m_messageQueueMutex;
   std::condition_variable m_messageQueueCondVar;
-  std::queue<std::pair<ApplicationMessage, Endpoint>> m_messageQueue;
+  std::queue<std::pair<std::unique_ptr<ApplicationMessage>, Endpoint>> m_messageQueue;
   std::unique_ptr<std::thread> m_sendMessageThread;
 };

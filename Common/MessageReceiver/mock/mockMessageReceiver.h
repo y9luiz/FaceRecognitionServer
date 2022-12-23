@@ -10,6 +10,6 @@ public:
   MockMessageReceiver();
   ~MockMessageReceiver();
 
-  MOCK_METHOD((std::optional<std::pair<ApplicationMessage, Origin>>),
+  MOCK_METHOD((std::optional<std::pair<std::unique_ptr<ApplicationMessage>, Origin>>),
               receiveMessage, (), (override));
 };
