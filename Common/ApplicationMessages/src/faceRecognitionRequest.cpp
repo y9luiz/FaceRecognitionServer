@@ -1,6 +1,6 @@
 #include "faceRecognitionRequest.h"
-#include "serializer.h"
 #include "utils.h"
+#include <serializer.h>
 
 #include <stdexcept>
 
@@ -14,7 +14,7 @@ using namespace utils;
 
 FaceRecognitionRequestMessage::FaceRecognitionRequestMessage(
     const FaceRecognitionRequestMessage::PayloadT &payload)
-    : ApplicationMessage(ApplicationMessage::Code::FaceRecognitionRequest),
+    : ApplicationMessage(Code::FaceRecognitionRequest),
       m_image(payload.first), m_facesBoudingBoxes(payload.second) {
 
   if (m_image.rows <= 0 || m_image.cols <= 0 || m_image.channels() <= 0) {

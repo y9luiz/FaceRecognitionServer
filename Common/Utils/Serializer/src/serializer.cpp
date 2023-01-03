@@ -16,6 +16,14 @@ using std::invalid_argument;
 using std::string;
 using std::vector;
 
+namespace {
+  struct ImageHeader{
+    uint32_t rows;
+    uint32_t cols;
+    uint32_t type;
+  };
+}
+
 vector<uint8_t> Serializer::u16ToBytes(uint16_t val) {
   vector<uint8_t> vec(2);
 
@@ -102,16 +110,13 @@ string Serializer::stringFromBytes(vector<uint8_t> &bytes) {
 }
 
 uint32_t getNumberOfBytes(const Mat &image) {
-  const auto imageHeaderSize =
-      sizeof(image.cols) + sizeof(image.rows) + sizeof(image.type());
-
   if (image.rows <= 0 || image.cols <= 0 || image.channels() <= 0) {
-    return imageHeaderSize;
+    return sizeof(ImageHeader);
   }
 
   const auto imageDataSize = image.total() * image.elemSize();
 
-  return imageHeaderSize + imageDataSize;
+  return sizeof(ImageHeader) + imageDataSize;
 }
 
 vector<uint8_t> Serializer::matToBytes(const Mat &image) {
@@ -136,14 +141,15 @@ vector<uint8_t> Serializer::matToBytes(const Mat &image) {
 }
 
 Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
-  const auto rows = u32FromBytes(bytes);
-  const auto cols = u32FromBytes(bytes);
-  const auto type = u32FromBytes(bytes);
 
-  Mat image(rows, cols, type, reinterpret_cast<void *>(bytes.data()));
+  ImageHeader header;
+  header.rows = u32FromBytes(bytes);
+  header.cols = u32FromBytes(bytes);
+  header.type = u32FromBytes(bytes);
 
-  uint32_t imageHeaderSize = sizeof(uint32_t) * 3;
-  uint32_t remeinderBytes = getNumberOfBytes(image) - imageHeaderSize;
+  Mat image(header.rows, header.cols, header.type, reinterpret_cast<void *>(bytes.data()));
+
+  uint32_t remeinderBytes = getNumberOfBytes(image) - sizeof(ImageHeader);
 
   bytes.erase(bytes.cbegin(),bytes.cbegin()+remeinderBytes);
 
