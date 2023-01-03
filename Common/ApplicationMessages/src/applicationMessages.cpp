@@ -34,9 +34,8 @@ FactoryApplicationMessage::create(std::vector<uint8_t> &&byteSequence) {
     case ApplicationMessage::Code::FaceDetectionResponse:
       return make_unique<FaceDetectionResponseMessage>(move(byteSequence));
       break;
-    default:
-      throw invalid_argument("Invalid message code");
-      break;
+    case ApplicationMessage::Code::FaceRecognitionRequest:
+      return make_unique<FaceDetectionRequestMessage>(move(byteSequence));
     }
   } catch (const std::exception &ex) {
     cout << "Could not create Application message, payload missmatch\n";
