@@ -141,7 +141,12 @@ Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
   const auto type = u32FromBytes(bytes);
 
   Mat image(rows, cols, type, reinterpret_cast<void *>(bytes.data()));
-  bytes.clear();
+
+  uint32_t imageHeaderSize = sizeof(uint32_t) * 3;
+  uint32_t remeinderBytes = getNumberOfBytes(image) - imageHeaderSize;
+
+  bytes.erase(bytes.cbegin(),bytes.cbegin()+remeinderBytes);
+
   return image;
 }
 

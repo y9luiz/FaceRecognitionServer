@@ -1,16 +1,12 @@
 #include "faceDetectionResponse.h"
 #include "applicationMessages.h"
+#include "utils.h"
 #include <serializer.h>
 
 using cv::Rect2i;
 using std::vector;
 
-namespace {
-size_t getNumberOfBytes(const vector<Rect2i> &payload) {
-  return sizeof(Rect2i) * payload.size() + sizeof(uint32_t);
-}
-
-} // namespace
+using namespace utils;
 
 FaceDetectionResponseMessage::FaceDetectionResponseMessage(
     const vector<Rect2i> &payload)

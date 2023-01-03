@@ -6,6 +6,10 @@ add_library(ApplicationMessages
         include/faceDetectionRequest.h
         src/faceDetectionResponse.cpp
         include/faceDetectionResponse.h
+        src/faceRecognitionRequest.cpp
+        include/faceRecognitionRequest.h
+        src/utils.cpp
+        src/utils.h
 )
 
 add_library(${PROJECT_NAME}::ApplicationMessages

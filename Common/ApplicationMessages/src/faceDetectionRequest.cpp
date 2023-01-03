@@ -1,5 +1,6 @@
 #include "faceDetectionRequest.h"
 #include "applicationMessages.h"
+#include "utils.h"
 #include <serializer.h>
 
 #include <stdexcept>
@@ -11,20 +12,7 @@ using std::copy;
 using std::invalid_argument;
 using std::vector;
 
-namespace {
-uint32_t getNumberOfBytes(const Mat &image) {
-  const auto imageHeaderSize =
-      sizeof(image.cols) + sizeof(image.rows) + sizeof(image.type());
-
-  if (image.rows <= 0 || image.cols <= 0 || image.channels() <= 0) {
-    return imageHeaderSize;
-  }
-
-  const auto imageDataSize = image.total() * image.elemSize();
-
-  return imageHeaderSize + imageDataSize;
-}
-} // namespace
+using namespace utils;
 
 FaceDetectionRequestMessage::FaceDetectionRequestMessage(const Mat &image)
     : ApplicationMessage(ApplicationMessage::Code::FaceDetectionRequest),
