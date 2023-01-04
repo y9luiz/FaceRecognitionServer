@@ -2,6 +2,7 @@
 #include "faceDetectionRequest.h"
 #include "faceDetectionResponse.h"
 #include "faceRecognitionRequest.h"
+#include "faceRecognitionResponse.h"
 
 #include <assets.h>
 #include <serializer.h>
@@ -33,6 +34,25 @@ MATCHER_P(isSameImage, img, "Check if two opencv images are the same") {
   const bool isEqual = sum(img != arg) == Scalar(0, 0, 0);
 
   return isEqual;
+}
+
+MATCHER_P(isSameDescriptors, descriptors, "Check if two descriptors set are the same") {
+  if(descriptors.size() != arg.size())
+  {
+    return false;
+  }
+
+  for(int i = 0; i < descriptors.size();i++)
+  {
+    const bool isEqual = sum(descriptors[i] != arg[i]) == Scalar(0, 0, 0);
+
+    if(!isEqual)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 } // namespace
 
@@ -134,8 +154,9 @@ TEST_F(TestFaceDetectionRequestMessage, createUsingEmptyMat) {
       invalid_argument);
 }
 
-TEST_F(TestFaceDetectionRequestMessage, internalMessageErase) {
+TEST_F(TestFaceDetectionRequestMessage, happyPath) {
   m_uut = make_unique<FaceDetectionRequestMessage>(m_testImage);
+  EXPECT_THAT(m_uut->image(),isSameImage(m_testImage));
 }
 
 class TestFaceDetectionResponseMessage : public TestBase {
@@ -196,4 +217,38 @@ TEST_F(TestFaceRecognitionRequestMessage, createFromBytes) {
   // TODO: replace this by the appropriated matcher
   EXPECT_FALSE(m_uut->image().empty());
   EXPECT_THAT(payload.second, ContainerEq(m_uut->facesBoudingBoxes()));
+}
+
+class TestFaceRecognitionResponseMessage : public TestBase {
+public:
+  TestFaceRecognitionResponseMessage() {
+    constexpr auto numberOftestDescriptors = 6u;
+    for(int i = 0; i < numberOftestDescriptors;i++)
+    {
+        m_testDescriptors.push_back(Mat(12,1,CV_32F,Scalar(i)));
+    }
+  }
+
+  vector<Mat> m_testDescriptors;
+  unique_ptr<FaceRecognitionResponseMessage> m_uut;
+};
+
+TEST_F(TestFaceRecognitionResponseMessage, createFromDescriptors) {
+  m_uut = make_unique<FaceRecognitionResponseMessage>(m_testDescriptors);
+
+  EXPECT_THAT(m_uut->descriptors(),isSameDescriptors(m_testDescriptors));
+}
+
+TEST_F(TestFaceRecognitionResponseMessage, createFromBytes) {
+  m_uut = make_unique<FaceRecognitionResponseMessage>(m_testDescriptors);
+
+  auto bytes = m_uut->serialize();
+
+  // remove the header and leave just the payload
+  bytes.erase(bytes.cbegin(),
+              bytes.cbegin() + sizeof(ApplicationMessage::Header));
+
+  m_uut = make_unique<FaceRecognitionResponseMessage>(move(bytes));
+
+  EXPECT_THAT(m_uut->descriptors(),isSameDescriptors(m_testDescriptors));
 }
