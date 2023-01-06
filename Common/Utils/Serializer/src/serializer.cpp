@@ -123,7 +123,7 @@ uint32_t getNumberOfBytes(const Mat &image) {
 }
 
 vector<uint8_t> Serializer::matToBytes(const Mat &image) {
-  vector<uint8_t> bytes(getNumberOfBytes(sizeof(ImageHeader) + image));
+  vector<uint8_t> bytes( getNumberOfBytes(image));
   auto it = bytes.begin();
 
   const auto rows = u32ToBytes(image.rows);
@@ -146,7 +146,6 @@ vector<uint8_t> Serializer::matToBytes(const Mat &image) {
 }
 
 Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
-
   ImageHeader header;
   header.rows = u32FromBytes(bytes);
   header.cols = u32FromBytes(bytes);
@@ -154,17 +153,11 @@ Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
 
   Mat image(header.rows, header.cols, header.type);
 
-  memcpy(image.data, bytes.data(),
-              header.cols * header.rows * image.elemSize());
+  auto imageSize = image.total() * image.elemSize();
 
-  uint32_t remeinderBytes = getNumberOfBytes(image) - sizeof(ImageHeader);
+  memcpy(image.data, bytes.data(),imageSize);
 
-  if(remeinderBytes > bytes.size())
-  {
-    remeinderBytes = bytes.size();
-  }
-
-  bytes.erase(bytes.cbegin(), bytes.cbegin() + remeinderBytes);
+  bytes.erase(bytes.cbegin(), bytes.cbegin() + imageSize);
 
   return image;
 }
