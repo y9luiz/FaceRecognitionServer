@@ -15,14 +15,15 @@ using std::back_inserter;
 using std::invalid_argument;
 using std::string;
 using std::vector;
+using std::copy;
 
 namespace {
-  struct ImageHeader{
-    uint32_t rows;
-    uint32_t cols;
-    uint32_t type;
-  };
-}
+struct ImageHeader {
+  uint32_t rows;
+  uint32_t cols;
+  uint32_t type;
+};
+} // namespace
 
 vector<uint8_t> Serializer::u16ToBytes(uint16_t val) {
   vector<uint8_t> vec(2);
@@ -41,7 +42,8 @@ uint16_t Serializer::u16FromBytes(vector<uint8_t> &bytes) {
 
 uint16_t Serializer::u16FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint16_t)) {
-    throw invalid_argument("Byte sequence too short, could not extract uint16_t");
+    throw invalid_argument(
+        "Byte sequence too short, could not extract uint16_t");
   }
 
   uint16_t val = bytes[0] | bytes[1] << 8;
@@ -67,7 +69,8 @@ uint32_t Serializer::u32FromBytes(vector<uint8_t> &bytes) {
 
 uint32_t Serializer::u32FromBytes(const vector<uint8_t> &bytes) {
   if (bytes.size() < sizeof(uint32_t)) {
-    throw invalid_argument("Byte sequence too short, could not extract uint32_t");
+    throw invalid_argument(
+        "Byte sequence too short, could not extract uint32_t");
   }
 
   uint32_t val = bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24;
@@ -120,38 +123,41 @@ uint32_t getNumberOfBytes(const Mat &image) {
 }
 
 vector<uint8_t> Serializer::matToBytes(const Mat &image) {
-  vector<uint8_t> bytes;
-  bytes.reserve(getNumberOfBytes(image));
+  vector<uint8_t> bytes( getNumberOfBytes(image));
+  auto it = bytes.begin();
 
   const auto rows = u32ToBytes(image.rows);
-  bytes.insert(bytes.end(), rows.begin(), rows.end());
+  copy(rows.begin(), rows.end(), it);
+  it += rows.size();
 
   const auto cols = u32ToBytes(image.cols);
-  bytes.insert(bytes.end(), cols.begin(), cols.end());
+  copy(cols.begin(), cols.end(), it);
+  it += cols.size();
 
   const auto type = u32ToBytes(image.type());
-  bytes.insert(bytes.end(), type.begin(), type.end());
+  copy(type.begin(), type.end(), it);
+  it += type.size();
 
-  for (int i = 0; i < image.rows; ++i) {
-    bytes.insert(bytes.end(), image.ptr<uchar>(i),
-                 image.ptr<uchar>(i) + image.cols * image.channels());
-  }
+  const auto size = image.total() * image.elemSize();
+
+  memcpy(bytes.data() + sizeof(ImageHeader),image.data,size);
 
   return bytes;
 }
 
 Mat Serializer::matFromBytes(vector<uint8_t> &bytes) {
-
   ImageHeader header;
   header.rows = u32FromBytes(bytes);
   header.cols = u32FromBytes(bytes);
   header.type = u32FromBytes(bytes);
 
-  Mat image(header.rows, header.cols, header.type, reinterpret_cast<void *>(bytes.data()));
+  Mat image(header.rows, header.cols, header.type);
 
-  uint32_t remeinderBytes = getNumberOfBytes(image) - sizeof(ImageHeader);
+  auto imageSize = image.total() * image.elemSize();
 
-  bytes.erase(bytes.cbegin(),bytes.cbegin()+remeinderBytes);
+  memcpy(image.data, bytes.data(),imageSize);
+
+  bytes.erase(bytes.cbegin(), bytes.cbegin() + imageSize);
 
   return image;
 }

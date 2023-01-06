@@ -1,6 +1,7 @@
 #include "applicationMessages.h"
 #include "faceDetectionRequest.h"
 #include "faceDetectionResponse.h"
+#include "faceRecognitionResponse.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -36,6 +37,8 @@ FactoryApplicationMessage::create(std::vector<uint8_t> &&byteSequence) {
       break;
     case ApplicationMessage::Code::FaceRecognitionRequest:
       return make_unique<FaceDetectionRequestMessage>(move(byteSequence));
+    case ApplicationMessage::Code::FaceRecognitionResponse:
+      return make_unique<FaceRecognitionResponseMessage>(move(byteSequence));
     }
   } catch (const std::exception &ex) {
     cout << "Could not create Application message, payload missmatch\n";

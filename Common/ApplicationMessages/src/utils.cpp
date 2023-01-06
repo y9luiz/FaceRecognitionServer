@@ -20,3 +20,19 @@ uint32_t utils::getNumberOfBytes(const Mat &image) {
 
   return imageHeaderSize + imageDataSize;
 }
+
+uint32_t utils::getNumberOfBytes(const vector<Mat> &descriptors) {
+  const uint32_t numberOfDescriptors = descriptors.size();
+
+  if (numberOfDescriptors <= 0) {
+    return sizeof(uint32_t);
+  }
+
+  uint32_t numberOfBytes = sizeof(uint32_t);
+
+  for (const auto &descriptor : descriptors) {
+    numberOfBytes += getNumberOfBytes(descriptor);
+  }
+
+  return numberOfBytes;
+}
