@@ -1,9 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <stdint.h>
 #include <unordered_map>
-#include <vector>
 #include <memory>
 
 class ApplicationMessage;
@@ -11,9 +9,10 @@ class Endpoint;
 
 class MessageHandler {
 public:
-  using MessageHandlerCallbackMap = std::unordered_map<
-      uint8_t,
-      std::function<void(std::unique_ptr<ApplicationMessage>, const Endpoint &endpoint)>>;
+  using CallbackT = std::function<void(std::unique_ptr<ApplicationMessage>, const Endpoint &endpoint)>;
+
+  using CallbackMap = std::unordered_map<
+      uint8_t,CallbackT>;
 
   MessageHandler() = default;
   ~MessageHandler() = default;
@@ -28,5 +27,5 @@ private:
   void invokeCallback(uint8_t code, std::unique_ptr<ApplicationMessage> message,
                       const Endpoint &endpoint);
 
-  MessageHandlerCallbackMap m_messageHandlerCallbackMap;
+  CallbackMap m_callbacks;
 };

@@ -1,8 +1,7 @@
-#include "faceDetectionUdpServer.h"
+#include "faceRecognitionUdpServer.h"
 #include "udpServer.h"
 
 #include <iostream>
-#include <thread>
 
 using namespace std;
 
@@ -11,7 +10,7 @@ int main() {
   unique_ptr<UdpServer> server = nullptr;
 
   try {
-    server = make_unique<FaceDetectionUdpServer>("127.0.0.1", 5000);
+    server = make_unique<FaceRecognitionUdpServer>("127.0.0.1", 5000);
 
     cout << "press enter key to finish the program\n";
     char key = getchar();

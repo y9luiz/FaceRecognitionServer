@@ -2,14 +2,10 @@
 
 #include "applicationMessages.h"
 #include "messageHandler.h"
-#include "messageReceiverInterface.h"
 #include "parallelMessageReceiver.h"
 #include "udpMessageSender.h"
 
-#include <boost/asio.hpp>
 #include <memory>
-#include <queue>
-#include <vector>
 
 class UdpServer {
 public:

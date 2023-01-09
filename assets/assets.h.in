@@ -6,5 +6,6 @@ namespace testUtils {
 } // namespace testUtils
 namespace models {
 constexpr auto FACE_DETECTION_MODEL = "@FACE_DETECTION_MODEL@";
+constexpr auto FACE_RECOGITION_MODEL = "@FACE_RECOGITION_MODEL@";
 } // namespace models
 } // namespace assets
