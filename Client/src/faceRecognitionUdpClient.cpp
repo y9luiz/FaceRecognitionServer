@@ -50,7 +50,6 @@ void FaceRecognitionUdpClient::run(int argc, char *argv[]) {
   auto faceRecognitionRequest = make_unique<FaceRecognitionRequestMessage>(
       make_pair(image, faceDetectionResponse->facesBoudingBoxes()));
 
-  cout << static_cast<int>(faceRecognitionRequest->code()) << "\n";
   sendMessage(move(faceRecognitionRequest));
 
   response = receiveMessage();
