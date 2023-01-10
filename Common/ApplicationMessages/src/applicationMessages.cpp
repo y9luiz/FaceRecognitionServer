@@ -1,6 +1,7 @@
 #include "applicationMessages.h"
 #include "faceDetectionRequest.h"
 #include "faceDetectionResponse.h"
+#include "faceRecognitionRequest.h"
 #include "faceRecognitionResponse.h"
 
 #include <iostream>
@@ -36,7 +37,7 @@ FactoryApplicationMessage::create(std::vector<uint8_t> &&byteSequence) {
       return make_unique<FaceDetectionResponseMessage>(move(byteSequence));
       break;
     case ApplicationMessage::Code::FaceRecognitionRequest:
-      return make_unique<FaceDetectionRequestMessage>(move(byteSequence));
+      return make_unique<FaceRecognitionRequestMessage>(move(byteSequence));
     case ApplicationMessage::Code::FaceRecognitionResponse:
       return make_unique<FaceRecognitionResponseMessage>(move(byteSequence));
     }

@@ -2,8 +2,8 @@ add_library(Server
     STATIC
         src/udpServer.cpp
         include/udpServer.h
-        src/faceDetectionUdpServer.cpp
-        include/faceDetectionUdpServer.h
+        src/faceRecognitionUdpServer.cpp
+        include/faceRecognitionUdpServer.h
 )
 
 add_library(${PROJECT_NAME}::Server

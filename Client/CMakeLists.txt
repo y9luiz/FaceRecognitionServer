@@ -1,9 +1,9 @@
 add_library(Client
     STATIC
         include/udpClient.h
-        include/faceDetectionUdpClient.h
+        include/faceRecognitionUdpClient.h
         src/udpClient.cpp
-        src/faceDetectionUdpClient.cpp
+        src/faceRecognitionUdpClient.cpp
 )
 
 add_library(${PROJECT_NAME}::Client
